@@ -1,17 +1,31 @@
+import { Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { join } from "path";
 
 import { AppModule } from "./app.module";
+import type { EnvGlobalConfig } from "./configs/types";
+
+const logger = new Logger("Bootstrap");
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  const configService =
+    app.get<ConfigService<EnvGlobalConfig, true>>(ConfigService);
+
+  const { nodeEnv, port } =
+    configService.get<EnvGlobalConfig["server"]>("server");
 
   app.useStaticAssets(join(__dirname, "..", "public"));
   app.setBaseViewsDir(join(__dirname, "..", "views"));
   app.setViewEngine("hbs");
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(port);
+
+  logger.log(`Application running in ${nodeEnv} mode on port ${port}`);
+  logger.log(`Application URL: http://localhost:${port}`);
 }
 
 void bootstrap();
