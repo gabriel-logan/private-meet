@@ -5,12 +5,18 @@ export default defineConfig({
   build: {
     emptyOutDir: false,
     rollupOptions: {
-      input: resolve(__dirname, "src", "client", "main.ts"),
+      input: {
+        main: resolve(__dirname, "src", "client", "main.ts"),
+        chat: resolve(__dirname, "src", "client", "chat.ts"),
+      },
       output: {
-        format: "iife",
+        format: "cjs",
         name: "App",
         dir: resolve(__dirname, "public"),
-        entryFileNames: "bundle.js",
+        entryFileNames: (chunk) => {
+          return chunk.name === "main" ? "main-bundle.js" : "chat-bundle.js";
+        },
+        inlineDynamicImports: false,
       },
     },
   },

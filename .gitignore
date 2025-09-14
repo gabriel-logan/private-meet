@@ -59,7 +59,8 @@ dist
 .fusebox/
 .dynamodb/
 .firebase/
-bundle.js
+main-bundle.js
+chat-bundle.js
 
 # IDEs and editors
 /.idea
