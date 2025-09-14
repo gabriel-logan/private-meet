@@ -10,11 +10,13 @@ export class ChatController {
   generateRoom(@Res({ passthrough: true }) response: Response): CreateRoomDto {
     const maxAge = 1000 * 60 * 60 * 24 * 1; // 1 day
 
+    const roomId = uuidv4(); // Gera o novo roomId
+
     response.cookie(
       "room-ids",
       [
         {
-          roomId: uuidv4(),
+          roomId: roomId,
         },
       ],
       {
@@ -26,7 +28,7 @@ export class ChatController {
     );
 
     return {
-      roomId: uuidv4(),
+      roomId: roomId,
     };
   }
 }
