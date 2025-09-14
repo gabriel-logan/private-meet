@@ -20,12 +20,15 @@ export class AppController {
     @Res() response: Response,
     @Query("roomId") roomId?: string,
   ): { roomId: string } | void {
-    const roomIds = request.cookies["room-ids"] as
-      | { [key: string]: string }[]
+    if (!roomId) {
+      return response.redirect("/");
+    }
+
+    const validRoomId = request.cookies[roomId] as
+      | { roomId: string }
       | undefined;
 
-    // Verify if roomId Query exists and is valid
-    if (roomId && roomIds?.some((room) => room.roomId === roomId)) {
+    if (validRoomId?.roomId === roomId) {
       return { roomId };
     }
 
