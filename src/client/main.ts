@@ -7,5 +7,5 @@ declare const io: Io;
 const socket = io();
 
 socket.on("connect", () => {
-  console.log("Connected to server");
+  console.log("Connected to server - TESTE");
 });
