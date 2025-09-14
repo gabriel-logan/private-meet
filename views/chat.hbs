@@ -10,9 +10,28 @@
 </head>
 
 <body>
-    <h1>
-        Chat Room: {{ roomId }}
-    </h1>
+    <header>
+        <h1>
+            Chat Room: {{ roomId }}
+        </h1>
+    </header>
+    <main>
+        <section id="participants">
+            <h2>Participants</h2>
+            <ul id="participant-list"></ul>
+        </section>
+
+        <section id="video-container">
+            <video id="local-video" autoplay muted></video>
+            <div id="remote-videos"></div>
+        </section>
+
+        <section id="chat-container">
+            <div id="messages"></div>
+            <input type="text" id="message-input" placeholder="Type your message here...">
+            <button id="send-button">Send</button>
+        </section>
+    </main>
     <script src="/chat-bundle.js"></script>
 </body>
 
