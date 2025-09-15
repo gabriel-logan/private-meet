@@ -5,6 +5,9 @@ type Io = (opts?: unknown) => Socket;
 
 declare const io: Io;
 
+const roomIdInput = document.getElementById("roomId") as HTMLInputElement;
+const roomId = roomIdInput.value;
+
 const messageInput = document.getElementById(
   "message-input",
 ) as HTMLInputElement;
@@ -35,6 +38,7 @@ function handleSendMessage(): void {
 
   const payload: CreateMessageDto = {
     text: message,
+    roomId: roomId,
   };
 
   socket.emit("message", payload);
