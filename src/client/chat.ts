@@ -18,12 +18,14 @@ const sendButton = document.getElementById("send-button") as HTMLButtonElement;
 
 const messagesList = document.getElementById("messages") as HTMLUListElement;
 
+/**
 socket.emit("join-room", { roomId });
 
 // Leave room when the user closes the tab or navigates away
 window.addEventListener("beforeunload", () => {
   socket.emit("leave-room", { roomId });
 });
+*/
 
 socket.on("new-message", (payload: CreateMessageDto) => {
   const { text } = payload;
