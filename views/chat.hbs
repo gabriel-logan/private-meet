@@ -75,30 +75,32 @@
         <!-- Chat -->
         <section id="chat-container"
             class="flex flex-col bg-gray-800 border-t border-gray-700 lg:border-t-0 lg:border-l lg:col-span-3 h-full">
-            <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-3 max-h-full">
-                <div class="bg-gray-700 p-3 rounded-lg">
+            <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-3 max-h-[calc(100vh-4rem-3rem)]">
+                <div class="bg-gray-700 p-3 rounded-lg break-words lg:text-right">
                     <p class="font-semibold text-purple-400">Me</p>
                     <p>My message</p>
                     <p class="text-xs text-gray-400">02:06</p>
                 </div>
-                <div class="bg-gray-700 p-3 rounded-lg">
+                <div class="bg-gray-700 p-3 rounded-lg break-words">
                     <p class="font-semibold text-red-400">Jhony Boi</p>
                     <p>Other's message</p>
                     <p class="text-xs text-gray-400">02:07</p>
                 </div>
-                <div class="bg-gray-700 p-3 rounded-lg">
+                <div class="bg-gray-700 p-3 rounded-lg break-words">
                     <p class="font-semibold text-red-400">Jack Bauer</p>
                     <p>Another message from other</p>
                     <p class="text-xs text-gray-400">02:08</p>
                 </div>
-                <div class="bg-gray-700 p-3 rounded-lg">
+                <div class="bg-gray-700 p-3 rounded-lg break-words">
                     <p class="font-semibold text-red-400">Someone Else</p>
-                    <p>Yet another message from other</p>
+                    <p>Yet another message from other aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</p>
                     <p class="text-xs text-gray-400">02:09</p>
                 </div>
-                <div class="bg-gray-700 p-3 rounded-lg">
+                <div class="bg-gray-700 p-3 rounded-lg break-words lg:text-right">
                     <p class="font-semibold text-purple-400">Me</p>
-                    <p>Another message from me</p>
+                    <p>Another message from me aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+                        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</p>
                     <p class="text-xs text-gray-400">02:10</p>
                 </div>
             </div>
@@ -146,6 +148,14 @@
         }
 
         updateVideoGrid();
+
+        const messagesContainer = document.getElementById('messages');
+
+        function scrollToBottom() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        scrollToBottom();
     </script>
 
     <script src="/chat-bundle.js"></script>
