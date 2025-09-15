@@ -18,6 +18,10 @@ const sendButton = document.getElementById("send-button") as HTMLButtonElement;
 
 const messagesList = document.getElementById("messages") as HTMLUListElement;
 
+const participantsList = document.getElementById(
+  "participant-list",
+) as HTMLUListElement;
+
 const savedUsername = localStorage.getItem("username");
 
 if (!savedUsername) {
@@ -25,10 +29,12 @@ if (!savedUsername) {
 }
 
 let me: string | undefined;
+let clientIdGetted: string | undefined;
 
 function handleJoinRoom(): void {
   socket.emit("join-room", { roomId }, (clientId: string) => {
     me = `${savedUsername}_${clientId}`;
+    clientIdGetted = clientId;
   });
 }
 
@@ -37,6 +43,41 @@ handleJoinRoom();
 function handleLeaveRoom(): void {
   socket.emit("leave-room", { roomId });
 }
+
+socket.on("online-users", (onlineUsers: string[]) => {
+  const quantity = onlineUsers.length - 1;
+  const countSpan = document.getElementById(
+    "participant-count",
+  ) as HTMLSpanElement;
+  countSpan.textContent = `(${quantity})`;
+
+  // Clear the current list
+  participantsList.innerHTML = "";
+
+  // Add "You" (the current user) to the list
+  const li = document.createElement("li");
+  li.textContent = `You (${savedUsername}): ${clientIdGetted}`;
+  li.classList.add(
+    "font-medium",
+    "text-indigo-400",
+    "mb-2",
+    "border-b",
+    "border-gray-600",
+    "pb-2",
+  );
+  participantsList.appendChild(li);
+
+  // Filter out the current user from the online users list
+  const otherUsers = onlineUsers.filter((user) => user !== clientIdGetted);
+
+  // Add the other online users to the list
+  otherUsers.forEach((user) => {
+    const li = document.createElement("li");
+    li.textContent = user;
+    li.classList.add("font-semibold", "text-green-400");
+    participantsList.appendChild(li);
+  });
+});
 
 // Leave room when the user closes the tab or navigates away
 window.addEventListener("beforeunload", handleLeaveRoom);

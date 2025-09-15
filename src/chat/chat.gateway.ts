@@ -20,6 +20,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
 
+  private getOnlineUsers(client: Socket): string[] {
+    const onlineUsers = Array.from(
+      new Set(
+        Array.from(client.rooms)
+          .filter((room) => room !== client.id)
+          .flatMap((room) =>
+            Array.from(this.server.sockets.adapter.rooms.get(room) ?? []),
+          )
+          .map((id) => `${id}`),
+      ),
+    );
+
+    return onlineUsers;
+  }
+
   handleConnection(client: Socket): void {
     this.logger.log(`Client connected: ${client.id}`);
   }
@@ -39,6 +54,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.logger.log(`Client ${client.id} joined room ${roomId}`);
 
+    this.server.to(roomId).emit("online-users", this.getOnlineUsers(client));
+
     return client.id;
   }
 
@@ -50,6 +67,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const { roomId } = payload;
 
     await client.leave(roomId);
+
+    this.server.to(roomId).emit("online-users", this.getOnlineUsers(client));
 
     this.logger.log(`Client ${client.id} left room ${roomId}`);
   }
