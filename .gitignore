@@ -59,6 +59,7 @@ dist
 .fusebox/
 .dynamodb/
 .firebase/
+public/assets/
 main-bundle.js
 chat-bundle.js
 styles.css
