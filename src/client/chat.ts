@@ -2,6 +2,10 @@ import type { Socket } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
 import type { GetUsersOnlineDto } from "src/chat/dto/get-users-online.dto";
 
+import handleSendMessage from "./functions/handleSendMessage";
+import renderNewMessage from "./functions/renderNewMessage";
+import renderParticipants from "./functions/renderParticipants";
+
 type Io = (opts?: unknown) => Socket;
 
 declare const io: Io;
@@ -25,7 +29,11 @@ const participantsList = document.getElementById(
 
 const savedUsername = localStorage.getItem("username");
 
-if (!savedUsername) {
+if (
+  !savedUsername ||
+  savedUsername.trim() === "" ||
+  savedUsername.length > 30
+) {
   window.location.href = "/";
 }
 
@@ -55,112 +63,32 @@ function handleLeaveRoom(): void {
 window.addEventListener("beforeunload", handleLeaveRoom);
 
 socket.on("online-users", (onlineUsers: GetUsersOnlineDto[]) => {
-  if (!clientIdGetted) {
-    // eslint-disable-next-line no-console
-    return console.warn("Client ID not set yet.");
-  }
-
-  const quantity = onlineUsers.length - 1;
-  const countSpan = document.getElementById(
-    "participant-count",
-  ) as HTMLSpanElement;
-  countSpan.textContent = `(${quantity})`;
-
-  // Clear the current list
-  participantsList.innerHTML = "";
-
-  // Add "You" (the current user) to the list
-  const li = document.createElement("li");
-  li.textContent = `You (${savedUsername}): ${clientIdGetted}`;
-  li.classList.add(
-    "font-medium",
-    "text-indigo-400",
-    "mb-2",
-    "border-b",
-    "border-gray-600",
-    "pb-2",
-  );
-  participantsList.appendChild(li);
-
-  // Filter out the current user from the online users list
-  const otherUsers = onlineUsers.filter(
-    (user) => user.clientId !== clientIdGetted,
-  );
-
-  // Add the other online users to the list
-  otherUsers.forEach((user) => {
-    const li = document.createElement("li");
-    li.textContent = user.username;
-    li.classList.add("font-semibold", "text-green-400");
-    participantsList.appendChild(li);
+  renderParticipants({
+    onlineUsers,
+    participantsList,
+    savedUsername,
+    clientIdGetted,
   });
 });
 
 socket.on("new-message", (payload: CreateMessageDto) => {
   const { text, sender, timestamp } = payload;
 
-  const div = document.createElement("div");
-  div.classList.add("bg-gray-700", "p-3", "rounded-lg", "break-words");
-
-  if (sender === me) {
-    div.classList.add("lg:text-right");
-  }
-
-  const pName = document.createElement("p");
-  pName.classList.add("font-semibold");
-  if (sender === me) {
-    pName.classList.add("text-purple-400");
-  } else {
-    pName.classList.add("text-red-400");
-  }
-
-  const cleanSender = sender.split("_")[0];
-  pName.textContent = sender === me ? "You" : cleanSender.toLocaleUpperCase();
-
-  const pMessage = document.createElement("p");
-  pMessage.textContent = text;
-
-  const pTime = document.createElement("p");
-  pTime.classList.add("text-xs", "text-gray-400");
-  const time = new Date(timestamp);
-  pTime.textContent = time.toLocaleTimeString(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
+  renderNewMessage({
+    sender,
+    text,
+    timestamp,
+    messagesList,
+    me,
   });
-
-  div.appendChild(pName);
-  div.appendChild(pMessage);
-  div.appendChild(pTime);
-
-  messagesList.appendChild(div);
   messagesList.scrollTop = messagesList.scrollHeight;
 });
 
-sendButton.addEventListener("click", handleSendMessage);
-
-function handleSendMessage(): void {
-  const message = messageInput.value;
-
-  if (message.trim() === "") {
-    return;
-  }
-
-  if (!me) {
-    return alert("User identifier not set.");
-  }
-
-  if (message.length > 500) {
-    return alert("Message is too long. Maximum length is 500 characters.");
-  }
-
-  const payload: CreateMessageDto = {
-    text: message,
-    roomId: roomId,
-    sender: me,
-    timestamp: Date.now(),
-  };
-
-  socket.emit("message", payload);
-
-  messageInput.value = "";
-}
+sendButton.addEventListener("click", () =>
+  handleSendMessage({
+    messageInput,
+    socket,
+    roomId,
+    me,
+  }),
+);
