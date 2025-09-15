@@ -61,6 +61,7 @@ dist
 .firebase/
 main-bundle.js
 chat-bundle.js
+styles.css
 
 # IDEs and editors
 /.idea
