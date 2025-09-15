@@ -57,25 +57,25 @@
 
             <!-- Controls -->
             <div id="controls" class="flex gap-4 mt-6 bg-gray-800/80 backdrop-blur-md px-6 py-3 rounded-xl shadow-lg">
-                <button id="mute-button" class="hover:scale-110 transition">
-                    <img src="/icons/microphone-off-outline.svg" alt="Mute" class="w-6 h-6">
+                <button id="mute-button" class="hover:scale-110 transition cursor-pointer">
+                    <img src="/icons/microphone-off-outline.svg" alt="Mute" class="w-6 h-6 sm:w-12 sm:h-12">
                 </button>
-                <button id="video-button" class="hover:scale-110 transition">
-                    <img src="/icons/video-off-outline.svg" alt="Stop Video" class="w-6 h-6">
+                <button id="video-button" class="hover:scale-110 transition cursor-pointer">
+                    <img src="/icons/video-off-outline.svg" alt="Stop Video" class="w-6 h-6 sm:w-12 sm:h-12">
                 </button>
-                <button id="share-screen-button" class="hover:scale-110 transition">
-                    <img src="/icons/share-screen-off-outline.svg" alt="Share Screen" class="w-6 h-6">
+                <button id="share-screen-button" class="hover:scale-110 transition cursor-pointer">
+                    <img src="/icons/share-screen-off-outline.svg" alt="Share Screen" class="w-6 h-6 sm:w-12 sm:h-12">
                 </button>
-                <button id="leave-button" class="hover:scale-110 transition">
-                    <img src="/icons/exit-outline.svg" alt="Leave Room" class="w-6 h-6">
+                <button id="leave-button" class="hover:scale-110 transition cursor-pointer">
+                    <img src="/icons/exit-outline.svg" alt="Leave Room" class="w-6 h-6 sm:w-12 sm:h-12">
                 </button>
             </div>
         </section>
 
         <!-- Chat -->
         <section id="chat-container"
-            class="flex flex-col bg-gray-800 border-t border-gray-700 lg:border-t-0 lg:border-l lg:col-span-3">
-            <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-3">
+            class="flex flex-col bg-gray-800 border-t border-gray-700 lg:border-t-0 lg:border-l lg:col-span-3 h-full">
+            <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-3 max-h-full">
                 <div class="bg-gray-700 p-3 rounded-lg">
                     <p class="font-semibold">Me</p>
                     <p>My message</p>
@@ -102,13 +102,14 @@
                     <p class="text-xs text-gray-400">02:10</p>
                 </div>
             </div>
+            <!-- Input -->
             <div class="flex items-center gap-3 p-3 border-t border-gray-700">
-                <button class="p-2 hover:bg-gray-700 rounded-lg">
+                <button class="p-2 hover:bg-gray-700 rounded-lg cursor-pointer">
                     <img src="/icons/emoji.svg" alt="Emoji" class="w-6 h-6">
                 </button>
                 <input type="text" id="message-input" placeholder="Type your message here..."
                     class="flex-1 px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
-                <button id="send-button" class="p-2 hover:bg-gray-700 rounded-lg">
+                <button id="send-button" class="p-2 hover:bg-gray-700 rounded-lg cursor-pointer">
                     <img src="/icons/send.svg" alt="Send" class="w-6 h-6">
                 </button>
             </div>
