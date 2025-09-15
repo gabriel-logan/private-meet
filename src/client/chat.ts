@@ -132,8 +132,11 @@ function handleSendMessage(): void {
   }
 
   if (!me) {
-    alert("User identifier not set.");
-    return;
+    return alert("User identifier not set.");
+  }
+
+  if (message.length > 500) {
+    return alert("Message is too long. Maximum length is 500 characters.");
   }
 
   const payload: CreateMessageDto = {
