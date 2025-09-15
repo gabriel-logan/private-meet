@@ -10,93 +10,122 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 
-<body>
-    <header>
-        <h1>
-            Chat Room: {{ roomId }}
-        </h1>
+<body class="h-screen flex flex-col bg-gray-900 text-white">
+    <!-- Top Bar -->
+    <header class="flex items-center justify-between p-4 bg-gray-800 border-b border-gray-700">
+        <div class="flex items-center gap-3">
+            <!-- Menu icon (mobile only) -->
+            <img src="/icons/menu.svg" alt="Menu" id="menu-icon"
+                class="w-7 h-7 cursor-pointer lg:hidden hover:scale-110 transition" />
+            <h1 class="text-xl font-bold">Chat Room: {{ roomId }}</h1>
+        </div>
         <input type="hidden" name="roomId" id="roomId" value="{{ roomId }}">
     </header>
-    <main>
-        <section id="participants">
-            <h2>Participants</h2>
-            <ul id="participant-list">
-                <li>Me ({{ userId }})</li>
+
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+        <!-- Sidebar Participantes -->
+        <aside id="participants"
+            class="fixed top-0 left-0 h-full w-64 bg-gray-800 border-r border-gray-700 transform -translate-x-full transition-transform duration-300 z-50 lg:relative lg:translate-x-0 lg:col-span-2 p-4 overflow-y-auto">
+            <h2 class="text-lg font-semibold mb-4">Participants</h2>
+            <ul id="participant-list" class="space-y-2 text-gray-300">
+                <li class="font-medium text-indigo-400">Me ({{ userId }})</li>
                 <li>Other Participant 1</li>
                 <li>Other Participant 2</li>
                 <li>Other Participant 3</li>
                 <li>Other Participant 4</li>
                 <li>Other Participant 5</li>
             </ul>
+        </aside>
+
+        <!-- Container Vídeo -->
+        <section id="video-container"
+            class="flex flex-col items-center justify-center bg-black relative lg:col-span-7 p-4">
+            <video id="local-video" autoplay muted class="rounded-lg shadow-lg w-1/2 mb-4"></video>
+            <div id="remote-videos" class="grid grid-cols-2 gap-4 w-full">
+                <video id="remote-video-1" autoplay class="rounded-lg shadow-lg"></video>
+                <video id="remote-video-2" autoplay class="rounded-lg shadow-lg"></video>
+                <video id="remote-video-3" autoplay class="rounded-lg shadow-lg"></video>
+                <video id="remote-video-4" autoplay class="rounded-lg shadow-lg"></video>
+                <video id="remote-video-5" autoplay class="rounded-lg shadow-lg"></video>
+            </div>
+
+            <!-- Controls -->
+            <div id="controls" class="flex gap-4 mt-6 bg-gray-800/80 backdrop-blur-md px-6 py-3 rounded-xl shadow-lg">
+                <button id="mute-button" class="hover:scale-110 transition">
+                    <img src="/icons/microphone-off-outline.svg" alt="Mute" class="w-6 h-6">
+                </button>
+                <button id="video-button" class="hover:scale-110 transition">
+                    <img src="/icons/video-off-outline.svg" alt="Stop Video" class="w-6 h-6">
+                </button>
+                <button id="share-screen-button" class="hover:scale-110 transition">
+                    <img src="/icons/share-screen-off-outline.svg" alt="Share Screen" class="w-6 h-6">
+                </button>
+                <button id="leave-button" class="hover:scale-110 transition">
+                    <img src="/icons/exit-outline.svg" alt="Leave Room" class="w-6 h-6">
+                </button>
+            </div>
         </section>
 
-        <section id="video-container">
-            <video id="local-video" autoplay muted></video>
-            <div id="remote-videos">
-                <video id="remote-video-1" autoplay></video>
-                <video id="remote-video-2" autoplay></video>
-                <video id="remote-video-3" autoplay></video>
-                <video id="remote-video-4" autoplay></video>
-                <video id="remote-video-5" autoplay></video>
-            </div>
-            <div id="controls">
-                <button id="mute-button">
-                    <img src="/icons/microphone-off-outline.svg" alt="Mute">
-                    <img src="/icons/microphone-on-outline.svg" alt="Unmute">
-                </button>
-                <button id="video-button">
-                    <img src="/icons/video-off-outline.svg" alt="Stop Video">
-                    <img src="/icons/video-on-outline.svg" alt="Start Video">
-                </button>
-                <button id="share-screen-button">
-                    <img src="/icons/share-screen-off-outline.svg" alt="Share Screen">
-                    <img src="/icons/share-screen-on-outline.svg" alt="Stop Sharing">
-                </button>
-                <button id="leave-button">
-                    <img src="/icons/exit-outline.svg" alt="Leave Room">
-                </button>
-            </div>
-        </section>
-
-        <section id="chat-container">
-            <div id="messages">
-                <div>
-                    <p>Me</p>
+        <!-- Chat -->
+        <section id="chat-container"
+            class="flex flex-col bg-gray-800 border-t border-gray-700 lg:border-t-0 lg:border-l lg:col-span-3">
+            <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-3">
+                <div class="bg-gray-700 p-3 rounded-lg">
+                    <p class="font-semibold">Me</p>
                     <p>My message</p>
-                    <p>02:06</p>
+                    <p class="text-xs text-gray-400">02:06</p>
                 </div>
-                <div>
-                    <p>Jhony Boi</p>
+                <div class="bg-gray-700 p-3 rounded-lg">
+                    <p class="font-semibold">Jhony Boi</p>
                     <p>Other's message</p>
-                    <p>02:07</p>
+                    <p class="text-xs text-gray-400">02:07</p>
                 </div>
-                <div>
-                    <p>Jack Bauer</p>
+                <div class="bg-gray-700 p-3 rounded-lg">
+                    <p class="font-semibold">Jack Bauer</p>
                     <p>Another message from other</p>
-                    <p>02:08</p>
+                    <p class="text-xs text-gray-400">02:08</p>
                 </div>
-                <div>
-                    <p>Someone Else</p>
+                <div class="bg-gray-700 p-3 rounded-lg">
+                    <p class="font-semibold">Someone Else</p>
                     <p>Yet another message from other</p>
-                    <p>02:09</p>
+                    <p class="text-xs text-gray-400">02:09</p>
                 </div>
-                <div>
-                    <p>Me</p>
+                <div class="bg-gray-700 p-3 rounded-lg">
+                    <p class="font-semibold">Me</p>
                     <p>Another message from me</p>
-                    <p>02:10</p>
+                    <p class="text-xs text-gray-400">02:10</p>
                 </div>
             </div>
-            <div>
-                <button>
-                    <img src="/icons/emoji.svg" alt="Emoji">
+            <div class="flex items-center gap-3 p-3 border-t border-gray-700">
+                <button class="p-2 hover:bg-gray-700 rounded-lg">
+                    <img src="/icons/emoji.svg" alt="Emoji" class="w-6 h-6">
                 </button>
-                <input type="text" id="message-input" placeholder="Type your message here...">
-                <button id="send-button">
-                    <img src="/icons/send.svg" alt="Send">
+                <input type="text" id="message-input" placeholder="Type your message here..."
+                    class="flex-1 px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+                <button id="send-button" class="p-2 hover:bg-gray-700 rounded-lg">
+                    <img src="/icons/send.svg" alt="Send" class="w-6 h-6">
                 </button>
             </div>
         </section>
     </main>
+
+    <script>
+        // Toggle sidebar (mobile)
+        const menuIcon = document.getElementById("menu-icon");
+        const participants = document.getElementById("participants");
+
+        menuIcon.addEventListener("click", () => {
+            participants.classList.toggle("-translate-x-full");
+        });
+
+        // When clicking outside the sidebar, close it (mobile)
+        document.addEventListener("click", (event) => {
+            if (!participants.contains(event.target) && !menuIcon.contains(event.target)) {
+                participants.classList.add("-translate-x-full");
+            }
+        });
+    </script>
+
     <script src="/chat-bundle.js"></script>
 </body>
 
