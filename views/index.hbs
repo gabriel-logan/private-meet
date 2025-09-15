@@ -10,35 +10,27 @@
 </head>
 
 <body
-    class="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-600 via-blue-700 to-purple-800">
+    class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+    <div class="w-full max-w-md p-8 rounded-2xl shadow-2xl border border-gray-700/50 bg-gray-800/70 backdrop-blur-lg">
 
-    <div
-        class="w-full max-w-md p-8 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl text-white">
-
-        <!-- title -->
-        <h1 class="text-3xl font-extrabold text-center mb-6 tracking-wide drop-shadow-lg">
+        <!-- Título animado -->
+        <h1
+            class="text-3xl font-extrabold text-center mb-8 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
             {{ message }}
         </h1>
 
-        <div class="space-y-5">
-            <!-- input -->
+        <div class="space-y-6">
             <div class="flex flex-col">
-                <label for="room-id-input" class="mb-2 text-sm font-medium text-indigo-200">Room ID</label>
+                <label for="room-id-input" class="mb-2 text-sm font-medium text-gray-300">Room ID:</label>
                 <input type="text" id="room-id-input" placeholder="Enter Room ID"
-                    class="px-4 py-3 rounded-xl border border-indigo-400/40 bg-white/10 placeholder-indigo-200 text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 transition" />
+                    class="px-4 py-3 rounded-xl bg-gray-900/70 border border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-white placeholder-gray-500 transition duration-300 shadow-inner">
             </div>
 
-            <!-- button -->
             <button id="join-room-button"
-                class="w-full py-3 rounded-xl font-semibold text-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg transition">
-                Join Room
+                class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:via-purple-500 hover:to-pink-500 font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-pink-500/40">
+                🚀 Join Room
             </button>
         </div>
-
-        <!-- footer -->
-        <p class="text-center text-xs text-indigo-200/80 mt-6">
-            Secure & Private Meeting Platform
-        </p>
     </div>
 
     <script src="/main-bundle.js"></script>
