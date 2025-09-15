@@ -15,13 +15,17 @@ const joinRoomBtn = document.getElementById(
   "join-room-button",
 ) as HTMLButtonElement;
 
+const generateRoomBtn = document.getElementById(
+  "generate-room-button",
+) as HTMLButtonElement;
+
 const savedUsername = localStorage.getItem("username");
 
 if (savedUsername) {
   userNameInput.value = savedUsername;
 }
 
-joinRoomBtn.addEventListener("click", () => {
+function joinRoom(): void {
   const trimedRoomId = roomIdInput.value.trim();
   const trimedUsername = userNameInput.value.trim();
 
@@ -47,4 +51,37 @@ joinRoomBtn.addEventListener("click", () => {
   localStorage.setItem("username", trimedUsername);
 
   window.location.href = `/chat?roomId=${trimedRoomId}`;
+}
+
+async function fetchGeneratedRoomId(): Promise<string> {
+  const response = await fetch("/generate-room-id", { method: "POST" });
+
+  const data = (await response.json()) as { roomId: string };
+
+  return data.roomId;
+}
+
+joinRoomBtn.addEventListener("click", joinRoom);
+
+generateRoomBtn.addEventListener("click", () => {
+  fetchGeneratedRoomId()
+    .then((roomId) => {
+      roomIdInput.value = roomId;
+      navigator.clipboard.writeText(roomId).catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error("Could not copy text: ", err);
+      });
+      // Show temporary p notification
+      const notification = document.createElement("div");
+      notification.className =
+        "fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg";
+      notification.textContent = "Room ID generated and copied to clipboard!";
+      document.body.appendChild(notification);
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 1200);
+    })
+    .catch(() => {
+      alert("Failed to generate room ID. Please try again.");
+    });
 });
