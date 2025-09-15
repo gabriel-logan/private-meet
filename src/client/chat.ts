@@ -45,6 +45,11 @@ function handleLeaveRoom(): void {
 }
 
 socket.on("online-users", (onlineUsers: string[]) => {
+  if (!clientIdGetted) {
+    // eslint-disable-next-line no-console
+    return console.warn("Client ID not set yet.");
+  }
+
   const quantity = onlineUsers.length - 1;
   const countSpan = document.getElementById(
     "participant-count",

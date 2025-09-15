@@ -20,19 +20,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
 
-  private getOnlineUsers(client: Socket): string[] {
-    const onlineUsers = Array.from(
-      new Set(
-        Array.from(client.rooms)
-          .filter((room) => room !== client.id)
-          .flatMap((room) =>
-            Array.from(this.server.sockets.adapter.rooms.get(room) ?? []),
-          )
-          .map((id) => `${id}`),
-      ),
-    );
+  private getOnlineUsers(roomId: string): string[] {
+    const room = this.server.sockets.adapter.rooms.get(roomId);
 
-    return onlineUsers;
+    return room ? Array.from(room) : [];
   }
 
   handleConnection(client: Socket): void {
@@ -41,6 +32,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: Socket): void {
     this.logger.log(`Client disconnected: ${client.id}`);
+
+    // Notify all rooms the client was part of about the updated online users
+    for (const room of client.rooms) {
+      if (room !== client.id) {
+        this.server.to(room).emit("online-users", this.getOnlineUsers(room));
+      }
+    }
   }
 
   @SubscribeMessage("join-room")
@@ -54,7 +52,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.logger.log(`Client ${client.id} joined room ${roomId}`);
 
-    this.server.to(roomId).emit("online-users", this.getOnlineUsers(client));
+    this.server.to(roomId).emit("online-users", this.getOnlineUsers(roomId));
 
     return client.id;
   }
@@ -68,7 +66,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     await client.leave(roomId);
 
-    this.server.to(roomId).emit("online-users", this.getOnlineUsers(client));
+    this.server.to(roomId).emit("online-users", this.getOnlineUsers(roomId));
 
     this.logger.log(`Client ${client.id} left room ${roomId}`);
   }
