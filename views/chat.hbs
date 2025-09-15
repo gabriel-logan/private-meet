@@ -7,6 +7,7 @@
     <title>Chat</title>
     <link rel="shortcut icon" href="favicon.svg" type="image/x-icon">
     <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="/chat.css">
 </head>
 
 <body>
@@ -25,6 +26,20 @@
         <section id="video-container">
             <video id="local-video" autoplay muted></video>
             <div id="remote-videos"></div>
+            <div id="controls">
+                <button id="mute-button">
+                    <img src="/icons/microphone-off-outline.svg" alt="Mute">
+                </button>
+                <button id="video-button">
+                    <img src="/icons/video-off-outline.svg" alt="Stop Video">
+                </button>
+                <button id="share-screen-button">
+                    <img src="/icons/share-screen-off-outline.svg" alt="Share Screen">
+                </button>
+                <button id="leave-button">
+                    <img src="/icons/exit-outline.svg" alt="Leave Room">
+                </button>
+            </div>
         </section>
 
         <section id="chat-container">
