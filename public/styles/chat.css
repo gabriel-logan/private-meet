@@ -105,8 +105,8 @@ main {
 #chat-container {
     background: #fff;
     border-radius: 8px;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: 1fr auto;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
@@ -135,20 +135,7 @@ main {
 #chat-container input,
 #chat-container button {
     font-size: 1rem;
-}
-
-#chat-container {
-    display: flex;
-}
-
-#chat-container input,
-#chat-container button {
     border-top: 1px solid #ddd;
-}
-
-#chat-container {
-    display: grid;
-    grid-template-rows: 1fr auto;
 }
 
 #chat-container input {
