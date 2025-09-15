@@ -12,18 +12,12 @@ export class ChatController {
 
     const roomId = uuidv4();
 
-    response.cookie(
-      roomId,
-      {
-        roomId: roomId,
-      },
-      {
-        httpOnly: true,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: maxAge,
-      },
-    );
+    response.cookie("roomId", roomId, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: maxAge,
+    });
 
     return {
       roomId: roomId,

@@ -18,40 +18,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
 
-  private extractRoomIdsFromCookies(cookie: string | undefined): string[] {
+  private extractRoomIdFromCookies(cookie: string | undefined): string | null {
     if (!cookie) {
-      return [];
+      return null;
     }
 
-    // Divide the cookies by ";"
-    const cookiesArr = cookie.split(";").map((c) => c.trim());
+    const match = RegExp(/roomId=([^;]+)/).exec(cookie);
 
-    const roomIds: string[] = [];
-
-    for (const c of cookiesArr) {
-      const value = c.split("=")[1];
-
-      if (!value) {
-        continue;
-      }
-
-      try {
-        // Decode the values
-        const decoded = decodeURIComponent(value);
-        // Remove the "j:" prefix if it exists
-        const jsonStr = decoded.startsWith("j:") ? decoded.slice(2) : decoded;
-
-        const obj = JSON.parse(jsonStr) as { roomId: string };
-
-        if (obj.roomId) {
-          roomIds.push(obj.roomId);
-        }
-      } catch {
-        // Ignore cookies that aren't valid
-        continue;
-      }
-    }
-    return roomIds;
+    return match ? match[1] : null;
   }
 
   async handleConnection(client: Socket): Promise<void> {
@@ -59,13 +33,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const cookies = client.handshake.headers.cookie;
 
-    const roomIds = this.extractRoomIdsFromCookies(cookies);
+    const roomId = this.extractRoomIdFromCookies(cookies);
 
-    this.logger.log(`Client ${client.id} joined rooms: ${roomIds.join(", ")}`);
-
-    const joinPromises = roomIds.map((roomId) => client.join(roomId));
-
-    await Promise.all(joinPromises);
+    if (roomId) {
+      await client.join(roomId);
+    }
   }
 
   handleDisconnect(client: Socket): void {

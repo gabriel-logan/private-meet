@@ -24,11 +24,9 @@ export class AppController {
       return response.redirect("/");
     }
 
-    const validRoomId = request.cookies[roomId] as
-      | { roomId: string }
-      | undefined;
+    const validRoomId = request.cookies["roomId"] as string | undefined;
 
-    if (validRoomId?.roomId === roomId) {
+    if (validRoomId === roomId) {
       return { roomId };
     }
 
