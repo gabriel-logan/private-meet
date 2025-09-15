@@ -1,3 +1,5 @@
+import { MAX_ROOM_ID_LENGTH, MAX_USERNAME_LENGTH } from "src/common/constants";
+
 const roomIdInput = document.getElementById(
   "room-id-input",
 ) as HTMLInputElement;
@@ -28,12 +30,14 @@ joinRoomBtn.addEventListener("click", () => {
     return alert("Please enter a room ID");
   }
 
-  if (trimedUsername.length > 30) {
-    return alert("Username must be less than 30 characters");
+  if (trimedUsername.length > MAX_USERNAME_LENGTH) {
+    return alert(
+      `Username must be less than ${MAX_USERNAME_LENGTH} characters`,
+    );
   }
 
-  if (trimedRoomId.length > 128) {
-    return alert("Room ID must be less than 128 characters");
+  if (trimedRoomId.length > MAX_ROOM_ID_LENGTH) {
+    return alert(`Room ID must be less than ${MAX_ROOM_ID_LENGTH} characters`);
   }
 
   // save username to local storage

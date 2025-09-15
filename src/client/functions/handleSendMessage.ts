@@ -1,5 +1,6 @@
 import type { Socket } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
+import { MAX_MESSAGE_LENGTH } from "src/common/constants";
 
 interface HandleSendMessageParams {
   messageInput: HTMLInputElement;
@@ -24,8 +25,10 @@ export default function handleSendMessage({
     return alert("User identifier not set.");
   }
 
-  if (message.length > 500) {
-    return alert("Message is too long. Maximum length is 500 characters.");
+  if (message.length > MAX_MESSAGE_LENGTH) {
+    return alert(
+      `Message is too long. Maximum length is ${MAX_MESSAGE_LENGTH} characters.`,
+    );
   }
 
   const payload: CreateMessageDto = {

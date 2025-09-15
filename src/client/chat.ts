@@ -1,6 +1,7 @@
 import type { Socket } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
 import type { GetUsersOnlineDto } from "src/chat/dto/get-users-online.dto";
+import { MAX_ROOM_ID_LENGTH, MAX_USERNAME_LENGTH } from "src/common/constants";
 
 import handleSendMessage from "./functions/handleSendMessage";
 import renderNewMessage from "./functions/renderNewMessage";
@@ -14,6 +15,10 @@ const socket = io();
 
 const roomIdInput = document.getElementById("roomId") as HTMLInputElement;
 const roomId = roomIdInput.value;
+
+if (roomId.length > MAX_ROOM_ID_LENGTH) {
+  window.location.href = "/";
+}
 
 const messageInput = document.getElementById(
   "message-input",
@@ -29,11 +34,7 @@ const participantsList = document.getElementById(
 
 const savedUsername = localStorage.getItem("username");
 
-if (
-  !savedUsername ||
-  savedUsername.trim() === "" ||
-  savedUsername.length > 30
-) {
+if (!savedUsername?.trim() || savedUsername.length > MAX_USERNAME_LENGTH) {
   window.location.href = "/";
 }
 
