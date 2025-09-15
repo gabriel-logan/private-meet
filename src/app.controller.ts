@@ -7,6 +7,11 @@ import { AppService } from "./app.service";
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @Get("healthz")
+  getHealth(): { status: string } {
+    return { status: "ok" };
+  }
+
   @Get()
   @Render("index")
   getHello(): { message: string } {
