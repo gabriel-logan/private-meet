@@ -1,6 +1,8 @@
 import { resolve } from "path";
 import { defineConfig } from "vite";
 
+const ENTRY = process.env.ENTRY;
+
 export default defineConfig({
   resolve: {
     alias: {
@@ -10,18 +12,13 @@ export default defineConfig({
   build: {
     emptyOutDir: false,
     rollupOptions: {
-      input: {
-        main: resolve(__dirname, "src", "client", "main.ts"),
-        chat: resolve(__dirname, "src", "client", "chat.ts"),
-      },
+      input: resolve(__dirname, "src", "client", `${ENTRY}.ts`),
       output: {
-        format: "cjs",
+        format: "iife",
         name: "App",
         dir: resolve(__dirname, "public"),
-        entryFileNames: (chunk) => {
-          return chunk.name === "main" ? "main-bundle.js" : "chat-bundle.js";
-        },
-        inlineDynamicImports: false,
+        inlineDynamicImports: true,
+        entryFileNames: `${ENTRY}-bundle.js`,
       },
     },
   },
