@@ -1,5 +1,5 @@
-import { Controller, Get, Query, Render, Req, Res } from "@nestjs/common";
-import type { Request, Response } from "express";
+import { Controller, Get, Query, Render, Res } from "@nestjs/common";
+import type { Response } from "express";
 
 import { AppService } from "./app.service";
 
@@ -16,7 +16,6 @@ export class AppController {
   @Get("chat")
   @Render("chat")
   getChat(
-    @Req() request: Request,
     @Res() response: Response,
     @Query("roomId") roomId?: string,
   ): { roomId: string } | void {
@@ -24,12 +23,6 @@ export class AppController {
       return response.redirect("/");
     }
 
-    const validRoomId = request.cookies["roomId"] as string | undefined;
-
-    if (validRoomId === roomId) {
-      return { roomId };
-    }
-
-    return response.redirect("/");
+    return { roomId };
   }
 }

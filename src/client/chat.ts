@@ -5,6 +5,8 @@ type Io = (opts?: unknown) => Socket;
 
 declare const io: Io;
 
+const socket = io();
+
 const roomIdInput = document.getElementById("roomId") as HTMLInputElement;
 const roomId = roomIdInput.value;
 
@@ -15,8 +17,6 @@ const messageInput = document.getElementById(
 const sendButton = document.getElementById("send-button") as HTMLButtonElement;
 
 const messagesList = document.getElementById("messages") as HTMLUListElement;
-
-const socket = io();
 
 socket.on("new-message", (payload: CreateMessageDto) => {
   const { text } = payload;

@@ -1,4 +1,10 @@
-import type { CreateRoomDto } from "src/chat/dto/create-room.dto";
+import type { Socket } from "socket.io-client";
+
+type Io = (opts?: unknown) => Socket;
+
+declare const io: Io;
+
+const socket = io();
 
 const roomIdInput = document.getElementById(
   "room-id-input",
@@ -13,21 +19,29 @@ const createRoomBtn = document.getElementById(
 ) as HTMLButtonElement;
 
 joinRoomBtn.addEventListener("click", () => {
-  if (roomIdInput.value.trim() === "") {
+  const trimedRoomId = roomIdInput.value.trim();
+
+  if (trimedRoomId === "") {
     return alert("Please enter a room ID");
   }
 
-  window.location.href = `/chat?roomId=${roomIdInput.value.trim()}`;
+  socket.emit(
+    "verify-room",
+    { roomId: trimedRoomId },
+    (isRoomExists: boolean) => {
+      if (!isRoomExists) {
+        return alert("Invalid Room ID, please check and try again");
+      }
+
+      window.location.href = `/chat?roomId=${trimedRoomId}`;
+    },
+  );
 });
 
-createRoomBtn.addEventListener("click", () => {
-  void handleCreateRoom();
-});
+createRoomBtn.addEventListener("click", handleCreateRoom);
 
-async function handleCreateRoom(): Promise<void> {
-  const response = await fetch("/chat/generate-room", { method: "POST" });
-
-  const generatedRoomId = (await response.json()) as CreateRoomDto;
-
-  window.location.href = `/chat?roomId=${generatedRoomId.roomId}`;
+function handleCreateRoom(): void {
+  socket.emit("generate-room", (roomId: string) => {
+    window.location.href = `/chat?roomId=${roomId}`;
+  });
 }
