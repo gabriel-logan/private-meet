@@ -1,7 +1,17 @@
 import type { Socket } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
 import type { GetUsersOnlineDto } from "src/chat/dto/get-users-online.dto";
-import { MAX_ROOM_ID_LENGTH, MAX_USERNAME_LENGTH } from "src/common/constants";
+import {
+  JOIN_ROOM,
+  LEAVE_ROOM,
+  NEW_MESSAGE,
+  ONLINE_USERS,
+  REQUEST_ONLINE_USERS,
+} from "src/common/constants/socketEvents";
+import {
+  MAX_ROOM_ID_LENGTH,
+  MAX_USERNAME_LENGTH,
+} from "src/common/constants/validationConstraints";
 
 import handleSendMessage from "./functions/handleSendMessage";
 import renderNewMessage from "./functions/renderNewMessage";
@@ -43,13 +53,13 @@ let clientIdGetted: string | undefined;
 
 function handleJoinRoom(): void {
   socket.emit(
-    "join-room",
+    JOIN_ROOM,
     { roomId, username: savedUsername },
     (clientId: string) => {
       me = `${savedUsername}_${clientId}`;
       clientIdGetted = clientId;
 
-      socket.emit("request-online-users", { roomId });
+      socket.emit(REQUEST_ONLINE_USERS, { roomId });
     },
   );
 }
@@ -57,13 +67,13 @@ function handleJoinRoom(): void {
 handleJoinRoom();
 
 function handleLeaveRoom(): void {
-  socket.emit("leave-room", { roomId });
+  socket.emit(LEAVE_ROOM, { roomId });
 }
 
 // Leave room when the user closes the tab or navigates away
 window.addEventListener("beforeunload", handleLeaveRoom);
 
-socket.on("online-users", (onlineUsers: GetUsersOnlineDto[]) => {
+socket.on(ONLINE_USERS, (onlineUsers: GetUsersOnlineDto[]) => {
   renderParticipants({
     onlineUsers,
     participantsList,
@@ -72,7 +82,7 @@ socket.on("online-users", (onlineUsers: GetUsersOnlineDto[]) => {
   });
 });
 
-socket.on("new-message", (payload: CreateMessageDto) => {
+socket.on(NEW_MESSAGE, (payload: CreateMessageDto) => {
   const { text, sender, timestamp } = payload;
 
   renderNewMessage({

@@ -9,6 +9,14 @@ import {
   WebSocketServer,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
+import {
+  JOIN_ROOM,
+  LEAVE_ROOM,
+  MESSAGE,
+  NEW_MESSAGE,
+  ONLINE_USERS,
+  REQUEST_ONLINE_USERS,
+} from "src/common/constants/socketEvents";
 
 import { CreateMessageDto } from "./dto/create-message.dto";
 import { CreateRoomDto } from "./dto/create-room.dto";
@@ -48,22 +56,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // Notify all rooms the client was part of about the updated online users
     for (const room of client.rooms) {
       if (room !== client.id) {
-        this.server.to(room).emit("online-users", this.getOnlineUsers(room));
+        this.server.to(room).emit(ONLINE_USERS, this.getOnlineUsers(room));
       }
     }
   }
 
-  @SubscribeMessage("request-online-users")
+  @SubscribeMessage(REQUEST_ONLINE_USERS)
   handleGetOnlineUsers(
     @MessageBody() payload: { roomId: string },
     @ConnectedSocket() client: Socket,
   ): void {
     const { roomId } = payload;
 
-    client.emit("online-users", this.getOnlineUsers(roomId));
+    client.emit(ONLINE_USERS, this.getOnlineUsers(roomId));
   }
 
-  @SubscribeMessage("join-room")
+  @SubscribeMessage(JOIN_ROOM)
   async handleJoinRoom(
     @MessageBody() payload: CreateRoomDto,
     @ConnectedSocket() client: Socket,
@@ -76,12 +84,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.logger.log(`Client ${client.id} joined room ${roomId}`);
 
-    this.server.to(roomId).emit("online-users", this.getOnlineUsers(roomId));
+    this.server.to(roomId).emit(ONLINE_USERS, this.getOnlineUsers(roomId));
 
     return client.id;
   }
 
-  @SubscribeMessage("leave-room")
+  @SubscribeMessage(LEAVE_ROOM)
   async handleLeaveRoom(
     @MessageBody() payload: CreateRoomDto,
     @ConnectedSocket() client: Socket,
@@ -92,17 +100,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     await client.leave(roomId);
 
-    this.server.to(roomId).emit("online-users", this.getOnlineUsers(roomId));
+    this.server.to(roomId).emit(ONLINE_USERS, this.getOnlineUsers(roomId));
 
     this.logger.log(`Client ${client.id} left room ${roomId}`);
   }
 
-  @SubscribeMessage("message")
+  @SubscribeMessage(MESSAGE)
   handleMessage(@MessageBody() payload: CreateMessageDto): void {
     const timestamp = Date.now();
 
     payload.timestamp = timestamp;
 
-    this.server.to(payload.roomId).emit("new-message", payload);
+    this.server.to(payload.roomId).emit(NEW_MESSAGE, payload);
   }
 }

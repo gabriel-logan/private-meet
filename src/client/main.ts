@@ -1,4 +1,7 @@
-import { MAX_ROOM_ID_LENGTH, MAX_USERNAME_LENGTH } from "src/common/constants";
+import {
+  MAX_ROOM_ID_LENGTH,
+  MAX_USERNAME_LENGTH,
+} from "src/common/constants/validationConstraints";
 
 const roomIdInput = document.getElementById(
   "room-id-input",

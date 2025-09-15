@@ -1,6 +1,7 @@
 import type { Socket } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
-import { MAX_MESSAGE_LENGTH } from "src/common/constants";
+import { MESSAGE } from "src/common/constants/socketEvents";
+import { MAX_MESSAGE_LENGTH } from "src/common/constants/validationConstraints";
 
 interface HandleSendMessageParams {
   messageInput: HTMLInputElement;
@@ -38,7 +39,7 @@ export default function handleSendMessage({
     timestamp: Date.now(),
   };
 
-  socket.emit("message", payload);
+  socket.emit(MESSAGE, payload);
 
   messageInput.value = "";
 }
