@@ -1,5 +1,6 @@
 import type { Socket } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
+import type { GetUsersOnlineDto } from "src/chat/dto/get-users-online.dto";
 
 type Io = (opts?: unknown) => Socket;
 
@@ -32,10 +33,16 @@ let me: string | undefined;
 let clientIdGetted: string | undefined;
 
 function handleJoinRoom(): void {
-  socket.emit("join-room", { roomId }, (clientId: string) => {
-    me = `${savedUsername}_${clientId}`;
-    clientIdGetted = clientId;
-  });
+  socket.emit(
+    "join-room",
+    { roomId, username: savedUsername },
+    (clientId: string) => {
+      me = `${savedUsername}_${clientId}`;
+      clientIdGetted = clientId;
+
+      socket.emit("request-online-users", { roomId });
+    },
+  );
 }
 
 handleJoinRoom();
@@ -44,7 +51,10 @@ function handleLeaveRoom(): void {
   socket.emit("leave-room", { roomId });
 }
 
-socket.on("online-users", (onlineUsers: string[]) => {
+// Leave room when the user closes the tab or navigates away
+window.addEventListener("beforeunload", handleLeaveRoom);
+
+socket.on("online-users", (onlineUsers: GetUsersOnlineDto[]) => {
   if (!clientIdGetted) {
     // eslint-disable-next-line no-console
     return console.warn("Client ID not set yet.");
@@ -73,19 +83,18 @@ socket.on("online-users", (onlineUsers: string[]) => {
   participantsList.appendChild(li);
 
   // Filter out the current user from the online users list
-  const otherUsers = onlineUsers.filter((user) => user !== clientIdGetted);
+  const otherUsers = onlineUsers.filter(
+    (user) => user.clientId !== clientIdGetted,
+  );
 
   // Add the other online users to the list
   otherUsers.forEach((user) => {
     const li = document.createElement("li");
-    li.textContent = user;
+    li.textContent = user.username;
     li.classList.add("font-semibold", "text-green-400");
     participantsList.appendChild(li);
   });
 });
-
-// Leave room when the user closes the tab or navigates away
-window.addEventListener("beforeunload", handleLeaveRoom);
 
 socket.on("new-message", (payload: CreateMessageDto) => {
   const { text, sender, timestamp } = payload;
