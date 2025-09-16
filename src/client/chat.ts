@@ -32,6 +32,10 @@ if (roomId.length > MAX_ROOM_ID_LENGTH) {
   window.location.href = "/";
 }
 
+const loadingOverlay = document.getElementById(
+  "client-loading",
+) as HTMLDivElement;
+
 const messageInput = document.getElementById(
   "message-input",
 ) as HTMLInputElement;
@@ -50,6 +54,8 @@ if (!savedUsername?.trim() || savedUsername.length > MAX_USERNAME_LENGTH) {
   window.location.href = "/";
 }
 
+sendButton.disabled = true;
+
 let me: string | undefined;
 let clientIdGetted: string | undefined;
 
@@ -60,6 +66,9 @@ function handleJoinRoom(): void {
     (clientId: string) => {
       me = `${savedUsername}_${clientId}`;
       clientIdGetted = clientId;
+
+      loadingOverlay.style.display = "none";
+      sendButton.disabled = false;
 
       socket.emit(REQUEST_ONLINE_USERS, { roomId });
     },

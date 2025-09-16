@@ -11,6 +11,10 @@ declare const io: Io;
 
 const socket = io();
 
+const loadingOverlay = document.getElementById(
+  "client-loading",
+) as HTMLDivElement;
+
 const roomIdInput = document.getElementById(
   "room-id-input",
 ) as HTMLInputElement;
@@ -26,6 +30,15 @@ const joinRoomBtn = document.getElementById(
 const generateRoomBtn = document.getElementById(
   "generate-room-button",
 ) as HTMLButtonElement;
+
+generateRoomBtn.disabled = true;
+joinRoomBtn.disabled = true;
+
+if (socket.active) {
+  loadingOverlay.style.display = "none";
+  generateRoomBtn.disabled = false;
+  joinRoomBtn.disabled = false;
+}
 
 const savedUsername = localStorage.getItem("username");
 

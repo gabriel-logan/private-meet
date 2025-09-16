@@ -11,6 +11,14 @@
 </head>
 
 <body class="h-screen flex flex-col bg-gray-900 text-white">
+    <!-- Overlay de loading -->
+    <div id="client-loading" class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+        <div class="flex flex-col items-center gap-4">
+            <div class="h-12 w-12 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+            <p class="text-white text-sm font-medium">Connecting...</p>
+        </div>
+    </div>
+
     <!-- Top Bar -->
     <header class="flex items-center justify-between p-4 bg-gray-800 border-b border-gray-700">
         <div class="flex items-center gap-3">
