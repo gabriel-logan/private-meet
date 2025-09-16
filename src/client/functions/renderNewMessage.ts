@@ -13,23 +13,70 @@ export default function renderNewMessage({
   messagesList,
   me,
 }: RenderNewMessageParams): void {
+  if (sender === me) {
+    renderNewMessageFromMe({ text, timestamp, messagesList });
+  } else {
+    renderNewMessageFromOthers({ text, timestamp, messagesList });
+  }
+}
+
+type RenderNewMessageFromMeParams = Omit<
+  RenderNewMessageParams,
+  "sender" | "me"
+>;
+
+function renderNewMessageFromMe({
+  text,
+  timestamp,
+  messagesList,
+}: RenderNewMessageFromMeParams): void {
+  const div = document.createElement("div");
+  div.classList.add(
+    "bg-gray-700",
+    "p-3",
+    "rounded-lg",
+    "break-words",
+    "lg:text-right",
+  );
+
+  const pName = document.createElement("p");
+  pName.classList.add("font-semibold", "text-purple-400");
+  pName.textContent = "You";
+
+  const pMessage = document.createElement("p");
+  pMessage.textContent = text;
+
+  const pTime = document.createElement("p");
+  pTime.classList.add("text-xs", "text-gray-400");
+  const time = new Date(timestamp);
+  pTime.textContent = time.toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  div.appendChild(pName);
+  div.appendChild(pMessage);
+  div.appendChild(pTime);
+
+  messagesList.appendChild(div);
+}
+
+type RenderNewMessageFromOthersParams = Omit<
+  RenderNewMessageParams,
+  "sender" | "me"
+>;
+
+function renderNewMessageFromOthers({
+  text,
+  timestamp,
+  messagesList,
+}: RenderNewMessageFromOthersParams): void {
   const div = document.createElement("div");
   div.classList.add("bg-gray-700", "p-3", "rounded-lg", "break-words");
 
-  if (sender === me) {
-    div.classList.add("lg:text-right");
-  }
-
   const pName = document.createElement("p");
-  pName.classList.add("font-semibold");
-  if (sender === me) {
-    pName.classList.add("text-purple-400");
-  } else {
-    pName.classList.add("text-red-400");
-  }
-
-  const cleanSender = sender.split("_")[0];
-  pName.textContent = sender === me ? "You" : cleanSender.toLocaleUpperCase();
+  pName.classList.add("font-semibold", "text-red-400");
+  pName.textContent = "Someone";
 
   const pMessage = document.createElement("p");
   pMessage.textContent = text;
