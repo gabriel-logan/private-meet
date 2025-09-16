@@ -17,6 +17,7 @@ import {
 } from "src/common/constants/validationConstraints";
 
 import handleSendMessage from "./functions/handleSendMessage";
+import handleTyping from "./functions/handleTyping";
 import { renderNewMessageFromOthers } from "./functions/renderNewMessage";
 import renderParticipants from "./functions/renderParticipants";
 
@@ -48,6 +49,10 @@ const messagesList = document.getElementById("messages") as HTMLUListElement;
 const participantsList = document.getElementById(
   "participant-list",
 ) as HTMLUListElement;
+
+const typingIndicator = document.getElementById(
+  "typing-indicator",
+) as HTMLDivElement;
 
 const savedUsername = localStorage.getItem("username");
 
@@ -114,3 +119,11 @@ sendButton.addEventListener("click", () =>
     messagesList,
   }),
 );
+
+handleTyping({
+  socket,
+  roomId,
+  username: savedUsername,
+  typingIndicator,
+  messageInput,
+});

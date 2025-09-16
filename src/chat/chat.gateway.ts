@@ -17,6 +17,8 @@ import {
   NEW_MESSAGE,
   ONLINE_USERS,
   REQUEST_ONLINE_USERS,
+  STOP_TYPING,
+  TYPING,
 } from "src/common/constants/socketEvents";
 import { v4 as uuidv4 } from "uuid";
 
@@ -123,5 +125,31 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     payload.timestamp = timestamp;
 
     this.server.to(payload.roomId).emit(NEW_MESSAGE, payload);
+  }
+
+  @SubscribeMessage(TYPING)
+  handleTyping(
+    @MessageBody() payload: CreateRoomDto,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const { roomId, username } = payload;
+
+    this.server.to(roomId).emit(TYPING, {
+      clientId: client.id,
+      username,
+    });
+  }
+
+  @SubscribeMessage(STOP_TYPING)
+  handleStopTyping(
+    @MessageBody() payload: CreateRoomDto,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const { roomId, username } = payload;
+
+    this.server.to(roomId).emit(STOP_TYPING, {
+      clientId: client.id,
+      username,
+    });
   }
 }

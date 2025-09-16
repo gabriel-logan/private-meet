@@ -5,3 +5,5 @@ export const REQUEST_ONLINE_USERS = "request-online-users";
 export const ONLINE_USERS = "online-users";
 export const MESSAGE = "message";
 export const GENERATE_ROOM_ID = "generate-room-id";
+export const TYPING = "typing";
+export const STOP_TYPING = "stop-typing";
