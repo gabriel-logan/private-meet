@@ -1,15 +1,19 @@
 const emojiBtn = document.getElementById(
   "emoji-toggle",
 ) as HTMLButtonElement | null;
+
 const emojiPicker = document.getElementById(
   "emoji-picker",
 ) as HTMLDivElement | null;
+
 const closeBtn = document.getElementById(
   "emoji-close",
 ) as HTMLButtonElement | null;
+
 const messageInput = document.getElementById(
   "message-input",
 ) as HTMLInputElement | null;
+
 const isMobile = window.matchMedia("(max-width: 640px)").matches;
 
 if (!emojiBtn || !emojiPicker || !messageInput || !closeBtn) {
@@ -19,25 +23,35 @@ if (!emojiBtn || !emojiPicker || !messageInput || !closeBtn) {
 function insertAtCursor(el: HTMLInputElement, text: string): void {
   const start = el.selectionStart ?? el.value.length;
   const end = el.selectionEnd ?? el.value.length;
+
   const val = el.value;
+
   el.value = val.slice(0, start) + text + val.slice(end);
   el.selectionStart = el.selectionEnd = start + text.length;
 }
 
 function openPicker(): void {
   emojiPicker?.classList.remove("hidden");
-  if (isMobile) document.body.classList.add("emoji-open");
+
+  if (isMobile) {
+    document.body.classList.add("emoji-open");
+  }
 }
 
 function closePicker(): void {
   emojiPicker?.classList.add("hidden");
+
   document.body.classList.remove("emoji-open");
 }
 
 emojiBtn.addEventListener("click", (e) => {
   e.stopPropagation();
-  if (emojiPicker.classList.contains("hidden")) openPicker();
-  else closePicker();
+
+  if (emojiPicker.classList.contains("hidden")) {
+    openPicker();
+  } else {
+    closePicker();
+  }
 });
 
 closeBtn.addEventListener("click", (e) => {
@@ -48,15 +62,29 @@ closeBtn.addEventListener("click", (e) => {
 emojiPicker.addEventListener("click", (e) => e.stopPropagation());
 
 document.addEventListener("click", () => {
-  if (!emojiPicker.classList.contains("hidden")) closePicker();
+  if (!emojiPicker.classList.contains("hidden")) {
+    closePicker();
+  }
 });
 
 emojiPicker.addEventListener("click", (e) => {
   const target = (e.target as HTMLElement).closest("button[data-emoji]");
-  if (!target) return;
+
+  if (!target) {
+    return;
+  }
+
   const emoji = target.getAttribute("data-emoji");
-  if (!emoji) return;
+
+  if (!emoji) {
+    return;
+  }
+
   insertAtCursor(messageInput, emoji);
+
+  // Trigger typing logic (handleTyping listens to the native input event)
+  messageInput.dispatchEvent(new Event("input", { bubbles: true }));
+
   if (!isMobile) {
     messageInput.focus({ preventScroll: true });
   }
@@ -64,11 +92,13 @@ emojiPicker.addEventListener("click", (e) => {
 
 emojiPicker.addEventListener("keydown", (e) => {
   const target = e.target as HTMLElement;
+
   if (
     target.matches("button[data-emoji]") &&
     (e.key === "Enter" || e.key === " ")
   ) {
     e.preventDefault();
+
     (target as HTMLButtonElement).click();
   }
 });
