@@ -10,6 +10,11 @@ interface HandleTypingParams {
   timeout?: number; // Optional timeout duration in milliseconds (default is 1500ms)
 }
 
+interface TypingData {
+  clientId: Socket["id"];
+  username: string;
+}
+
 export default function handleTyping({
   socket,
   roomId,
@@ -52,16 +57,20 @@ export default function handleTyping({
   // ---- Render typing from other users ----
   const usersTyping = new Set<string>();
 
-  socket.on(TYPING, ({ username: otherUser }: { username: string }) => {
-    if (otherUser === username) return; // do not show typing for myself
+  socket.on(TYPING, ({ username: otherUser }: TypingData) => {
+    if (otherUser === username) {
+      return;
+    } // do not show typing for myself
 
     usersTyping.add(otherUser);
     typingIndicator.innerText = `${Array.from(usersTyping).join(", ")} is typing...`;
     typingIndicator.style.display = "block";
   });
 
-  socket.on(STOP_TYPING, ({ username: otherUser }: { username: string }) => {
-    if (otherUser === username) return; // ignore myself
+  socket.on(STOP_TYPING, ({ username: otherUser }: TypingData) => {
+    if (otherUser === username) {
+      return;
+    } // ignore myself
 
     usersTyping.delete(otherUser);
     if (usersTyping.size === 0) {
