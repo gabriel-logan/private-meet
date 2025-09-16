@@ -24,6 +24,7 @@ import type { TypingData } from "./functions/handleTyping";
 import handleTyping from "./functions/handleTyping";
 import { renderNewMessageFromOthers } from "./functions/renderNewMessage";
 import renderParticipants from "./functions/renderParticipants";
+import updateEmptyState from "./functions/updateEmptyState";
 
 type Io = (opts?: Partial<ManagerOptions & SocketOptions>) => Socket;
 
@@ -111,32 +112,14 @@ socket.on(ONLINE_USERS, (onlineUsers: GetUsersOnlineDto[]) => {
   });
 });
 
-// ---- Empty state for messages ----
-const placeholder = document.createElement("div");
-placeholder.id = "no-messages-placeholder";
-placeholder.className = "text-center text-gray-400 mt-10";
-placeholder.textContent = "No messages yet. Start the conversation!";
-
-function updateEmptyState(): void {
-  const hasRealMessages = Array.from(messagesList.children).some(
-    (el) => el !== placeholder,
-  );
-  if (!hasRealMessages) {
-    if (!messagesList.contains(placeholder)) {
-      messagesList.appendChild(placeholder);
-    }
-    placeholder.style.display = "block";
-  } else if (placeholder.parentElement) {
-    placeholder.style.display = "none";
-  }
-}
-
 // Observe changes in the messages list to update the empty state
-const messagesObserver = new MutationObserver(updateEmptyState);
+const messagesObserver = new MutationObserver(() => {
+  updateEmptyState({ messagesList });
+});
 messagesObserver.observe(messagesList, { childList: true });
 
 // Initial check
-updateEmptyState();
+updateEmptyState({ messagesList });
 
 socket.on(NEW_MESSAGE, (payload: CreateMessageDto) => {
   const { text, sender, timestamp } = payload;
