@@ -5,9 +5,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
+    <meta name="description" content="Private Meet - Secure and Private Video, Audio, Chat Conferencing">
     <link rel="shortcut icon" href="favicon.svg" type="image/x-icon">
     <link rel="stylesheet" href="/styles.css">
     <script src="/socket.io/socket.io.js"></script>
+    <style>
+        @media (max-width: 640px) {
+            #emoji-picker {
+                position: fixed !important;
+                left: 0;
+                right: 0;
+                bottom: calc(env(safe-area-inset-bottom, 0) + 60px);
+                width: 100%;
+                max-height: 40vh !important;
+                border-top: 1px solid #374151;
+                border-radius: 16px 16px 0 0;
+                box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.55);
+                background: #1f2937;
+            }
+
+            body.emoji-open {
+                overflow: hidden;
+            }
+        }
+    </style>
 </head>
 
 <body class="h-screen flex flex-col bg-gray-900 text-white">
@@ -77,10 +98,28 @@
             class="flex flex-col bg-gray-800 border-t border-gray-700 h-[45vh] max-h-[45vh] lg:h-full lg:max-h-full lg:min-h-0 lg:border-t-0 lg:border-l lg:col-span-3">
             <div id="messages" class="flex-1 min-h-0 overflow-y-auto p-4 space-y-3"></div>
             <div id="typing-indicator" class="hidden text-gray-400 mt-2 ml-2"></div>
-            <div class="flex items-center gap-3 p-3 border-t border-gray-700">
-                <button class="p-2 hover:bg-gray-700 rounded-lg cursor-pointer">
+            <div class="flex items-center gap-3 p-3 border-t border-gray-700 relative">
+                <button id="emoji-toggle" class="p-2 hover:bg-gray-700 rounded-lg cursor-pointer">
                     <img src="/icons/emoji.svg" alt="Emoji" class="w-6 h-6">
                 </button>
+                <div id="emoji-picker"
+                    class="hidden absolute bottom-14 left-0 z-50 w-64 sm:w-72 bg-gray-900 border border-gray-700 rounded-xl shadow-xl">
+                    <div class="flex items-center justify-between px-3 py-2 border-b border-gray-700">
+                        <span class="text-xs uppercase tracking-wide text-gray-400">Emojis</span>
+                        <button id="emoji-close"
+                            class="text-gray-400 hover:text-white text-xs px-2 py-1 rounded hover:bg-gray-700">
+                            Close
+                        </button>
+                    </div>
+                    <div class="p-2 max-h-60 overflow-y-auto">
+                        <div class="grid grid-cols-8 gap-1 text-xl leading-none select-none">
+                            {{#each emojis}}
+                            <button class="hover:scale-110 transition cursor-pointer" data-emoji="{{this.char}}"
+                                aria-label="{{this.label}}">{{this.char}}</button>
+                            {{/each}}
+                        </div>
+                    </div>
+                </div>
                 <input type="text" id="message-input" placeholder="Type your message here..." maxlength="500"
                     class="flex-1 px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
                 <button id="send-button" class="p-2 hover:bg-gray-700 rounded-lg cursor-pointer">
@@ -89,6 +128,7 @@
             </div>
         </section>
     </main>
+
     <script src="/chat-bundle.js"></script>
 </body>
 

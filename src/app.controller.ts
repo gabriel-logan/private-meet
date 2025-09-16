@@ -2,6 +2,7 @@ import { Controller, Get, Query, Render, Res } from "@nestjs/common";
 import type { Response } from "express";
 
 import { AppService } from "./app.service";
+import { EMOJIS } from "./common/constants/emojis";
 
 @Controller()
 export class AppController {
@@ -23,11 +24,11 @@ export class AppController {
   getChat(
     @Res() response: Response,
     @Query("roomId") roomId?: string,
-  ): { roomId: string } | void {
+  ): { roomId: string; emojis: typeof EMOJIS } | void {
     if (!roomId) {
       return response.redirect("/");
     }
 
-    return { roomId };
+    return { roomId, emojis: EMOJIS };
   }
 }

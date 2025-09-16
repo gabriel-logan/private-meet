@@ -1,3 +1,4 @@
+import "./scripts/inlineEmojiPickerScript";
 import "./scripts/inlineChatScripts";
 import "./scripts/inlineBtnCopyRoomIdScript";
 
