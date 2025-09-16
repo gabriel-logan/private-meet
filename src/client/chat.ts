@@ -146,7 +146,6 @@ socket.on(NEW_MESSAGE, (payload: CreateMessageDto) => {
     renderNewMessageFromOthers({ text, timestamp, messagesList, sender });
   }
 
-  updateEmptyState();
   // Scroll to the bottom when a new message is added
   messagesList.scrollTop = messagesList.scrollHeight;
 });
@@ -159,7 +158,6 @@ sendButton.addEventListener("click", () => {
     me,
     messagesList,
   });
-  updateEmptyState();
 });
 
 handleTyping({
