@@ -10,6 +10,7 @@ import {
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import {
+  GENERATE_ROOM_ID,
   JOIN_ROOM,
   LEAVE_ROOM,
   MESSAGE,
@@ -17,6 +18,7 @@ import {
   ONLINE_USERS,
   REQUEST_ONLINE_USERS,
 } from "src/common/constants/socketEvents";
+import { v4 as uuidv4 } from "uuid";
 
 import { CreateMessageDto } from "./dto/create-message.dto";
 import { CreateRoomDto } from "./dto/create-room.dto";
@@ -30,6 +32,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer()
   private readonly server: Server;
+
+  private generateRandomId(): string {
+    return uuidv4();
+  }
 
   private getOnlineUsers(roomId: string): GetUsersOnlineDto[] {
     const room = this.server.sockets.adapter.rooms.get(roomId);
@@ -59,6 +65,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.server.to(room).emit(ONLINE_USERS, this.getOnlineUsers(room));
       }
     }
+  }
+
+  @SubscribeMessage(GENERATE_ROOM_ID)
+  handleGenerateRoomId(): string {
+    return this.generateRandomId();
   }
 
   @SubscribeMessage(REQUEST_ONLINE_USERS)

@@ -1,6 +1,5 @@
-import { Controller, Get, Post, Query, Render, Res } from "@nestjs/common";
+import { Controller, Get, Query, Render, Res } from "@nestjs/common";
 import type { Response } from "express";
-import { v4 as uuidv4 } from "uuid";
 
 import { AppService } from "./app.service";
 
@@ -11,11 +10,6 @@ export class AppController {
   @Get("healthz")
   getHealth(): { status: string } {
     return { status: "ok" };
-  }
-
-  @Post("generate-room-id")
-  generateRoomId(): { roomId: string } {
-    return { roomId: uuidv4() };
   }
 
   @Get()
