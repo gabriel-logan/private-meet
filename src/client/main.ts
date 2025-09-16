@@ -9,8 +9,8 @@ import showToast from "./components/toast";
 
 type Io = (opts?: Partial<ManagerOptions & SocketOptions>) => Socket;
 
+// io is injected by the socket.io script included in main.html
 declare const io: Io;
-
 const socket = io();
 
 const loadingOverlay = document.getElementById(

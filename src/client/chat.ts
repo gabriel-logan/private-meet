@@ -27,8 +27,8 @@ import renderParticipants from "./functions/renderParticipants";
 
 type Io = (opts?: Partial<ManagerOptions & SocketOptions>) => Socket;
 
+// io is injected by the socket.io script included in chat.html
 declare const io: Io;
-
 const socket = io();
 
 const roomIdInput = document.getElementById("roomId") as
