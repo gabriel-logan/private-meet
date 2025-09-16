@@ -10,6 +10,8 @@ import {
   NEW_MESSAGE,
   ONLINE_USERS,
   REQUEST_ONLINE_USERS,
+  STOP_TYPING,
+  TYPING,
 } from "src/common/constants/socketEvents";
 import {
   MAX_ROOM_ID_LENGTH,
@@ -17,6 +19,7 @@ import {
 } from "src/common/constants/validationConstraints";
 
 import handleSendMessage from "./functions/handleSendMessage";
+import type { TypingData } from "./functions/handleTyping";
 import handleTyping from "./functions/handleTyping";
 import { renderNewMessageFromOthers } from "./functions/renderNewMessage";
 import renderParticipants from "./functions/renderParticipants";
@@ -131,4 +134,30 @@ handleTyping({
   username: savedUsername,
   typingIndicator,
   messageInput,
+});
+
+// ---- Render typing from other users ----
+const usersTyping = new Set<string>();
+
+socket.on(TYPING, ({ username: otherUser, clientId }: TypingData) => {
+  if (otherUser === savedUsername && clientId === clientIdGetted) {
+    return;
+  } // do not show typing for myself
+
+  usersTyping.add(otherUser);
+  typingIndicator.innerText = `${Array.from(usersTyping).join(", ")} is typing...`;
+  typingIndicator.style.display = "block";
+});
+
+socket.on(STOP_TYPING, ({ username: otherUser, clientId }: TypingData) => {
+  if (otherUser === savedUsername && clientId === clientIdGetted) {
+    return;
+  } // ignore myself
+
+  usersTyping.delete(otherUser);
+  if (usersTyping.size === 0) {
+    typingIndicator.style.display = "none";
+  } else {
+    typingIndicator.innerText = `${Array.from(usersTyping).join(", ")} is typing...`;
+  }
 });
