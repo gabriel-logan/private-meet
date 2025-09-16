@@ -16,7 +16,7 @@ import {
 } from "src/common/constants/validationConstraints";
 
 import handleSendMessage from "./functions/handleSendMessage";
-import renderNewMessage from "./functions/renderNewMessage";
+import { renderNewMessageFromOthers } from "./functions/renderNewMessage";
 import renderParticipants from "./functions/renderParticipants";
 
 type Io = (opts?: Partial<ManagerOptions & SocketOptions>) => Socket;
@@ -96,13 +96,11 @@ socket.on(ONLINE_USERS, (onlineUsers: GetUsersOnlineDto[]) => {
 socket.on(NEW_MESSAGE, (payload: CreateMessageDto) => {
   const { text, sender, timestamp } = payload;
 
-  renderNewMessage({
-    sender,
-    text,
-    timestamp,
-    messagesList,
-    me,
-  });
+  if (sender !== me) {
+    // if the message is from others
+    renderNewMessageFromOthers({ text, timestamp, messagesList, sender });
+  }
+
   messagesList.scrollTop = messagesList.scrollHeight;
 });
 

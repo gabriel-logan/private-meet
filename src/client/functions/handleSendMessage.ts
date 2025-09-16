@@ -3,6 +3,8 @@ import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
 import { MESSAGE } from "src/common/constants/socketEvents";
 import { MAX_MESSAGE_LENGTH } from "src/common/constants/validationConstraints";
 
+import { renderNewMessageFromMe } from "./renderNewMessage";
+
 interface HandleSendMessageParams {
   messageInput: HTMLInputElement;
   socket: Socket;
@@ -40,6 +42,12 @@ export default function handleSendMessage({
   };
 
   socket.emit(MESSAGE, payload);
+
+  renderNewMessageFromMe({
+    text: payload.text,
+    timestamp: payload.timestamp,
+    messagesList: document.getElementById("messages") as HTMLUListElement,
+  });
 
   messageInput.value = "";
 }

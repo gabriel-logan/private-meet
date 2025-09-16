@@ -13,19 +13,19 @@ export default function renderNewMessage({
   messagesList,
   me,
 }: RenderNewMessageParams): void {
-  if (sender === me) {
-    renderNewMessageFromMe({ text, timestamp, messagesList });
+  if (sender !== me) {
+    renderNewMessageFromOthers({ text, timestamp, messagesList, sender });
   } else {
-    renderNewMessageFromOthers({ text, timestamp, messagesList });
+    renderNewMessageFromMe({ text, timestamp, messagesList });
   }
 }
 
 type RenderNewMessageFromMeParams = Omit<
   RenderNewMessageParams,
-  "sender" | "me"
+  "me" | "sender"
 >;
 
-function renderNewMessageFromMe({
+export function renderNewMessageFromMe({
   text,
   timestamp,
   messagesList,
@@ -41,6 +41,7 @@ function renderNewMessageFromMe({
 
   const pName = document.createElement("p");
   pName.classList.add("font-semibold", "text-purple-400");
+
   pName.textContent = "You";
 
   const pMessage = document.createElement("p");
@@ -61,22 +62,22 @@ function renderNewMessageFromMe({
   messagesList.appendChild(div);
 }
 
-type RenderNewMessageFromOthersParams = Omit<
-  RenderNewMessageParams,
-  "sender" | "me"
->;
+type RenderNewMessageFromOthersParams = Omit<RenderNewMessageParams, "me">;
 
-function renderNewMessageFromOthers({
+export function renderNewMessageFromOthers({
   text,
   timestamp,
   messagesList,
+  sender,
 }: RenderNewMessageFromOthersParams): void {
   const div = document.createElement("div");
   div.classList.add("bg-gray-700", "p-3", "rounded-lg", "break-words");
 
   const pName = document.createElement("p");
   pName.classList.add("font-semibold", "text-red-400");
-  pName.textContent = "Someone";
+
+  const cleanSender = sender.split("_")[0];
+  pName.textContent = cleanSender.toLocaleUpperCase();
 
   const pMessage = document.createElement("p");
   pMessage.textContent = text;
