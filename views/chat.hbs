@@ -79,47 +79,6 @@
             </div>
         </section>
     </main>
-
-    <script>
-        // Toggle sidebar (mobile)
-        const menuIcon = document.getElementById("menu-icon");
-        const participants = document.getElementById("participants");
-
-        menuIcon.addEventListener("click", () => {
-            participants.classList.toggle("-translate-x-full");
-        });
-
-        // When clicking outside the sidebar, close it (mobile)
-        document.addEventListener("click", (event) => {
-            if (!participants.contains(event.target) && !menuIcon.contains(event.target)) {
-                participants.classList.add("-translate-x-full");
-            }
-        });
-
-        function updateVideoGrid() {
-            const container = document.getElementById('remote-videos');
-            const videos = container.children.length;
-
-            // Define colunas
-            let cols = Math.ceil(Math.sqrt(videos));
-            container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-
-            // Ajusta a altura de cada linha
-            let rows = Math.ceil(videos / cols);
-            container.style.gridAutoRows = `calc(100% / ${rows} - 1rem)`;
-        }
-
-        updateVideoGrid();
-
-        const messagesContainer = document.getElementById('messages');
-
-        function scrollToBottom() {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        scrollToBottom();
-    </script>
-
     <script src="/chat-bundle.js"></script>
 </body>
 
