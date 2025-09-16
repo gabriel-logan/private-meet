@@ -12,7 +12,7 @@ const messageInput = document.getElementById(
 ) as HTMLInputElement | null;
 const isMobile = window.matchMedia("(max-width: 640px)").matches;
 
-if (!emojiBtn || !emojiPicker || !messageInput) {
+if (!emojiBtn || !emojiPicker || !messageInput || !closeBtn) {
   throw new Error("Emoji picker elements not found");
 }
 
@@ -40,7 +40,7 @@ emojiBtn.addEventListener("click", (e) => {
   else closePicker();
 });
 
-closeBtn?.addEventListener("click", (e) => {
+closeBtn.addEventListener("click", (e) => {
   e.stopPropagation();
   closePicker();
 });
