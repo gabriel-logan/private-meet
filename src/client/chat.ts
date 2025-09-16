@@ -1,6 +1,6 @@
 import "./functions/inlineChatScripts";
 
-import type { Socket } from "socket.io-client";
+import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
 import type { GetUsersOnlineDto } from "src/chat/dto/get-users-online.dto";
 import {
@@ -19,7 +19,7 @@ import handleSendMessage from "./functions/handleSendMessage";
 import renderNewMessage from "./functions/renderNewMessage";
 import renderParticipants from "./functions/renderParticipants";
 
-type Io = (opts?: unknown) => Socket;
+type Io = (opts?: Partial<ManagerOptions & SocketOptions>) => Socket;
 
 declare const io: Io;
 

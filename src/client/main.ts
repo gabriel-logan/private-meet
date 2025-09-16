@@ -1,11 +1,11 @@
-import type { Socket } from "socket.io-client";
+import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
 import { GENERATE_ROOM_ID } from "src/common/constants/socketEvents";
 import {
   MAX_ROOM_ID_LENGTH,
   MAX_USERNAME_LENGTH,
 } from "src/common/constants/validationConstraints";
 
-type Io = (opts?: unknown) => Socket;
+type Io = (opts?: Partial<ManagerOptions & SocketOptions>) => Socket;
 
 declare const io: Io;
 
