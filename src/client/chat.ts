@@ -50,6 +50,10 @@ const participantsList = document.getElementById(
   "participant-list",
 ) as HTMLUListElement;
 
+const countSpan = document.getElementById(
+  "participant-count",
+) as HTMLSpanElement;
+
 const typingIndicator = document.getElementById(
   "typing-indicator",
 ) as HTMLDivElement;
@@ -96,6 +100,7 @@ socket.on(ONLINE_USERS, (onlineUsers: GetUsersOnlineDto[]) => {
     participantsList,
     savedUsername,
     clientIdGetted,
+    countSpan,
   });
 });
 
@@ -110,15 +115,14 @@ socket.on(NEW_MESSAGE, (payload: CreateMessageDto) => {
   messagesList.scrollTop = messagesList.scrollHeight;
 });
 
-sendButton.addEventListener("click", () =>
-  handleSendMessage({
-    messageInput,
-    socket,
-    roomId,
-    me,
-    messagesList,
-  }),
-);
+handleSendMessage({
+  messageInput,
+  socket,
+  roomId,
+  me,
+  messagesList,
+  sendButton,
+});
 
 handleTyping({
   socket,

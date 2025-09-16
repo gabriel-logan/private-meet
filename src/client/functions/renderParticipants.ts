@@ -5,6 +5,7 @@ interface RenderParticipantsParams {
   participantsList: HTMLUListElement;
   savedUsername: string | null;
   clientIdGetted: string | undefined;
+  countSpan: HTMLSpanElement;
 }
 
 export default function renderParticipants({
@@ -12,6 +13,7 @@ export default function renderParticipants({
   participantsList,
   savedUsername,
   clientIdGetted,
+  countSpan,
 }: RenderParticipantsParams): void {
   if (!clientIdGetted) {
     // eslint-disable-next-line no-console
@@ -19,9 +21,6 @@ export default function renderParticipants({
   }
 
   const quantity = onlineUsers.length - 1;
-  const countSpan = document.getElementById(
-    "participant-count",
-  ) as HTMLSpanElement;
   countSpan.textContent = `(${quantity})`;
 
   // Clear the current list
