@@ -88,7 +88,7 @@ function generateRoomId(): void {
     // Show temporary p notification
     showToast({
       message: "Room ID generated and copied to clipboard!",
-      type: "info",
+      type: "success",
       duration: 1200,
     });
   });
