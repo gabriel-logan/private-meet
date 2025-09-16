@@ -25,7 +25,12 @@
             <!-- Menu icon (mobile only) -->
             <img src="/icons/menu.svg" alt="Menu" id="menu-icon"
                 class="w-7 h-7 cursor-pointer lg:hidden hover:scale-110 transition" />
-            <h1 class="text-xl font-bold">Chat Room: {{ roomId }}</h1>
+            <h1 class="text-xl font-bold">Private Meet</h1>
+            <!-- Copy Room ID Button -->
+            <button id="copy-room-id"
+                class="px-3 py-1 bg-indigo-600 cursor-pointer hover:bg-indigo-700 rounded-lg text-sm flex items-center gap-2">
+                Copy Room ID
+            </button>
         </div>
         <input type="hidden" name="roomId" id="roomId" value="{{ roomId }}">
     </header>
