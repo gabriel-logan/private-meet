@@ -30,8 +30,11 @@ declare const io: Io;
 
 const socket = io();
 
-const roomIdInput = document.getElementById("roomId") as HTMLInputElement;
-const roomId = roomIdInput.value;
+const roomIdInput = document.getElementById("roomId") as
+  | HTMLInputElement
+  | undefined;
+
+const roomId = encodeURIComponent(roomIdInput?.value || "").trim();
 
 if (roomId.length > MAX_ROOM_ID_LENGTH) {
   window.location.href = "/";

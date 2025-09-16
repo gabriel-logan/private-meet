@@ -73,7 +73,9 @@ function joinRoom(): void {
   // save username to local storage
   localStorage.setItem("username", trimedUsername);
 
-  window.location.href = `/chat?roomId=${trimedRoomId}`;
+  const encodedRoomId = encodeURIComponent(trimedRoomId);
+
+  window.location.href = `/chat?roomId=${encodedRoomId}`;
 }
 
 function generateRoomId(): void {
