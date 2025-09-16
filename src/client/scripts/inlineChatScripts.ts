@@ -1,9 +1,22 @@
 // Toggle sidebar (mobile)
-const menuIcon = document.getElementById("menu-icon") as HTMLDivElement;
-const participants = document.getElementById("participants") as HTMLDivElement;
+const menuIcon = document.getElementById("menu-icon") as HTMLDivElement | null;
+const participants = document.getElementById(
+  "participants",
+) as HTMLDivElement | null;
+
+const container = document.getElementById(
+  "remote-videos",
+) as HTMLDivElement | null;
+
+const messagesContainer = document.getElementById(
+  "messages",
+) as HTMLUListElement | null;
 
 function updateVideoGrid(): void {
-  const container = document.getElementById("remote-videos") as HTMLDivElement;
+  if (!container) {
+    throw new Error("Remote videos container not found");
+  }
+
   const videos = container.children.length;
 
   // Define colunas
@@ -15,12 +28,16 @@ function updateVideoGrid(): void {
   container.style.gridAutoRows = `calc(100% / ${rows} - 1rem)`;
 }
 
-const messagesContainer = document.getElementById(
-  "messages",
-) as HTMLUListElement;
-
 function scrollToBottom(): void {
+  if (!messagesContainer) {
+    throw new Error("Messages container not found");
+  }
+
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+if (!menuIcon || !participants) {
+  throw new Error("Menu icon or participants element not found");
 }
 
 menuIcon.addEventListener("click", () => {

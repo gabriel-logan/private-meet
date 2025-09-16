@@ -1,5 +1,5 @@
-import "./functions/inlineChatScripts";
-import "./functions/inlineBtnCopyRoomIdScript";
+import "./scripts/inlineChatScripts";
+import "./scripts/inlineBtnCopyRoomIdScript";
 
 import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";

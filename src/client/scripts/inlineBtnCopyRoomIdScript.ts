@@ -2,8 +2,12 @@ import showToast from "../components/toast";
 
 const btnCopyRoomId = document.getElementById(
   "copy-room-id",
-) as HTMLButtonElement;
-const roomId = document.getElementById("roomId") as HTMLInputElement;
+) as HTMLButtonElement | null;
+const roomId = document.getElementById("roomId") as HTMLInputElement | null;
+
+if (!btnCopyRoomId || !roomId) {
+  throw new Error("Copy Room ID button or Room ID input not found");
+}
 
 btnCopyRoomId.addEventListener("click", () => {
   navigator.clipboard
