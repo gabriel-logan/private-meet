@@ -10,6 +10,7 @@ interface HandleSendMessageParams {
   socket: Socket;
   roomId: string;
   me: string | undefined;
+  messagesList: HTMLUListElement;
 }
 
 export default function handleSendMessage({
@@ -17,6 +18,7 @@ export default function handleSendMessage({
   socket,
   roomId,
   me,
+  messagesList,
 }: HandleSendMessageParams): void {
   const message = messageInput.value;
 
@@ -46,7 +48,7 @@ export default function handleSendMessage({
   renderNewMessageFromMe({
     text: payload.text,
     timestamp: payload.timestamp,
-    messagesList: document.getElementById("messages") as HTMLUListElement,
+    messagesList,
   });
 
   messageInput.value = "";

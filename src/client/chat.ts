@@ -110,5 +110,6 @@ sendButton.addEventListener("click", () =>
     socket,
     roomId,
     me,
+    messagesList,
   }),
 );

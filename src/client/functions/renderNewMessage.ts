@@ -6,6 +6,22 @@ interface RenderNewMessageParams {
   me: string | undefined;
 }
 
+interface RenderMessageParams {
+  name: string;
+  nameClass: string;
+  text: string;
+  timestamp: number;
+  messagesList: HTMLUListElement;
+  containerClasses: string[];
+}
+
+type RenderNewMessageFromMeParams = Omit<
+  RenderNewMessageParams,
+  "me" | "sender"
+>;
+
+type RenderNewMessageFromOthersParams = Omit<RenderNewMessageParams, "me">;
+
 export default function renderNewMessage({
   sender,
   text,
@@ -20,29 +36,20 @@ export default function renderNewMessage({
   }
 }
 
-type RenderNewMessageFromMeParams = Omit<
-  RenderNewMessageParams,
-  "me" | "sender"
->;
-
-export function renderNewMessageFromMe({
+export function renderMessage({
+  name,
+  nameClass,
   text,
   timestamp,
   messagesList,
-}: RenderNewMessageFromMeParams): void {
+  containerClasses,
+}: RenderMessageParams): void {
   const div = document.createElement("div");
-  div.classList.add(
-    "bg-gray-700",
-    "p-3",
-    "rounded-lg",
-    "break-words",
-    "lg:text-right",
-  );
+  div.classList.add(...containerClasses);
 
   const pName = document.createElement("p");
-  pName.classList.add("font-semibold", "text-purple-400");
-
-  pName.textContent = "You";
+  pName.classList.add("font-semibold", nameClass);
+  pName.textContent = name;
 
   const pMessage = document.createElement("p");
   pMessage.textContent = text;
@@ -62,7 +69,26 @@ export function renderNewMessageFromMe({
   messagesList.appendChild(div);
 }
 
-type RenderNewMessageFromOthersParams = Omit<RenderNewMessageParams, "me">;
+export function renderNewMessageFromMe({
+  text,
+  timestamp,
+  messagesList,
+}: RenderNewMessageFromMeParams): void {
+  renderMessage({
+    name: "You",
+    nameClass: "text-purple-400",
+    text,
+    timestamp,
+    messagesList,
+    containerClasses: [
+      "bg-gray-700",
+      "p-3",
+      "rounded-lg",
+      "break-words",
+      "lg:text-right",
+    ],
+  });
+}
 
 export function renderNewMessageFromOthers({
   text,
@@ -70,29 +96,12 @@ export function renderNewMessageFromOthers({
   messagesList,
   sender,
 }: RenderNewMessageFromOthersParams): void {
-  const div = document.createElement("div");
-  div.classList.add("bg-gray-700", "p-3", "rounded-lg", "break-words");
-
-  const pName = document.createElement("p");
-  pName.classList.add("font-semibold", "text-red-400");
-
-  const cleanSender = sender.split("_")[0];
-  pName.textContent = cleanSender.toLocaleUpperCase();
-
-  const pMessage = document.createElement("p");
-  pMessage.textContent = text;
-
-  const pTime = document.createElement("p");
-  pTime.classList.add("text-xs", "text-gray-400");
-  const time = new Date(timestamp);
-  pTime.textContent = time.toLocaleTimeString(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
+  renderMessage({
+    name: sender.split("_")[0].toUpperCase(),
+    nameClass: "text-red-400",
+    text,
+    timestamp,
+    messagesList,
+    containerClasses: ["bg-gray-700", "p-3", "rounded-lg", "break-words"],
   });
-
-  div.appendChild(pName);
-  div.appendChild(pMessage);
-  div.appendChild(pTime);
-
-  messagesList.appendChild(div);
 }
