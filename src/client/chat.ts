@@ -115,13 +115,14 @@ socket.on(NEW_MESSAGE, (payload: CreateMessageDto) => {
   messagesList.scrollTop = messagesList.scrollHeight;
 });
 
-handleSendMessage({
-  messageInput,
-  socket,
-  roomId,
-  me,
-  messagesList,
-  sendButton,
+sendButton.addEventListener("click", () => {
+  handleSendMessage({
+    messageInput,
+    socket,
+    roomId,
+    me,
+    messagesList,
+  });
 });
 
 handleTyping({
