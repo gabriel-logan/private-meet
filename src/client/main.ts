@@ -5,6 +5,8 @@ import {
   MAX_USERNAME_LENGTH,
 } from "src/common/constants/validationConstraints";
 
+import showToast from "./components/toast";
+
 type Io = (opts?: Partial<ManagerOptions & SocketOptions>) => Socket;
 
 declare const io: Io;
@@ -84,15 +86,11 @@ function generateRoomId(): void {
     });
 
     // Show temporary p notification
-    const notification = document.createElement("div");
-    notification.className =
-      "fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg";
-    notification.textContent = "Room ID generated and copied to clipboard!";
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-      document.body.removeChild(notification);
-    }, 1200);
+    showToast({
+      message: "Room ID generated and copied to clipboard!",
+      type: "info",
+      duration: 1200,
+    });
   });
 }
 

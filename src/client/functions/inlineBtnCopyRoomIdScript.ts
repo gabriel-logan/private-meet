@@ -1,3 +1,5 @@
+import showToast from "../components/toast";
+
 const btnCopyRoomId = document.getElementById(
   "copy-room-id",
 ) as HTMLButtonElement;
@@ -9,17 +11,18 @@ btnCopyRoomId.addEventListener("click", () => {
     .then(() => {
       btnCopyRoomId.textContent = "Copied!";
 
+      const closeTimeout = 1200;
+
       // Show temporary p notification
-      const notification = document.createElement("div");
-      notification.className =
-        "fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg";
-      notification.textContent = "Room ID copied to clipboard!";
-      document.body.appendChild(notification);
+      showToast({
+        message: "Room ID copied to clipboard!",
+        type: "info",
+        duration: closeTimeout,
+      });
 
       setTimeout(() => {
         btnCopyRoomId.textContent = "Copy Room ID";
-        document.body.removeChild(notification);
-      }, 1200);
+      }, closeTimeout);
     })
     .catch((err) => {
       // eslint-disable-next-line no-console
