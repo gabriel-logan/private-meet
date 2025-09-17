@@ -86,6 +86,11 @@ const typingIndicator = document.getElementById(
   "typing-indicator",
 ) as HTMLDivElement;
 
+const leaveRoomButton = document.getElementById(
+  "leave-button",
+) as HTMLButtonElement;
+
+leaveRoomButton.disabled = true;
 sendButton.disabled = true;
 
 let userId: string | undefined;
@@ -97,6 +102,7 @@ function handleJoinRoom(): void {
     username = user.username;
 
     loadingOverlay.style.display = "none";
+    leaveRoomButton.disabled = false;
     sendButton.disabled = false;
 
     socket.emit(REQUEST_ONLINE_USERS, { roomId });
@@ -111,6 +117,11 @@ function handleLeaveRoom(): void {
 
 // Leave room when the user closes the tab or navigates away
 window.addEventListener("beforeunload", handleLeaveRoom);
+leaveRoomButton.addEventListener("click", () => {
+  handleLeaveRoom();
+
+  window.location.href = "/";
+});
 
 socket.on(ONLINE_USERS, (onlineUsers: GetUserDto[]) => {
   renderParticipants({
