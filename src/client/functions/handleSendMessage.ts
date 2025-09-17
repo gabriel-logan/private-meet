@@ -32,7 +32,7 @@ export default function handleSendMessage({
 
   const { username, userId } = getUser();
 
-  if (!username) {
+  if (!username || !userId) {
     return showToast({
       message: "User identifier not set.",
       type: "info",
@@ -52,7 +52,7 @@ export default function handleSendMessage({
     text: message,
     roomId,
     sender: {
-      userId: userId || "",
+      userId,
       username,
     },
     timestamp: Date.now(),
