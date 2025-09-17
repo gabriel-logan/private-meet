@@ -9,6 +9,7 @@ import { ACCESS_TOKEN_KEY } from "src/common/constants/storage";
 import {
   MAX_ROOM_ID_LENGTH,
   MAX_USERNAME_LENGTH,
+  MIN_USERNAME_LENGTH,
 } from "src/common/constants/validation-constraints";
 
 import showToast from "./components/toast";
@@ -92,14 +93,15 @@ renderForms();
 function createUser(): void {
   const username = userNameInput.value.trim();
 
-  if (!username) {
-    return showToast({ message: "Please enter a username", type: "error" });
-  }
-
-  if (username.length > MAX_USERNAME_LENGTH) {
+  if (
+    !username ||
+    username.length > MAX_USERNAME_LENGTH ||
+    username.length < MIN_USERNAME_LENGTH
+  ) {
     return showToast({
-      message: `Username must be less than ${MAX_USERNAME_LENGTH} characters`,
+      message: `Username must be between ${MIN_USERNAME_LENGTH} and ${MAX_USERNAME_LENGTH} characters`,
       type: "error",
+      duration: 3000,
     });
   }
 
