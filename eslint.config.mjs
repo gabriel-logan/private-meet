@@ -38,6 +38,7 @@ export default tseslint.config(
   {
     rules: {
       "no-console": "error",
+      "object-shorthand": "error",
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-floating-promises": "warn",
       "@typescript-eslint/no-unsafe-argument": "warn",
