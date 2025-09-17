@@ -1,4 +1,4 @@
-import { Logger } from "@nestjs/common";
+import { Logger, UseGuards } from "@nestjs/common";
 import {
   ConnectedSocket,
   MessageBody,
@@ -20,17 +20,19 @@ import {
   STOP_TYPING,
   TYPING,
 } from "src/common/constants/socketEvents";
+import { WSAuthGuard } from "src/common/guards/ws-auth.guard";
 
 import { ChatService } from "./chat.service";
 import { CreateMessageDto } from "./dto/create-message.dto";
-import { CreateRoomDto } from "./dto/create-room.dto";
 import { GetUsersOnlineDto } from "./dto/get-users-online.dto";
+import { RoomDto } from "./dto/room.dto";
 
+@UseGuards(WSAuthGuard)
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(ChatGateway.name);
 
-  private readonly users = new Map<Socket["id"], string>();
+  private readonly users = new Map<string, string>();
 
   constructor(private readonly chatService: ChatService) {}
 
@@ -44,9 +46,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return [];
     }
 
-    return Array.from(room).map((clientId) => ({
-      clientId,
-      username: this.users.get(clientId) ?? "Unknown",
+    return Array.from(room).map((userId) => ({
+      userId: userId,
+      username: this.users.get(userId) ?? "Unknown",
     }));
   }
 
@@ -75,12 +77,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage(JOIN_ROOM)
   async handleJoinRoom(
-    @MessageBody() payload: CreateRoomDto,
+    @MessageBody() payload: RoomDto,
     @ConnectedSocket() client: Socket,
   ): Promise<Socket["id"]> {
-    const { roomId, username } = payload;
+    const { roomId } = payload;
+    const { sub, username } = client.user!;
 
-    this.users.set(client.id, username);
+    this.users.set(sub, username);
 
     await client.join(roomId);
 
@@ -88,17 +91,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.server.to(roomId).emit(ONLINE_USERS, this.getOnlineUsers(roomId));
 
-    return client.id;
+    return sub;
   }
 
   @SubscribeMessage(LEAVE_ROOM)
   async handleLeaveRoom(
-    @MessageBody() payload: CreateRoomDto,
+    @MessageBody() payload: RoomDto,
     @ConnectedSocket() client: Socket,
   ): Promise<void> {
     const { roomId } = payload;
+    const { sub } = client.user!;
 
-    this.users.delete(client.id);
+    this.users.delete(sub);
 
     await client.leave(roomId);
 
@@ -109,35 +113,33 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage(MESSAGE)
   handleMessage(@MessageBody() payload: CreateMessageDto): void {
-    const timestamp = Date.now();
-
-    payload.timestamp = timestamp;
-
     this.server.to(payload.roomId).emit(NEW_MESSAGE, payload);
   }
 
   @SubscribeMessage(TYPING)
   handleTyping(
-    @MessageBody() payload: CreateRoomDto,
+    @MessageBody() payload: RoomDto,
     @ConnectedSocket() client: Socket,
   ): void {
-    const { roomId, username } = payload;
+    const { roomId } = payload;
+    const { sub, username } = client.user!;
 
     this.server.to(roomId).emit(TYPING, {
-      clientId: client.id,
+      userId: sub,
       username,
     });
   }
 
   @SubscribeMessage(STOP_TYPING)
   handleStopTyping(
-    @MessageBody() payload: CreateRoomDto,
+    @MessageBody() payload: RoomDto,
     @ConnectedSocket() client: Socket,
   ): void {
-    const { roomId, username } = payload;
+    const { roomId } = payload;
+    const { sub, username } = client.user!;
 
     this.server.to(roomId).emit(STOP_TYPING, {
-      clientId: client.id,
+      userId: sub,
       username,
     });
   }

@@ -1,4 +1,4 @@
 export class GetUsersOnlineDto {
-  public clientId: string;
+  public userId: string;
   public username: string;
 }

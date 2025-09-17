@@ -47,7 +47,7 @@ export default function renderParticipants({
 
   // Filter out the current user from the online users list
   const otherUsers = onlineUsers.filter(
-    (user) => user.clientId !== clientIdGetted,
+    (user) => user.userId !== clientIdGetted,
   );
 
   // Add the other online users to the list
