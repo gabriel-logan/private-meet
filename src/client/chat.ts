@@ -133,6 +133,13 @@ socket.on(NEW_MESSAGE, (payload: CreateMessageDto) => {
   messagesList.scrollTop = messagesList.scrollHeight;
 });
 
+messageInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault(); // Prevent newline insertion
+    sendButton.click(); // Trigger the send button click
+  }
+});
+
 sendButton.addEventListener("click", () => {
   handleSendMessage({
     messageInput,
