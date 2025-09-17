@@ -16,8 +16,7 @@ export default function renderParticipants({
   const { userId, username } = getUser();
 
   if (!userId) {
-    // eslint-disable-next-line no-console
-    return console.warn("User ID not set yet.");
+    return;
   }
 
   const quantity = onlineUsers.length - 1;
