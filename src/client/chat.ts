@@ -49,7 +49,11 @@ const socket = io({
 socket.on(ERROR, (message: string) => {
   if (message === INVALID_TOKEN) {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
+
+    showToast({ message: INVALID_TOKEN, type: "error", duration: 2000 });
+
     window.location.href = "/";
+
     return;
   }
 
