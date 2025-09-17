@@ -28,7 +28,9 @@ const roomIdInput = document.getElementById("roomId") as
   | HTMLInputElement
   | undefined;
 
-const roomId = encodeURIComponent(roomIdInput?.value || "").trim();
+const roomIdTrimmed = (roomIdInput?.value || "").trim();
+
+const roomId = encodeURIComponent(roomIdTrimmed);
 
 const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
 
