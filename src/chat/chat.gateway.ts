@@ -137,6 +137,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage(MESSAGE)
   handleMessage(@MessageBody() payload: CreateMessageDto): void {
+    const timestamp = Date.now();
+
+    payload.timestamp = timestamp;
+
     this.server.to(payload.roomId).emit(NEW_MESSAGE, payload);
   }
 
