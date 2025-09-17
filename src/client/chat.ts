@@ -6,7 +6,6 @@ import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
 import type { GetUserDto } from "src/chat/dto/get-user.dto";
 import { INVALID_TOKEN } from "src/common/constants/error-messages";
-import { ACCESS_TOKEN_KEY } from "src/common/constants/storage";
 import {
   ERROR,
   JOIN_ROOM,
@@ -15,6 +14,7 @@ import {
   ONLINE_USERS,
   REQUEST_ONLINE_USERS,
 } from "src/common/constants/socket-events";
+import { ACCESS_TOKEN_KEY } from "src/common/constants/storage";
 import { MAX_ROOM_ID_LENGTH } from "src/common/constants/validation-constraints";
 
 import showToast from "./components/toast";
