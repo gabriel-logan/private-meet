@@ -66,7 +66,7 @@ const messageInput = document.getElementById(
 
 const sendButton = document.getElementById("send-button") as HTMLButtonElement;
 
-const messagesList = document.getElementById("messages") as HTMLUListElement;
+const messagesContainer = document.getElementById("messages") as HTMLDivElement;
 
 const participantsList = document.getElementById(
   "participant-list",
@@ -115,25 +115,25 @@ socket.on(ONLINE_USERS, (onlineUsers: GetUserDto[]) => {
   });
 });
 
-// Observe changes in the messages list to update the empty state
+// Observe changes in the messages container to update the empty state
 const messagesObserver = new MutationObserver(() => {
-  updateEmptyState({ messagesList });
+  updateEmptyState({ messagesContainer });
 });
-messagesObserver.observe(messagesList, { childList: true });
+messagesObserver.observe(messagesContainer, { childList: true });
 
 // Initial check
-updateEmptyState({ messagesList });
+updateEmptyState({ messagesContainer });
 
 socket.on(NEW_MESSAGE, (payload: CreateMessageDto) => {
   const { text, sender, timestamp } = payload;
 
   if (sender.userId !== userId) {
     // if the message is from others
-    renderNewMessageFromOthers({ text, timestamp, messagesList, sender });
+    renderNewMessageFromOthers({ text, timestamp, messagesContainer, sender });
   }
 
   // Scroll to the bottom when a new message is added
-  messagesList.scrollTop = messagesList.scrollHeight;
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
 });
 
 messageInput.addEventListener("keydown", (event) => {
@@ -148,7 +148,7 @@ sendButton.addEventListener("click", () => {
     messageInput,
     socket,
     roomId,
-    messagesList,
+    messagesContainer,
     getUser: () => ({ userId, username }),
   });
 });

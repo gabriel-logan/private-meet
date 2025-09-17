@@ -1,5 +1,5 @@
 interface UpdateEmptyStateParams {
-  messagesList: HTMLUListElement;
+  messagesContainer: HTMLDivElement;
 }
 
 // ---- Empty state for messages ----
@@ -9,15 +9,15 @@ placeholder.className = "text-center text-gray-400 mt-10";
 placeholder.textContent = "No messages yet. Start the conversation!";
 
 export default function updateEmptyState({
-  messagesList,
+  messagesContainer,
 }: UpdateEmptyStateParams): void {
-  const hasRealMessages = Array.from(messagesList.children).some(
+  const hasRealMessages = Array.from(messagesContainer.children).some(
     (el) => el !== placeholder,
   );
 
   if (!hasRealMessages) {
-    if (!messagesList.contains(placeholder)) {
-      messagesList.appendChild(placeholder);
+    if (!messagesContainer.contains(placeholder)) {
+      messagesContainer.appendChild(placeholder);
     }
 
     placeholder.style.display = "block";

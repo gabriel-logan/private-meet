@@ -11,7 +11,7 @@ interface HandleSendMessageParams {
   messageInput: HTMLInputElement;
   socket: Socket;
   roomId: string;
-  messagesList: HTMLUListElement;
+  messagesContainer: HTMLDivElement;
   getUser: () => Partial<GetUserDto>;
 }
 
@@ -19,7 +19,7 @@ export default function handleSendMessage({
   messageInput,
   socket,
   roomId,
-  messagesList,
+  messagesContainer,
   getUser,
 }: HandleSendMessageParams): void {
   const message = messageInput.value;
@@ -61,7 +61,7 @@ export default function handleSendMessage({
   renderNewMessageFromMe({
     text: payload.text,
     timestamp: payload.timestamp,
-    messagesList,
+    messagesContainer,
   });
 
   messageInput.value = "";

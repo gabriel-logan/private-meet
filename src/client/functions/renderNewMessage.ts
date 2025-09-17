@@ -4,7 +4,7 @@ interface RenderNewMessageParams {
   sender: GetUserDto;
   text: string;
   timestamp: number;
-  messagesList: HTMLUListElement;
+  messagesContainer: HTMLDivElement;
   getUser: () => Partial<GetUserDto>;
 }
 
@@ -13,7 +13,7 @@ interface RenderMessageParams {
   nameClass: string;
   text: string;
   timestamp: number;
-  messagesList: HTMLUListElement;
+  messagesContainer: HTMLDivElement;
   containerClasses: string[];
 }
 
@@ -28,15 +28,15 @@ export default function renderNewMessage({
   sender,
   text,
   timestamp,
-  messagesList,
+  messagesContainer,
   getUser,
 }: RenderNewMessageParams): void {
   const { userId } = getUser();
 
   if (sender.userId !== userId) {
-    renderNewMessageFromOthers({ text, timestamp, messagesList, sender });
+    renderNewMessageFromOthers({ text, timestamp, messagesContainer, sender });
   } else {
-    renderNewMessageFromMe({ text, timestamp, messagesList });
+    renderNewMessageFromMe({ text, timestamp, messagesContainer });
   }
 }
 
@@ -45,7 +45,7 @@ export function renderMessage({
   nameClass,
   text,
   timestamp,
-  messagesList,
+  messagesContainer,
   containerClasses,
 }: RenderMessageParams): void {
   const div = document.createElement("div");
@@ -70,20 +70,20 @@ export function renderMessage({
   div.appendChild(pMessage);
   div.appendChild(pTime);
 
-  messagesList.appendChild(div);
+  messagesContainer.appendChild(div);
 }
 
 export function renderNewMessageFromMe({
   text,
   timestamp,
-  messagesList,
+  messagesContainer,
 }: RenderNewMessageFromMeParams): void {
   renderMessage({
     name: "You",
     nameClass: "text-purple-400",
     text,
     timestamp,
-    messagesList,
+    messagesContainer,
     containerClasses: [
       "bg-gray-700",
       "p-3",
@@ -97,7 +97,7 @@ export function renderNewMessageFromMe({
 export function renderNewMessageFromOthers({
   text,
   timestamp,
-  messagesList,
+  messagesContainer,
   sender,
 }: RenderNewMessageFromOthersParams): void {
   renderMessage({
@@ -105,7 +105,7 @@ export function renderNewMessageFromOthers({
     nameClass: "text-red-400",
     text,
     timestamp,
-    messagesList,
+    messagesContainer,
     containerClasses: ["bg-gray-700", "p-3", "rounded-lg", "break-words"],
   });
 }
