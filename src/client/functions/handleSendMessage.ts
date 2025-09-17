@@ -1,5 +1,6 @@
 import type { Socket } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
+import type { GetUserDto } from "src/chat/dto/get-user.dto";
 import { MESSAGE } from "src/common/constants/socketEvents";
 import { MAX_MESSAGE_LENGTH } from "src/common/constants/validationConstraints";
 
@@ -10,24 +11,24 @@ interface HandleSendMessageParams {
   messageInput: HTMLInputElement;
   socket: Socket;
   roomId: string;
-  userId: string | null;
-  username: string | null;
   messagesList: HTMLUListElement;
+  getUser: () => Partial<GetUserDto>;
 }
 
 export default function handleSendMessage({
   messageInput,
   socket,
   roomId,
-  userId,
-  username,
   messagesList,
+  getUser,
 }: HandleSendMessageParams): void {
   const message = messageInput.value;
 
   if (message.trim() === "") {
     return;
   }
+
+  const { username, userId } = getUser();
 
   if (!username) {
     return showToast({

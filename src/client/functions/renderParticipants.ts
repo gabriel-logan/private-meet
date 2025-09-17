@@ -3,18 +3,18 @@ import type { GetUserDto } from "src/chat/dto/get-user.dto";
 interface RenderParticipantsParams {
   onlineUsers: GetUserDto[];
   participantsList: HTMLUListElement;
-  username: string | null;
-  userId: string | null;
   countSpan: HTMLSpanElement;
+  getUser: () => Partial<GetUserDto>;
 }
 
 export default function renderParticipants({
   onlineUsers,
   participantsList,
-  username,
-  userId,
   countSpan,
+  getUser,
 }: RenderParticipantsParams): void {
+  const { userId, username } = getUser();
+
   if (!userId) {
     // eslint-disable-next-line no-console
     return console.warn("User ID not set yet.");

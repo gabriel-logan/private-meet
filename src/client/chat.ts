@@ -14,13 +14,12 @@ import {
   NEW_MESSAGE,
   ONLINE_USERS,
   REQUEST_ONLINE_USERS,
-  STOP_TYPING,
-  TYPING,
 } from "src/common/constants/socketEvents";
 import { MAX_ROOM_ID_LENGTH } from "src/common/constants/validationConstraints";
 
 import showToast from "./components/toast";
 import handleSendMessage from "./functions/handleSendMessage";
+import handleTyping from "./functions/handleTyping";
 import { renderNewMessageFromOthers } from "./functions/renderNewMessage";
 import renderParticipants from "./functions/renderParticipants";
 import updateEmptyState from "./functions/updateEmptyState";
@@ -83,8 +82,8 @@ const typingIndicator = document.getElementById(
 
 sendButton.disabled = true;
 
-let userId: string | null = null;
-let username: string | null = null;
+let userId: string | undefined;
+let username: string | undefined;
 
 function handleJoinRoom(): void {
   socket.emit(JOIN_ROOM, { roomId }, (user: GetUserDto) => {
@@ -111,9 +110,8 @@ socket.on(ONLINE_USERS, (onlineUsers: GetUserDto[]) => {
   renderParticipants({
     onlineUsers,
     participantsList,
-    username,
-    userId,
     countSpan,
+    getUser: () => ({ userId, username }),
   });
 });
 
@@ -150,71 +148,15 @@ sendButton.addEventListener("click", () => {
     messageInput,
     socket,
     roomId,
-    userId,
-    username,
     messagesList,
+    getUser: () => ({ userId, username }),
   });
 });
 
-let typing = false;
-let typingTimeout: NodeJS.Timeout | undefined;
-
-// ---- Internal helper to emit stop typing ----
-function stopTyping(): void {
-  if (typing) {
-    socket.emit(STOP_TYPING, { roomId });
-    typing = false;
-  }
-}
-
-// Detect user typing
-messageInput.addEventListener("input", () => {
-  if (!username) {
-    return;
-  }
-
-  if (messageInput.value.length === 0) {
-    return stopTyping();
-  }
-
-  if (!typing) {
-    socket.emit(TYPING, { roomId });
-    typing = true;
-  }
-
-  // Restart the timer every time the user types
-  clearTimeout(typingTimeout);
-  typingTimeout = setTimeout(stopTyping, 1200); // without typing = stopped
+handleTyping({
+  socket,
+  roomId,
+  messageInput,
+  typingIndicator,
+  getUser: () => ({ userId, username }),
 });
-
-// ---- Render typing from other users ----
-const usersTyping = new Set<string>();
-
-socket.on(
-  TYPING,
-  ({ username: otherUser, userId: otherUserId }: GetUserDto) => {
-    if (otherUser === username && otherUserId === userId) {
-      return;
-    } // do not show typing for myself
-
-    usersTyping.add(otherUser);
-    typingIndicator.innerText = `${Array.from(usersTyping).join(", ")} is typing...`;
-    typingIndicator.style.display = "block";
-  },
-);
-
-socket.on(
-  STOP_TYPING,
-  ({ username: otherUser, userId: otherUserId }: GetUserDto) => {
-    if (otherUser === username && otherUserId === userId) {
-      return;
-    } // ignore myself
-
-    usersTyping.delete(otherUser);
-    if (usersTyping.size === 0) {
-      typingIndicator.style.display = "none";
-    } else {
-      typingIndicator.innerText = `${Array.from(usersTyping).join(", ")} is typing...`;
-    }
-  },
-);

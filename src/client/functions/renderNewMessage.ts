@@ -5,7 +5,7 @@ interface RenderNewMessageParams {
   text: string;
   timestamp: number;
   messagesList: HTMLUListElement;
-  userId: string | null;
+  getUser: () => Partial<GetUserDto>;
 }
 
 interface RenderMessageParams {
@@ -19,18 +19,20 @@ interface RenderMessageParams {
 
 type RenderNewMessageFromMeParams = Omit<
   RenderNewMessageParams,
-  "userId" | "sender"
+  "getUser" | "sender"
 >;
 
-type RenderNewMessageFromOthersParams = Omit<RenderNewMessageParams, "userId">;
+type RenderNewMessageFromOthersParams = Omit<RenderNewMessageParams, "getUser">;
 
 export default function renderNewMessage({
   sender,
   text,
   timestamp,
   messagesList,
-  userId,
+  getUser,
 }: RenderNewMessageParams): void {
+  const { userId } = getUser();
+
   if (sender.userId !== userId) {
     renderNewMessageFromOthers({ text, timestamp, messagesList, sender });
   } else {
