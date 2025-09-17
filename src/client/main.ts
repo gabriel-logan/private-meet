@@ -1,7 +1,11 @@
 import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
 import type { CreateUserDto } from "src/chat/dto/create-user.dto";
 import { ACCESS_TOKEN_KEY } from "src/common/constants/localstorage";
-import { GENERATE_ROOM_ID, SIGN_IN } from "src/common/constants/socketEvents";
+import {
+  ERROR,
+  GENERATE_ROOM_ID,
+  SIGN_IN,
+} from "src/common/constants/socketEvents";
 import {
   MAX_ROOM_ID_LENGTH,
   MAX_USERNAME_LENGTH,
@@ -14,6 +18,10 @@ type Io = (opts?: Partial<ManagerOptions & SocketOptions>) => Socket;
 // io is injected by the socket.io script included in main.html
 declare const io: Io;
 const socket = io();
+
+socket.on(ERROR, (message: string) => {
+  showToast({ message, type: "error", duration: 2000 });
+});
 
 const loadingOverlay = document.getElementById(
   "client-loading",

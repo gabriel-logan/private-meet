@@ -7,6 +7,7 @@ import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
 import type { GetUserDto } from "src/chat/dto/get-user.dto";
 import { ACCESS_TOKEN_KEY } from "src/common/constants/localstorage";
 import {
+  ERROR,
   JOIN_ROOM,
   LEAVE_ROOM,
   NEW_MESSAGE,
@@ -20,6 +21,7 @@ import {
   MAX_USERNAME_LENGTH,
 } from "src/common/constants/validationConstraints";
 
+import showToast from "./components/toast";
 import handleSendMessage from "./functions/handleSendMessage";
 import type { TypingData } from "./functions/handleTyping";
 import handleTyping from "./functions/handleTyping";
@@ -47,6 +49,10 @@ const socket = io({
   auth: {
     token: accessToken,
   },
+});
+
+socket.on(ERROR, (message: string) => {
+  showToast({ message, type: "error", duration: 2000 });
 });
 
 const loadingOverlay = document.getElementById(
