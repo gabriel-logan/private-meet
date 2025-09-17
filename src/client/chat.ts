@@ -152,7 +152,14 @@ messagesObserver.observe(messagesContainer, { childList: true });
 updateEmptyState({ messagesContainer });
 
 socket.on(NEW_MESSAGE, (payload: CreateMessageDto) => {
-  const { text, sender, timestamp } = payload;
+  const {
+    text,
+    userId: userIdFromServer,
+    username: usernameFromServer,
+    timestamp,
+  } = payload;
+
+  const sender = { userId: userIdFromServer, username: usernameFromServer };
 
   if (sender.userId !== userId) {
     // if the message is from others

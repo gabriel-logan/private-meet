@@ -30,14 +30,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { GetUserDto } from "./dto/get-user.dto";
 import { RoomDto } from "./dto/room.dto";
 
-@UsePipes(
-  new ValidationPipe({
-    exceptionFactory(errors): any {
-      console.log(errors);
-      return errors;
-    },
-  }),
-)
+@UsePipes(ValidationPipe)
 @UseGuards(WSAuthGuard)
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {

@@ -101,7 +101,7 @@ export function renderNewMessageFromOthers({
   sender,
 }: RenderNewMessageFromOthersParams): void {
   renderMessage({
-    name: sender.username.split("_")[0].toUpperCase(),
+    name: sender.username,
     nameClass: "text-red-400",
     text,
     timestamp,

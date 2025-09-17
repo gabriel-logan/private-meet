@@ -51,10 +51,8 @@ export default function handleSendMessage({
   const payload: CreateMessageDto = {
     text: message,
     roomId,
-    sender: {
-      userId,
-      username,
-    },
+    userId,
+    username,
     timestamp: Date.now(),
   };
 
