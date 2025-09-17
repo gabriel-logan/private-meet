@@ -13,6 +13,7 @@ export function getCachedKey(): CryptoKey | undefined {
 function toArrayBuffer(u8: Uint8Array): ArrayBuffer {
   const ab = new ArrayBuffer(u8.byteLength);
   new Uint8Array(ab).set(u8);
+
   return ab;
 }
 
@@ -22,6 +23,7 @@ export async function deriveKey(
   iterations = 200_000,
 ): Promise<CryptoKey> {
   const enc = new TextEncoder();
+
   const baseKey = await crypto.subtle.importKey(
     "raw",
     enc.encode(passphrase),
@@ -31,9 +33,17 @@ export async function deriveKey(
   );
 
   return await crypto.subtle.deriveKey(
-    { name: "PBKDF2", salt: toArrayBuffer(salt), iterations, hash: "SHA-256" },
+    {
+      name: "PBKDF2",
+      salt: toArrayBuffer(salt),
+      iterations,
+      hash: "SHA-256",
+    },
     baseKey,
-    { name: "AES-GCM", length: 256 },
+    {
+      name: "AES-GCM",
+      length: 256,
+    },
     false,
     ["encrypt", "decrypt"],
   );
@@ -46,6 +56,7 @@ export async function encryptString(
 ): Promise<{ iv: string; content: string; alg: AesGcmAlg }> {
   const ivU8 = crypto.getRandomValues(new Uint8Array(12));
   const dataU8 = new TextEncoder().encode(plaintext);
+
   const cipher = await crypto.subtle.encrypt(
     {
       name: "AES-GCM",
@@ -71,6 +82,7 @@ export async function decryptString(
 ): Promise<string> {
   const cipherU8 = fromB64(cipherB64);
   const ivU8 = fromB64(ivB64);
+
   const plain = await crypto.subtle.decrypt(
     {
       name: "AES-GCM",
@@ -87,6 +99,7 @@ export async function decryptString(
 export function toB64(bytes: Uint8Array): string {
   return btoa(String.fromCharCode(...bytes));
 }
+
 export function fromB64(b64: string): Uint8Array {
   const bin = atob(b64);
   const out = new Uint8Array(bin.length);
