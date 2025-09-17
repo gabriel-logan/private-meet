@@ -1,4 +1,11 @@
-import { IsNumber, IsString, Max, MaxLength } from "class-validator";
+import {
+  IsIn,
+  IsNumber,
+  IsString,
+  Length,
+  Max,
+  MaxLength,
+} from "class-validator";
 import {
   MAX_ROOM_ID_LENGTH,
   MAX_TIMESTAMP,
@@ -16,12 +23,16 @@ export class CreateMessageDto {
   @IsString()
   public roomId: string;
 
+  @MaxLength(5000)
   @IsString()
   public cipher: string;
 
+  @Length(16, 16)
   @IsString()
   public iv: string;
 
+  @IsIn(["AES-GCM"])
+  @Length(7, 7)
   @IsString()
   public alg: string;
 
