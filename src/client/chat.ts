@@ -3,7 +3,10 @@ import "./scripts/inlineChatScripts";
 import "./scripts/inlineBtnCopyRoomIdScript";
 
 import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
-import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
+import type {
+  CreateMessageDto,
+  InnerMessage,
+} from "src/chat/dto/create-message.dto";
 import type { GetUserDto } from "src/chat/dto/get-user.dto";
 import { INVALID_TOKEN } from "src/common/constants/error-messages";
 import {
@@ -24,6 +27,7 @@ import initChatInputBehavior from "./functions/initChatInputBehavior";
 import { renderNewMessageFromOthers } from "./functions/renderNewMessage";
 import renderParticipants from "./functions/renderParticipants";
 import updateEmptyState from "./functions/updateEmptyState";
+import { aadFrom, decryptString, getCachedKey, initE2EE } from "./utils/e2ee";
 
 const roomIdInput = document.getElementById("roomId") as
   | HTMLInputElement
@@ -104,9 +108,20 @@ function handleJoinRoom(): void {
 
     loadingOverlay.style.display = "none";
     leaveRoomButton.disabled = false;
-    sendButton.disabled = false;
 
     socket.emit(REQUEST_ONLINE_USERS, { roomId });
+
+    initE2EE(roomId, roomId)
+      .then(() => {
+        sendButton.disabled = false;
+      })
+      .catch(() => {
+        showToast({
+          message: "Failed to initialize E2EE.",
+          type: "error",
+          duration: 4000,
+        });
+      });
   });
 }
 
@@ -151,30 +166,68 @@ messagesObserver.observe(messagesContainer, { childList: true });
 // Initial check
 updateEmptyState({ messagesContainer });
 
-socket.on(NEW_MESSAGE, (payload: CreateMessageDto) => {
-  const {
-    text,
-    userId: userIdFromServer,
-    username: usernameFromServer,
-    timestamp,
-  } = payload;
+socket.on(NEW_MESSAGE, async (payload: CreateMessageDto) => {
+  const { timestamp } = payload;
 
-  const sender = { userId: userIdFromServer, username: usernameFromServer };
+  // New encrypted case
+  if (payload.cipher && payload.iv) {
+    const key = getCachedKey();
 
-  if (sender.userId !== userId) {
-    // if the message is from others
-    renderNewMessageFromOthers({ text, timestamp, messagesContainer, sender });
+    if (!key) {
+      renderNewMessageFromOthers({
+        text: "[Protected message: E2EE not configured]",
+        timestamp,
+        messagesContainer,
+        sender: { userId: "unknown", username: "unknown" },
+      });
+
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      return;
+    }
+
+    try {
+      const aad = aadFrom(roomId);
+      const json = await decryptString(payload.cipher, payload.iv, key, aad);
+
+      const inner = JSON.parse(json) as InnerMessage;
+
+      const sender = {
+        userId: inner.userId,
+        username: inner.username,
+      };
+
+      // If the message is from another user, render as "others"
+      if (sender.userId !== userId) {
+        renderNewMessageFromOthers({
+          text: inner.text,
+          timestamp,
+          messagesContainer,
+          sender,
+        });
+      }
+
+      return;
+    } catch {
+      renderNewMessageFromOthers({
+        text: "[Protected message: failed to decrypt]",
+        timestamp,
+        messagesContainer,
+        sender: { userId: "unknown", username: "unknown" },
+      });
+
+      return;
+    } finally {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
   }
-
-  // Scroll to the bottom when a new message is added
-  messagesContainer.scrollTop = messagesContainer.scrollHeight;
 });
 
 // Initialize chat input behavior (auto-resize, Enter key handling)
 initChatInputBehavior({ messageTextArea, sendButton });
 
 sendButton.addEventListener("click", () => {
-  handleSendMessage({
+  void handleSendMessage({
     messageTextArea,
     socket,
     roomId,

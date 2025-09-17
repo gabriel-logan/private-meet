@@ -1,10 +1,14 @@
 import type { Socket } from "socket.io-client";
-import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
+import type {
+  CreateMessageDto,
+  InnerMessage,
+} from "src/chat/dto/create-message.dto";
 import type { GetUserDto } from "src/chat/dto/get-user.dto";
 import { MESSAGE, STOP_TYPING } from "src/common/constants/socket-events";
 import { MAX_MESSAGE_LENGTH } from "src/common/constants/validation-constraints";
 
 import showToast from "../components/toast";
+import { aadFrom, encryptString, getCachedKey } from "../utils/e2ee";
 import { renderNewMessageFromMe } from "./renderNewMessage";
 
 interface HandleSendMessageParams {
@@ -15,13 +19,13 @@ interface HandleSendMessageParams {
   getUser: () => Partial<GetUserDto>;
 }
 
-export default function handleSendMessage({
+export default async function handleSendMessage({
   messageTextArea,
   socket,
   roomId,
   messagesContainer,
   getUser,
-}: HandleSendMessageParams): void {
+}: HandleSendMessageParams): Promise<void> {
   // Normalize line endings but preserve internal newlines
   const raw = messageTextArea.value.replace(/\r\n/g, "\n");
   const message = raw.trim();
@@ -48,11 +52,35 @@ export default function handleSendMessage({
     });
   }
 
-  const payload: CreateMessageDto = {
+  const key = getCachedKey();
+  if (!key) {
+    return showToast({
+      message: "E2EE key not set.",
+      type: "error",
+      duration: 2000,
+    });
+  }
+
+  const innerMessage: InnerMessage = {
     text: message,
     roomId,
     userId,
     username,
+  };
+
+  const aad = aadFrom(roomId);
+
+  const { iv, content, alg } = await encryptString(
+    JSON.stringify(innerMessage),
+    key,
+    aad,
+  );
+
+  const payload: CreateMessageDto = {
+    roomId,
+    cipher: content,
+    iv,
+    alg,
     timestamp: Date.now(),
   };
 
@@ -61,7 +89,7 @@ export default function handleSendMessage({
   socket.emit(MESSAGE, payload);
 
   renderNewMessageFromMe({
-    text: payload.text,
+    text: message,
     timestamp: payload.timestamp,
     messagesContainer,
   });

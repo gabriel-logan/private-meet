@@ -1,35 +1,29 @@
+import { IsNumber, IsString, Max, MaxLength } from "class-validator";
 import {
-  IsNumber,
-  IsString,
-  IsUUID,
-  Length,
-  Max,
-  MaxLength,
-} from "class-validator";
-import {
-  MAX_MESSAGE_LENGTH,
   MAX_ROOM_ID_LENGTH,
   MAX_TIMESTAMP,
-  MAX_USERNAME_LENGTH,
-  MIN_MESSAGE_LENGTH,
-  MIN_USERNAME_LENGTH,
 } from "src/common/constants/validation-constraints";
 
-export class CreateMessageDto {
-  @Length(MIN_MESSAGE_LENGTH, MAX_MESSAGE_LENGTH)
-  @IsString()
-  public text: string;
+export interface InnerMessage {
+  readonly text: string;
+  readonly roomId: string;
+  readonly userId: string;
+  readonly username: string;
+}
 
+export class CreateMessageDto {
   @MaxLength(MAX_ROOM_ID_LENGTH)
   @IsString()
   public roomId: string;
 
-  @IsUUID()
-  public userId: string;
-
-  @Length(MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH)
   @IsString()
-  public username: string;
+  public cipher: string;
+
+  @IsString()
+  public iv: string;
+
+  @IsString()
+  public alg: string;
 
   @Max(MAX_TIMESTAMP)
   @IsNumber()

@@ -2,6 +2,22 @@ export type AesGcmAlg = "AES-GCM";
 
 let cachedKey: CryptoKey | undefined;
 
+export async function initE2EE(
+  passphrase: string,
+  roomId: string,
+): Promise<CryptoKey> {
+  const salt = await saltFromRoom(roomId);
+  const key = await deriveKey(passphrase, salt);
+
+  setCachedKey(key);
+
+  return key;
+}
+
+export function clearCachedKey(): void {
+  cachedKey = undefined;
+}
+
 export function setCachedKey(key: CryptoKey): void {
   cachedKey = key;
 }
