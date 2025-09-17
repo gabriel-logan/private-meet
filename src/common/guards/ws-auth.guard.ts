@@ -13,6 +13,8 @@ import { IS_PUBLIC_KEY } from "src/common/decorators/routes/public.decorator";
 import { JwtPayload } from "src/common/types";
 import { EnvGlobalConfig } from "src/configs/types";
 
+import { ERROR } from "../constants/socketEvents";
+
 @Injectable()
 export class WSAuthGuard implements CanActivate {
   constructor(
@@ -36,6 +38,7 @@ export class WSAuthGuard implements CanActivate {
     const token = client.handshake.auth.token as string | undefined;
 
     if (!token) {
+      client.emit(ERROR, "No token provided");
       throw new WsException(new UnauthorizedException("No token provided"));
     }
 
@@ -48,6 +51,7 @@ export class WSAuthGuard implements CanActivate {
 
       client["user"] = payload;
     } catch {
+      client.emit(ERROR, "Invalid token");
       throw new WsException(new UnauthorizedException("Invalid token"));
     }
 

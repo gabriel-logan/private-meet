@@ -8,3 +8,4 @@ export const GENERATE_ROOM_ID = "generate-room-id";
 export const TYPING = "typing";
 export const STOP_TYPING = "stop-typing";
 export const SIGN_IN = "sign-in";
+export const ERROR = "error";
