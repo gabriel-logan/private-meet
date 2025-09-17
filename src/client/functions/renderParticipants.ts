@@ -1,4 +1,4 @@
-import type { GetUsersOnlineDto } from "src/chat/dto/get-users-online.dto";
+import type { GetUsersOnlineDto } from "src/chat/dto/get-user.dto";
 
 interface RenderParticipantsParams {
   onlineUsers: GetUsersOnlineDto[];

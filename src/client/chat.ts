@@ -4,7 +4,7 @@ import "./scripts/inlineBtnCopyRoomIdScript";
 
 import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
-import type { GetUsersOnlineDto } from "src/chat/dto/get-users-online.dto";
+import type { GetUsersOnlineDto } from "src/chat/dto/get-user.dto";
 import { ACCESS_TOKEN_KEY } from "src/common/constants/localstorage";
 import {
   JOIN_ROOM,

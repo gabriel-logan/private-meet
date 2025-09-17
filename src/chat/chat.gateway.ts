@@ -24,7 +24,7 @@ import { WSAuthGuard } from "src/common/guards/ws-auth.guard";
 
 import { ChatService } from "./chat.service";
 import { CreateMessageDto } from "./dto/create-message.dto";
-import { GetUsersOnlineDto } from "./dto/get-users-online.dto";
+import { GetUserDto } from "./dto/get-user.dto";
 import { RoomDto } from "./dto/room.dto";
 
 @UseGuards(WSAuthGuard)
@@ -39,7 +39,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
 
-  private getOnlineUsers(roomId: string): GetUsersOnlineDto[] {
+  private getOnlineUsers(roomId: string): GetUserDto[] {
     const room = this.server.sockets.adapter.rooms.get(roomId);
 
     if (!room) {
@@ -79,7 +79,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleJoinRoom(
     @MessageBody() payload: RoomDto,
     @ConnectedSocket() client: Socket,
-  ): Promise<{ userId: string }> {
+  ): Promise<GetUserDto> {
     const { roomId } = payload;
     const { sub, username } = client.user!;
 
@@ -91,7 +91,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.server.to(roomId).emit(ONLINE_USERS, this.getOnlineUsers(roomId));
 
-    return { userId: sub };
+    return { userId: sub, username };
   }
 
   @SubscribeMessage(LEAVE_ROOM)
