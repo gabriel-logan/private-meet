@@ -1,7 +1,7 @@
-import type { GetUsersOnlineDto } from "src/chat/dto/get-user.dto";
+import type { GetUserDto } from "src/chat/dto/get-user.dto";
 
 interface RenderParticipantsParams {
-  onlineUsers: GetUsersOnlineDto[];
+  onlineUsers: GetUserDto[];
   participantsList: HTMLUListElement;
   savedUsername: string | null;
   clientIdGetted: string | undefined;
