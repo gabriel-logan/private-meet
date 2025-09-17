@@ -1,4 +1,5 @@
 import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
+import { ACCESS_TOKEN_KEY } from "src/common/constants/localstorage";
 import { GENERATE_ROOM_ID } from "src/common/constants/socketEvents";
 import {
   MAX_ROOM_ID_LENGTH,
@@ -33,58 +34,100 @@ const generateRoomBtn = document.getElementById(
   "generate-room-button",
 ) as HTMLButtonElement;
 
+const createUserBtn = document.getElementById(
+  "create-user-button",
+) as HTMLButtonElement;
+
+const deleteUserBtn = document.getElementById(
+  "delete-user-button",
+) as HTMLButtonElement;
+
+const userCreationForm = document.getElementById(
+  "user-creation-form",
+) as HTMLDivElement;
+
+const joinRoomForm = document.getElementById(
+  "join-room-form",
+) as HTMLDivElement;
+
 generateRoomBtn.disabled = true;
 joinRoomBtn.disabled = true;
 
+// ---- Socket connection handling ----
 if (socket.active) {
   loadingOverlay.style.display = "none";
   generateRoomBtn.disabled = false;
   joinRoomBtn.disabled = false;
 }
 
-const savedUsername = localStorage.getItem("username");
+// ---- Form visibility logic ----
+function renderForms(): void {
+  const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
 
-if (savedUsername) {
-  userNameInput.value = savedUsername;
+  if (accessToken) {
+    userCreationForm.classList.add("hidden");
+    joinRoomForm.classList.remove("hidden");
+
+    const savedUsername = localStorage.getItem("username");
+
+    if (savedUsername) {
+      userNameInput.value = savedUsername;
+    }
+  } else {
+    joinRoomForm.classList.add("hidden");
+    userCreationForm.classList.remove("hidden");
+  }
 }
 
-function joinRoom(): void {
-  const trimedRoomId = roomIdInput.value.trim();
-  const trimedUsername = userNameInput.value.trim();
+renderForms();
 
-  if (trimedUsername === "") {
-    return showToast({
-      message: "Please enter a username",
-      type: "error",
-    });
+// ---- Actions ----
+function createUser(): void {
+  const username = userNameInput.value.trim();
+
+  if (!username) {
+    return showToast({ message: "Please enter a username", type: "error" });
   }
-
-  if (trimedRoomId === "") {
-    return showToast({
-      message: "Please enter a room ID",
-      type: "error",
-    });
-  }
-
-  if (trimedUsername.length > MAX_USERNAME_LENGTH) {
+  if (username.length > MAX_USERNAME_LENGTH) {
     return showToast({
       message: `Username must be less than ${MAX_USERNAME_LENGTH} characters`,
       type: "error",
     });
   }
 
-  if (trimedRoomId.length > MAX_ROOM_ID_LENGTH) {
+  localStorage.setItem("username", username);
+  // Fake token until backend ready
+  localStorage.setItem(ACCESS_TOKEN_KEY, "fake-token-" + Date.now());
+  renderForms();
+}
+
+function deleteUser(): void {
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  localStorage.removeItem("username");
+  renderForms();
+}
+
+function joinRoom(): void {
+  const roomId = roomIdInput.value.trim();
+  const username = localStorage.getItem("username") || "";
+
+  if (!username) {
+    return showToast({
+      message: "No user found, please create one first",
+      type: "error",
+    });
+  }
+  if (!roomId) {
+    return showToast({ message: "Please enter a room ID", type: "error" });
+  }
+  if (roomId.length > MAX_ROOM_ID_LENGTH) {
     return showToast({
       message: `Room ID must be less than ${MAX_ROOM_ID_LENGTH} characters`,
       type: "error",
     });
   }
 
-  // save username to local storage
-  localStorage.setItem("username", trimedUsername);
-
-  const encodedRoomId = encodeURIComponent(trimedRoomId);
-
+  const encodedRoomId = encodeURIComponent(roomId);
   window.location.href = `/chat?roomId=${encodedRoomId}`;
 }
 
@@ -92,10 +135,8 @@ function generateRoomId(): void {
   socket.emit(GENERATE_ROOM_ID, (roomId: string) => {
     roomIdInput.value = roomId;
 
-    navigator.clipboard.writeText(roomId).catch((err) => {
-      // eslint-disable-next-line no-console
-      console.error("Could not copy text: ", err);
-    });
+    // eslint-disable-next-line no-console
+    navigator.clipboard.writeText(roomId).catch(console.error);
 
     // Show temporary p notification
     showToast({
@@ -106,6 +147,8 @@ function generateRoomId(): void {
   });
 }
 
+// ---- Event listeners ----
+createUserBtn.addEventListener("click", createUser);
+deleteUserBtn.addEventListener("click", deleteUser);
 joinRoomBtn.addEventListener("click", joinRoom);
-
 generateRoomBtn.addEventListener("click", generateRoomId);
