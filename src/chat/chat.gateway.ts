@@ -17,6 +17,7 @@ import {
   NEW_MESSAGE,
   ONLINE_USERS,
   REQUEST_ONLINE_USERS,
+  SIGN_IN,
   STOP_TYPING,
   TYPING,
 } from "src/common/constants/socketEvents";
@@ -24,6 +25,7 @@ import { WSAuthGuard } from "src/common/guards/ws-auth.guard";
 
 import { ChatService } from "./chat.service";
 import { CreateMessageDto } from "./dto/create-message.dto";
+import { CreateUserDto } from "./dto/create-user.dto";
 import { GetUserDto } from "./dto/get-user.dto";
 import { RoomDto } from "./dto/room.dto";
 
@@ -58,6 +60,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: Socket): void {
     this.logger.log(`Client disconnected: ${client.id}`);
+  }
+
+  @SubscribeMessage(SIGN_IN)
+  async handleSignIn(@MessageBody() payload: CreateUserDto): Promise<string> {
+    const { username } = payload;
+
+    return await this.chatService.signInJwt(username);
   }
 
   @SubscribeMessage(GENERATE_ROOM_ID)

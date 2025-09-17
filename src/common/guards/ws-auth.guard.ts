@@ -48,7 +48,7 @@ export class WSAuthGuard implements CanActivate {
 
       client["user"] = payload;
     } catch {
-      throw new UnauthorizedException("Invalid token");
+      throw new WsException(new UnauthorizedException("Invalid token"));
     }
 
     return true;
