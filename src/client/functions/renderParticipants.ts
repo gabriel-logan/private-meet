@@ -3,21 +3,21 @@ import type { GetUserDto } from "src/chat/dto/get-user.dto";
 interface RenderParticipantsParams {
   onlineUsers: GetUserDto[];
   participantsList: HTMLUListElement;
-  savedUsername: string | null;
-  clientIdGetted: string | undefined;
+  username: string | null;
+  userId: string | null;
   countSpan: HTMLSpanElement;
 }
 
 export default function renderParticipants({
   onlineUsers,
   participantsList,
-  savedUsername,
-  clientIdGetted,
+  username,
+  userId,
   countSpan,
 }: RenderParticipantsParams): void {
-  if (!clientIdGetted) {
+  if (!userId) {
     // eslint-disable-next-line no-console
-    return console.warn("Client ID not set yet.");
+    return console.warn("User ID not set yet.");
   }
 
   const quantity = onlineUsers.length - 1;
@@ -28,7 +28,7 @@ export default function renderParticipants({
 
   // Add "You" (the current user) to the list
   const li = document.createElement("li");
-  li.textContent = `You (${savedUsername})`;
+  li.textContent = `You (${username})`;
   li.classList.add(
     "font-medium",
     "text-indigo-400",
@@ -46,9 +46,7 @@ export default function renderParticipants({
   participantsList.appendChild(h3);
 
   // Filter out the current user from the online users list
-  const otherUsers = onlineUsers.filter(
-    (user) => user.userId !== clientIdGetted,
-  );
+  const otherUsers = onlineUsers.filter((user) => user.userId !== userId);
 
   // Add the other online users to the list
   otherUsers.forEach((user) => {

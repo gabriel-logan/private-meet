@@ -11,7 +11,7 @@ interface HandleTypingParams {
 }
 
 export interface TypingData {
-  clientId: Socket["id"];
+  userId: string;
   username: string;
 }
 

@@ -16,10 +16,7 @@ import {
   STOP_TYPING,
   TYPING,
 } from "src/common/constants/socketEvents";
-import {
-  MAX_ROOM_ID_LENGTH,
-  MAX_USERNAME_LENGTH,
-} from "src/common/constants/validationConstraints";
+import { MAX_ROOM_ID_LENGTH } from "src/common/constants/validationConstraints";
 
 import showToast from "./components/toast";
 import handleSendMessage from "./functions/handleSendMessage";
@@ -79,31 +76,21 @@ const typingIndicator = document.getElementById(
   "typing-indicator",
 ) as HTMLDivElement;
 
-const savedUsername = localStorage.getItem("username");
-
-if (!savedUsername?.trim() || savedUsername.length > MAX_USERNAME_LENGTH) {
-  window.location.href = "/";
-}
-
 sendButton.disabled = true;
 
-let me: string | undefined;
-let clientIdGetted: string | undefined;
+let userId: string | null = null;
+let username: string | null = null;
 
 function handleJoinRoom(): void {
-  socket.emit(
-    JOIN_ROOM,
-    { roomId, username: savedUsername },
-    (clientId: string) => {
-      me = `${savedUsername}_${clientId}`;
-      clientIdGetted = clientId;
+  socket.emit(JOIN_ROOM, { roomId }, (user: GetUserDto) => {
+    userId = user.userId;
+    username = user.username;
 
-      loadingOverlay.style.display = "none";
-      sendButton.disabled = false;
+    loadingOverlay.style.display = "none";
+    sendButton.disabled = false;
 
-      socket.emit(REQUEST_ONLINE_USERS, { roomId });
-    },
-  );
+    socket.emit(REQUEST_ONLINE_USERS, { roomId });
+  });
 }
 
 handleJoinRoom();
@@ -119,8 +106,8 @@ socket.on(ONLINE_USERS, (onlineUsers: GetUserDto[]) => {
   renderParticipants({
     onlineUsers,
     participantsList,
-    savedUsername,
-    clientIdGetted,
+    username,
+    userId,
     countSpan,
   });
 });
@@ -137,7 +124,7 @@ updateEmptyState({ messagesList });
 socket.on(NEW_MESSAGE, (payload: CreateMessageDto) => {
   const { text, sender, timestamp } = payload;
 
-  if (sender !== me) {
+  if (sender !== userId) {
     // if the message is from others
     renderNewMessageFromOthers({ text, timestamp, messagesList, sender });
   }
@@ -158,7 +145,7 @@ sendButton.addEventListener("click", () => {
     messageInput,
     socket,
     roomId,
-    me,
+    userId,
     messagesList,
   });
 });
@@ -166,7 +153,7 @@ sendButton.addEventListener("click", () => {
 handleTyping({
   socket,
   roomId,
-  username: savedUsername,
+  username,
   typingIndicator,
   messageInput,
 });
@@ -174,25 +161,31 @@ handleTyping({
 // ---- Render typing from other users ----
 const usersTyping = new Set<string>();
 
-socket.on(TYPING, ({ username: otherUser, clientId }: TypingData) => {
-  if (otherUser === savedUsername && clientId === clientIdGetted) {
-    return;
-  } // do not show typing for myself
+socket.on(
+  TYPING,
+  ({ username: otherUser, userId: otherUserId }: TypingData) => {
+    if (otherUser === username && otherUserId === userId) {
+      return;
+    } // do not show typing for myself
 
-  usersTyping.add(otherUser);
-  typingIndicator.innerText = `${Array.from(usersTyping).join(", ")} is typing...`;
-  typingIndicator.style.display = "block";
-});
-
-socket.on(STOP_TYPING, ({ username: otherUser, clientId }: TypingData) => {
-  if (otherUser === savedUsername && clientId === clientIdGetted) {
-    return;
-  } // ignore myself
-
-  usersTyping.delete(otherUser);
-  if (usersTyping.size === 0) {
-    typingIndicator.style.display = "none";
-  } else {
+    usersTyping.add(otherUser);
     typingIndicator.innerText = `${Array.from(usersTyping).join(", ")} is typing...`;
-  }
-});
+    typingIndicator.style.display = "block";
+  },
+);
+
+socket.on(
+  STOP_TYPING,
+  ({ username: otherUser, userId: otherUserId }: TypingData) => {
+    if (otherUser === username && otherUserId === userId) {
+      return;
+    } // ignore myself
+
+    usersTyping.delete(otherUser);
+    if (usersTyping.size === 0) {
+      typingIndicator.style.display = "none";
+    } else {
+      typingIndicator.innerText = `${Array.from(usersTyping).join(", ")} is typing...`;
+    }
+  },
+);
