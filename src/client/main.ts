@@ -53,21 +53,31 @@ function joinRoom(): void {
   const trimedUsername = userNameInput.value.trim();
 
   if (trimedUsername === "") {
-    return alert("Please enter a username");
+    return showToast({
+      message: "Please enter a username",
+      type: "error",
+    });
   }
 
   if (trimedRoomId === "") {
-    return alert("Please enter a room ID");
+    return showToast({
+      message: "Please enter a room ID",
+      type: "error",
+    });
   }
 
   if (trimedUsername.length > MAX_USERNAME_LENGTH) {
-    return alert(
-      `Username must be less than ${MAX_USERNAME_LENGTH} characters`,
-    );
+    return showToast({
+      message: `Username must be less than ${MAX_USERNAME_LENGTH} characters`,
+      type: "error",
+    });
   }
 
   if (trimedRoomId.length > MAX_ROOM_ID_LENGTH) {
-    return alert(`Room ID must be less than ${MAX_ROOM_ID_LENGTH} characters`);
+    return showToast({
+      message: `Room ID must be less than ${MAX_ROOM_ID_LENGTH} characters`,
+      type: "error",
+    });
   }
 
   // save username to local storage

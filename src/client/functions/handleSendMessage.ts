@@ -3,6 +3,7 @@ import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
 import { MESSAGE } from "src/common/constants/socketEvents";
 import { MAX_MESSAGE_LENGTH } from "src/common/constants/validationConstraints";
 
+import showToast from "../components/toast";
 import { renderNewMessageFromMe } from "./renderNewMessage";
 
 interface HandleSendMessageParams {
@@ -27,13 +28,19 @@ export default function handleSendMessage({
   }
 
   if (!me) {
-    return alert("User identifier not set.");
+    return showToast({
+      message: "User identifier not set.",
+      type: "info",
+      duration: 2000,
+    });
   }
 
   if (message.length > MAX_MESSAGE_LENGTH) {
-    return alert(
-      `Message is too long. Maximum length is ${MAX_MESSAGE_LENGTH} characters.`,
-    );
+    return showToast({
+      message: `Message is too long. Maximum length is ${MAX_MESSAGE_LENGTH} characters.`,
+      type: "warn",
+      duration: 2000,
+    });
   }
 
   const payload: CreateMessageDto = {
