@@ -20,8 +20,8 @@ import {
   STOP_TYPING,
   TYPING,
 } from "src/common/constants/socketEvents";
-import { v4 as uuidv4 } from "uuid";
 
+import { ChatService } from "./chat.service";
 import { CreateMessageDto } from "./dto/create-message.dto";
 import { CreateRoomDto } from "./dto/create-room.dto";
 import { GetUsersOnlineDto } from "./dto/get-users-online.dto";
@@ -32,12 +32,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private readonly users = new Map<Socket["id"], string>();
 
+  constructor(private readonly chatService: ChatService) {}
+
   @WebSocketServer()
   private readonly server: Server;
-
-  private generateRandomId(): string {
-    return uuidv4();
-  }
 
   private getOnlineUsers(roomId: string): GetUsersOnlineDto[] {
     const room = this.server.sockets.adapter.rooms.get(roomId);
@@ -58,20 +56,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: Socket): void {
     this.logger.log(`Client disconnected: ${client.id}`);
-
-    this.users.delete(client.id);
-
-    // Notify all rooms the client was part of about the updated online users
-    for (const room of client.rooms) {
-      if (room !== client.id) {
-        this.server.to(room).emit(ONLINE_USERS, this.getOnlineUsers(room));
-      }
-    }
   }
 
   @SubscribeMessage(GENERATE_ROOM_ID)
   handleGenerateRoomId(): string {
-    return this.generateRandomId();
+    return this.chatService.generateRandomId();
   }
 
   @SubscribeMessage(REQUEST_ONLINE_USERS)
