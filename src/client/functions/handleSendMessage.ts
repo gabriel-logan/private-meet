@@ -8,7 +8,7 @@ import showToast from "../components/toast";
 import { renderNewMessageFromMe } from "./renderNewMessage";
 
 interface HandleSendMessageParams {
-  messageInput: HTMLInputElement;
+  messageTextArea: HTMLTextAreaElement;
   socket: Socket;
   roomId: string;
   messagesContainer: HTMLDivElement;
@@ -16,15 +16,17 @@ interface HandleSendMessageParams {
 }
 
 export default function handleSendMessage({
-  messageInput,
+  messageTextArea,
   socket,
   roomId,
   messagesContainer,
   getUser,
 }: HandleSendMessageParams): void {
-  const message = messageInput.value;
+  // Normalize line endings but preserve internal newlines
+  const raw = messageTextArea.value.replace(/\r\n/g, "\n");
+  const message = raw.trim();
 
-  if (message.trim() === "") {
+  if (!message) {
     return;
   }
 
@@ -66,5 +68,7 @@ export default function handleSendMessage({
     messagesContainer,
   });
 
-  messageInput.value = "";
+  messageTextArea.value = "";
+  messageTextArea.style.height = "auto";
+  messageTextArea.style.overflowY = "hidden";
 }

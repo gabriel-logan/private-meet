@@ -28,6 +28,12 @@
                 overflow: hidden;
             }
         }
+
+        /* Preserve line breaks inside messages */
+        #messages {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
     </style>
 </head>
 
@@ -121,8 +127,9 @@
                         </div>
                     </div>
                 </div>
-                <input type="text" id="message-input" placeholder="Type your message here..." maxlength="500"
-                    class="flex-1 px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+                <textarea id="message-input" placeholder="Type your message here..." maxlength="500" rows="1"
+                    enterkeyhint="newline" autocomplete="off" autocapitalize="sentences" spellcheck="true"
+                    class="flex-1 px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none max-h-40 overflow-y-auto"></textarea>
                 <button id="send-button" class="p-2 hover:bg-gray-700 rounded-lg cursor-pointer">
                     <img src="/icons/send.svg" alt="Send" class="w-6 h-6">
                 </button>

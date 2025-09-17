@@ -5,7 +5,7 @@ import { STOP_TYPING, TYPING } from "src/common/constants/socket-events";
 interface HandleTypingParams {
   socket: Socket;
   roomId: string;
-  messageInput: HTMLInputElement;
+  messageTextArea: HTMLTextAreaElement;
   typingIndicator: HTMLDivElement;
   getUser: () => Partial<GetUserDto>;
 }
@@ -13,7 +13,7 @@ interface HandleTypingParams {
 export default function handleTyping({
   socket,
   roomId,
-  messageInput,
+  messageTextArea,
   typingIndicator,
   getUser,
 }: HandleTypingParams): void {
@@ -29,14 +29,14 @@ export default function handleTyping({
   }
 
   // Detect user typing
-  messageInput.addEventListener("input", () => {
+  messageTextArea.addEventListener("input", () => {
     const { username } = getUser();
 
     if (!username) {
       return;
     }
 
-    if (messageInput.value.length === 0) {
+    if (messageTextArea.value.length === 0) {
       return stopTyping();
     }
 
