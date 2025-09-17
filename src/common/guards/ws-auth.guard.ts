@@ -13,8 +13,8 @@ import { IS_PUBLIC_KEY } from "src/common/decorators/routes/public.decorator";
 import { JwtPayload } from "src/common/types";
 import { EnvGlobalConfig } from "src/configs/types";
 
-import { INVALID_TOKEN, NO_TOKEN_PROVIDED } from "../constants/errorMsgs";
-import { ERROR } from "../constants/socketEvents";
+import { INVALID_TOKEN, NO_TOKEN_PROVIDED } from "../constants/error-messages";
+import { ERROR } from "../constants/socket-events";
 
 @Injectable()
 export class WSAuthGuard implements CanActivate {

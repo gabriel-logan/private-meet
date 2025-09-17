@@ -1,15 +1,15 @@
 import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
 import type { CreateUserDto } from "src/chat/dto/create-user.dto";
-import { ACCESS_TOKEN_KEY } from "src/common/constants/localstorage";
+import { ACCESS_TOKEN_KEY } from "src/common/constants/storage";
 import {
   ERROR,
   GENERATE_ROOM_ID,
   SIGN_IN,
-} from "src/common/constants/socketEvents";
+} from "src/common/constants/socket-events";
 import {
   MAX_ROOM_ID_LENGTH,
   MAX_USERNAME_LENGTH,
-} from "src/common/constants/validationConstraints";
+} from "src/common/constants/validation-constraints";
 
 import showToast from "./components/toast";
 

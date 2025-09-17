@@ -20,7 +20,7 @@ import {
   SIGN_IN,
   STOP_TYPING,
   TYPING,
-} from "src/common/constants/socketEvents";
+} from "src/common/constants/socket-events";
 import { Public } from "src/common/decorators/routes/public.decorator";
 import { WSAuthGuard } from "src/common/guards/ws-auth.guard";
 

@@ -1,6 +1,6 @@
 import type { Socket } from "socket.io-client";
 import type { GetUserDto } from "src/chat/dto/get-user.dto";
-import { STOP_TYPING, TYPING } from "src/common/constants/socketEvents";
+import { STOP_TYPING, TYPING } from "src/common/constants/socket-events";
 
 interface HandleTypingParams {
   socket: Socket;

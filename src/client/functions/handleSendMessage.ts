@@ -1,8 +1,8 @@
 import type { Socket } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
 import type { GetUserDto } from "src/chat/dto/get-user.dto";
-import { MESSAGE, STOP_TYPING } from "src/common/constants/socketEvents";
-import { MAX_MESSAGE_LENGTH } from "src/common/constants/validationConstraints";
+import { MESSAGE, STOP_TYPING } from "src/common/constants/socket-events";
+import { MAX_MESSAGE_LENGTH } from "src/common/constants/validation-constraints";
 
 import showToast from "../components/toast";
 import { renderNewMessageFromMe } from "./renderNewMessage";
