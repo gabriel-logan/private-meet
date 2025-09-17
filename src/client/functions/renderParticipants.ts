@@ -19,9 +19,6 @@ export default function renderParticipants({
     return;
   }
 
-  const quantity = onlineUsers.length - 1;
-  countSpan.textContent = `(${quantity})`;
-
   // Clear the current list
   participantsList.innerHTML = "";
 
@@ -44,8 +41,22 @@ export default function renderParticipants({
   h3.classList.add("font-semibold", "text-gray-300", "mt-4", "mb-2");
   participantsList.appendChild(h3);
 
+  const seen = new Set<string>();
+  const uniqueOnlineUsers = onlineUsers.filter((u) => {
+    const key = `${u.userId}|${u.username.toLowerCase()}`;
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+
+    return true;
+  });
+
   // Filter out the current user from the online users list
-  const otherUsers = onlineUsers.filter((user) => user.userId !== userId);
+  const otherUsers = uniqueOnlineUsers.filter((user) => user.userId !== userId);
+
+  countSpan.textContent = `(${otherUsers.length})`;
 
   // Add the other online users to the list
   otherUsers.forEach((user) => {
