@@ -123,6 +123,15 @@ leaveRoomButton.addEventListener("click", () => {
 
   window.location.href = "/";
 });
+socket.on("disconnect", () => {
+  // eslint-disable-next-line no-console
+  console.log("Disconnected from server");
+
+  leaveRoomButton.disabled = true;
+  sendButton.disabled = true;
+
+  handleLeaveRoom();
+});
 
 socket.on(ONLINE_USERS, (onlineUsers: GetUserDto[]) => {
   renderParticipants({
