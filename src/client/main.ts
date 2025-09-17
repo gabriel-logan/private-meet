@@ -109,6 +109,12 @@ function createUser(): void {
     localStorage.setItem(ACCESS_TOKEN_KEY, token);
 
     renderForms();
+
+    showToast({
+      message: `Welcome, ${username}! You can now join a room.`,
+      type: "success",
+      duration: 2000,
+    });
   });
 }
 
