@@ -49,10 +49,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return [];
     }
 
-    return Array.from(room).map((userId) => ({
-      userId: userId,
-      username: this.users.get(userId) ?? "Unknown",
-    }));
+    const onlineUsers: GetUserDto[] = [];
+
+    room.forEach((socketId) => {
+      const socket = this.server.sockets.sockets.get(socketId);
+
+      if (socket?.user) {
+        const { sub } = socket.user;
+
+        const username = this.users.get(sub);
+
+        if (username) {
+          onlineUsers.push({ userId: sub, username });
+        }
+      }
+    });
+
+    return onlineUsers;
   }
 
   handleConnection(client: Socket): void {

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
-import { AuthPayload } from "src/common/types";
+import { AuthPayload, JwtPayload } from "src/common/types";
 import { EnvGlobalConfig } from "src/configs/types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -19,15 +19,15 @@ export class ChatService {
 
     const { username } = createUserDto;
 
-    const payload = { userId, username };
+    const payload: AuthPayload = { sub: userId, username };
 
     return await this.jwtService.signAsync(payload);
   }
 
-  async verifyJwt(token: string): Promise<AuthPayload> {
+  async verifyJwt(token: string): Promise<JwtPayload> {
     const { jwt } = this.configService.get<EnvGlobalConfig["server"]>("server");
 
-    const payload: AuthPayload = await this.jwtService.verifyAsync(token, {
+    const payload: JwtPayload = await this.jwtService.verifyAsync(token, {
       secret: jwt.secret,
     });
 

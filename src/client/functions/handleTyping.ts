@@ -28,7 +28,7 @@ export default function handleTyping({
   // ---- Internal helper to emit stop typing ----
   function stopTyping(): void {
     if (typing) {
-      socket.emit(STOP_TYPING, { roomId, username });
+      socket.emit(STOP_TYPING, { roomId });
       typing = false;
     }
   }
@@ -44,7 +44,7 @@ export default function handleTyping({
     }
 
     if (!typing) {
-      socket.emit(TYPING, { roomId, username });
+      socket.emit(TYPING, { roomId });
       typing = true;
     }
 

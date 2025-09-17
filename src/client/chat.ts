@@ -20,8 +20,6 @@ import { MAX_ROOM_ID_LENGTH } from "src/common/constants/validationConstraints";
 
 import showToast from "./components/toast";
 import handleSendMessage from "./functions/handleSendMessage";
-import type { TypingData } from "./functions/handleTyping";
-import handleTyping from "./functions/handleTyping";
 import { renderNewMessageFromOthers } from "./functions/renderNewMessage";
 import renderParticipants from "./functions/renderParticipants";
 import updateEmptyState from "./functions/updateEmptyState";
@@ -150,12 +148,35 @@ sendButton.addEventListener("click", () => {
   });
 });
 
-handleTyping({
-  socket,
-  roomId,
-  username,
-  typingIndicator,
-  messageInput,
+let typing = false;
+let typingTimeout: NodeJS.Timeout | undefined;
+
+// ---- Internal helper to emit stop typing ----
+function stopTyping(): void {
+  if (typing) {
+    socket.emit(STOP_TYPING, { roomId });
+    typing = false;
+  }
+}
+
+// Detect user typing
+messageInput.addEventListener("input", () => {
+  if (!username) {
+    return;
+  }
+
+  if (messageInput.value.length === 0) {
+    return stopTyping();
+  }
+
+  if (!typing) {
+    socket.emit(TYPING, { roomId });
+    typing = true;
+  }
+
+  // Restart the timer every time the user types
+  clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(stopTyping, 1200); // without typing = stopped
 });
 
 // ---- Render typing from other users ----
@@ -163,7 +184,7 @@ const usersTyping = new Set<string>();
 
 socket.on(
   TYPING,
-  ({ username: otherUser, userId: otherUserId }: TypingData) => {
+  ({ username: otherUser, userId: otherUserId }: GetUserDto) => {
     if (otherUser === username && otherUserId === userId) {
       return;
     } // do not show typing for myself
@@ -176,7 +197,7 @@ socket.on(
 
 socket.on(
   STOP_TYPING,
-  ({ username: otherUser, userId: otherUserId }: TypingData) => {
+  ({ username: otherUser, userId: otherUserId }: GetUserDto) => {
     if (otherUser === username && otherUserId === userId) {
       return;
     } // ignore myself
