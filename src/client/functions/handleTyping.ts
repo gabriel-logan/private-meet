@@ -18,7 +18,7 @@ export default function handleTyping({
   getUser,
 }: HandleTypingParams): void {
   let typing = false;
-  let typingTimeout: NodeJS.Timeout | undefined;
+  let typingTimeout: ReturnType<typeof setTimeout>;
 
   // ---- Internal helper to emit stop typing ----
   function stopTyping(): void {

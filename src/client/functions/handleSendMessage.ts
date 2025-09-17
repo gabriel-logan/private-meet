@@ -1,7 +1,7 @@
 import type { Socket } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
 import type { GetUserDto } from "src/chat/dto/get-user.dto";
-import { MESSAGE } from "src/common/constants/socketEvents";
+import { MESSAGE, STOP_TYPING } from "src/common/constants/socketEvents";
 import { MAX_MESSAGE_LENGTH } from "src/common/constants/validationConstraints";
 
 import showToast from "../components/toast";
@@ -55,6 +55,8 @@ export default function handleSendMessage({
     },
     timestamp: Date.now(),
   };
+
+  socket.emit(STOP_TYPING, { roomId });
 
   socket.emit(MESSAGE, payload);
 
