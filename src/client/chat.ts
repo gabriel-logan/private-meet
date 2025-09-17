@@ -5,6 +5,7 @@ import "./scripts/inlineBtnCopyRoomIdScript";
 import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
 import type { GetUsersOnlineDto } from "src/chat/dto/get-users-online.dto";
+import { ACCESS_TOKEN_KEY } from "src/common/constants/localstorage";
 import {
   JOIN_ROOM,
   LEAVE_ROOM,
@@ -26,21 +27,27 @@ import { renderNewMessageFromOthers } from "./functions/renderNewMessage";
 import renderParticipants from "./functions/renderParticipants";
 import updateEmptyState from "./functions/updateEmptyState";
 
-type Io = (opts?: Partial<ManagerOptions & SocketOptions>) => Socket;
-
-// io is injected by the socket.io script included in chat.html
-declare const io: Io;
-const socket = io();
-
 const roomIdInput = document.getElementById("roomId") as
   | HTMLInputElement
   | undefined;
 
 const roomId = encodeURIComponent(roomIdInput?.value || "").trim();
 
-if (roomId.length > MAX_ROOM_ID_LENGTH) {
+const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+
+if (roomId.length > MAX_ROOM_ID_LENGTH || !accessToken) {
   window.location.href = "/";
 }
+
+type Io = (opts?: Partial<ManagerOptions & SocketOptions>) => Socket;
+
+// io is injected by the socket.io script included in chat.html
+declare const io: Io;
+const socket = io({
+  auth: {
+    token: accessToken,
+  },
+});
 
 const loadingOverlay = document.getElementById(
   "client-loading",
