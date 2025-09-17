@@ -101,6 +101,18 @@ sendButton.disabled = true;
 let userId: string | undefined;
 let username: string | undefined;
 
+const passphrase = prompt("Enter your passphrase for E2EE: ");
+
+if (!passphrase) {
+  showToast({
+    message: "Passphrase is required for E2EE.",
+    type: "error",
+    duration: 4000,
+  });
+
+  window.location.reload();
+}
+
 function handleJoinRoom(): void {
   socket.emit(JOIN_ROOM, { roomId }, (user: GetUserDto) => {
     userId = user.userId;
@@ -111,7 +123,7 @@ function handleJoinRoom(): void {
 
     socket.emit(REQUEST_ONLINE_USERS, { roomId });
 
-    initE2EE(roomId, roomId)
+    initE2EE(passphrase as string, roomId)
       .then(() => {
         sendButton.disabled = false;
       })
