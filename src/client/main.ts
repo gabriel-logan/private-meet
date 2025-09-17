@@ -61,12 +61,16 @@ const joinRoomForm = document.getElementById(
 
 generateRoomBtn.disabled = true;
 joinRoomBtn.disabled = true;
+createUserBtn.disabled = true;
+deleteUserBtn.disabled = true;
 
 // ---- Socket connection handling ----
 if (socket.active) {
   loadingOverlay.style.display = "none";
   generateRoomBtn.disabled = false;
   joinRoomBtn.disabled = false;
+  createUserBtn.disabled = false;
+  deleteUserBtn.disabled = false;
 }
 
 // ---- Form visibility logic ----
