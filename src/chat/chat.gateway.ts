@@ -91,7 +91,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage(REQUEST_ONLINE_USERS)
   handleGetOnlineUsers(
-    @MessageBody() payload: { roomId: string },
+    @MessageBody() payload: RoomDto,
     @ConnectedSocket() client: Socket,
   ): void {
     const { roomId } = payload;
