@@ -5,6 +5,8 @@ import { AuthPayload } from "src/common/types";
 import { EnvGlobalConfig } from "src/configs/types";
 import { v4 as uuidv4 } from "uuid";
 
+import { CreateUserDto } from "./dto/create-user.dto";
+
 @Injectable()
 export class ChatService {
   constructor(
@@ -12,8 +14,10 @@ export class ChatService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signInJwt(username: string): Promise<string> {
+  async signInJwt(createUserDto: CreateUserDto): Promise<string> {
     const userId = this.generateRandomId();
+
+    const { username } = createUserDto;
 
     const payload = { userId, username };
 

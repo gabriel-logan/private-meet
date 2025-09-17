@@ -21,6 +21,7 @@ import {
   STOP_TYPING,
   TYPING,
 } from "src/common/constants/socketEvents";
+import { Public } from "src/common/decorators/routes/public.decorator";
 import { WSAuthGuard } from "src/common/guards/ws-auth.guard";
 
 import { ChatService } from "./chat.service";
@@ -62,11 +63,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
+  @Public()
   @SubscribeMessage(SIGN_IN)
-  async handleSignIn(@MessageBody() payload: CreateUserDto): Promise<string> {
-    const { username } = payload;
-
-    return await this.chatService.signInJwt(username);
+  async handleSignIn(
+    @MessageBody() createUserDto: CreateUserDto,
+  ): Promise<string> {
+    return await this.chatService.signInJwt(createUserDto);
   }
 
   @SubscribeMessage(GENERATE_ROOM_ID)

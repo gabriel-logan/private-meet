@@ -1,6 +1,7 @@
 import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
+import type { CreateUserDto } from "src/chat/dto/create-user.dto";
 import { ACCESS_TOKEN_KEY } from "src/common/constants/localstorage";
-import { GENERATE_ROOM_ID } from "src/common/constants/socketEvents";
+import { GENERATE_ROOM_ID, SIGN_IN } from "src/common/constants/socketEvents";
 import {
   MAX_ROOM_ID_LENGTH,
   MAX_USERNAME_LENGTH,
@@ -90,10 +91,13 @@ function createUser(): void {
     });
   }
 
-  // Fake token until backend ready
-  localStorage.setItem(ACCESS_TOKEN_KEY, "fake-token-" + Date.now());
+  const payload: CreateUserDto = { username };
 
-  renderForms();
+  socket.emit(SIGN_IN, payload, (token: string) => {
+    localStorage.setItem(ACCESS_TOKEN_KEY, token);
+
+    renderForms();
+  });
 }
 
 function deleteUser(): void {
