@@ -79,7 +79,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleJoinRoom(
     @MessageBody() payload: RoomDto,
     @ConnectedSocket() client: Socket,
-  ): Promise<Socket["id"]> {
+  ): Promise<{ userId: string }> {
     const { roomId } = payload;
     const { sub, username } = client.user!;
 
@@ -91,7 +91,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.server.to(roomId).emit(ONLINE_USERS, this.getOnlineUsers(roomId));
 
-    return sub;
+    return { userId: sub };
   }
 
   @SubscribeMessage(LEAVE_ROOM)
