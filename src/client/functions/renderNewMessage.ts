@@ -1,9 +1,11 @@
+import type { GetUserDto } from "src/chat/dto/get-user.dto";
+
 interface RenderNewMessageParams {
-  sender: string;
+  sender: GetUserDto;
   text: string;
   timestamp: number;
   messagesList: HTMLUListElement;
-  me: string | undefined;
+  userId: string | null;
 }
 
 interface RenderMessageParams {
@@ -17,19 +19,19 @@ interface RenderMessageParams {
 
 type RenderNewMessageFromMeParams = Omit<
   RenderNewMessageParams,
-  "me" | "sender"
+  "userId" | "sender"
 >;
 
-type RenderNewMessageFromOthersParams = Omit<RenderNewMessageParams, "me">;
+type RenderNewMessageFromOthersParams = Omit<RenderNewMessageParams, "userId">;
 
 export default function renderNewMessage({
   sender,
   text,
   timestamp,
   messagesList,
-  me,
+  userId,
 }: RenderNewMessageParams): void {
-  if (sender !== me) {
+  if (sender.userId !== userId) {
     renderNewMessageFromOthers({ text, timestamp, messagesList, sender });
   } else {
     renderNewMessageFromMe({ text, timestamp, messagesList });
@@ -97,7 +99,7 @@ export function renderNewMessageFromOthers({
   sender,
 }: RenderNewMessageFromOthersParams): void {
   renderMessage({
-    name: sender.split("_")[0].toUpperCase(),
+    name: sender.username.split("_")[0].toUpperCase(),
     nameClass: "text-red-400",
     text,
     timestamp,

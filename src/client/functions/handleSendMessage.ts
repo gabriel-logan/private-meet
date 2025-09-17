@@ -11,6 +11,7 @@ interface HandleSendMessageParams {
   socket: Socket;
   roomId: string;
   userId: string | null;
+  username: string | null;
   messagesList: HTMLUListElement;
 }
 
@@ -19,6 +20,7 @@ export default function handleSendMessage({
   socket,
   roomId,
   userId,
+  username,
   messagesList,
 }: HandleSendMessageParams): void {
   const message = messageInput.value;
@@ -27,7 +29,7 @@ export default function handleSendMessage({
     return;
   }
 
-  if (!userId) {
+  if (!username) {
     return showToast({
       message: "User identifier not set.",
       type: "info",
@@ -46,7 +48,10 @@ export default function handleSendMessage({
   const payload: CreateMessageDto = {
     text: message,
     roomId: roomId,
-    sender: userId,
+    sender: {
+      userId: userId || "",
+      username: username,
+    },
     timestamp: Date.now(),
   };
 

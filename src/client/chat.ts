@@ -122,7 +122,7 @@ updateEmptyState({ messagesList });
 socket.on(NEW_MESSAGE, (payload: CreateMessageDto) => {
   const { text, sender, timestamp } = payload;
 
-  if (sender !== userId) {
+  if (sender.userId !== userId) {
     // if the message is from others
     renderNewMessageFromOthers({ text, timestamp, messagesList, sender });
   }
@@ -144,6 +144,7 @@ sendButton.addEventListener("click", () => {
     socket,
     roomId,
     userId,
+    username,
     messagesList,
   });
 });
