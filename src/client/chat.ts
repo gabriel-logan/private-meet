@@ -5,6 +5,7 @@ import "./scripts/inlineBtnCopyRoomIdScript";
 import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
 import type { CreateMessageDto } from "src/chat/dto/create-message.dto";
 import type { GetUserDto } from "src/chat/dto/get-user.dto";
+import { INVALID_TOKEN } from "src/common/constants/errorMsgs";
 import { ACCESS_TOKEN_KEY } from "src/common/constants/localstorage";
 import {
   ERROR,
@@ -47,6 +48,12 @@ const socket = io({
 });
 
 socket.on(ERROR, (message: string) => {
+  if (message === INVALID_TOKEN) {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    window.location.href = "/";
+    return;
+  }
+
   showToast({ message, type: "error", duration: 2000 });
 });
 
