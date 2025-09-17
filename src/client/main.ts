@@ -67,12 +67,6 @@ function renderForms(): void {
   if (accessToken) {
     userCreationForm.classList.add("hidden");
     joinRoomForm.classList.remove("hidden");
-
-    const savedUsername = localStorage.getItem("username");
-
-    if (savedUsername) {
-      userNameInput.value = savedUsername;
-    }
   } else {
     joinRoomForm.classList.add("hidden");
     userCreationForm.classList.remove("hidden");
@@ -88,6 +82,7 @@ function createUser(): void {
   if (!username) {
     return showToast({ message: "Please enter a username", type: "error" });
   }
+
   if (username.length > MAX_USERNAME_LENGTH) {
     return showToast({
       message: `Username must be less than ${MAX_USERNAME_LENGTH} characters`,
@@ -95,31 +90,25 @@ function createUser(): void {
     });
   }
 
-  localStorage.setItem("username", username);
   // Fake token until backend ready
   localStorage.setItem(ACCESS_TOKEN_KEY, "fake-token-" + Date.now());
+
   renderForms();
 }
 
 function deleteUser(): void {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
-  localStorage.removeItem("username");
+
   renderForms();
 }
 
 function joinRoom(): void {
   const roomId = roomIdInput.value.trim();
-  const username = localStorage.getItem("username") || "";
 
-  if (!username) {
-    return showToast({
-      message: "No user found, please create one first",
-      type: "error",
-    });
-  }
   if (!roomId) {
     return showToast({ message: "Please enter a room ID", type: "error" });
   }
+
   if (roomId.length > MAX_ROOM_ID_LENGTH) {
     return showToast({
       message: `Room ID must be less than ${MAX_ROOM_ID_LENGTH} characters`,
@@ -128,6 +117,7 @@ function joinRoom(): void {
   }
 
   const encodedRoomId = encodeURIComponent(roomId);
+
   window.location.href = `/chat?roomId=${encodedRoomId}`;
 }
 
