@@ -159,8 +159,7 @@ export default function showToast({
     progressBar.style.transition = "none";
 
     // Force reflow to apply the transition reset
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    progressBar.offsetHeight;
+    progressBar.getBoundingClientRect();
 
     progressBar.style.width = "100%";
 
