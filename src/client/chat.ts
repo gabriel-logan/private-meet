@@ -2,7 +2,6 @@ import "./scripts/inlineEmojiPickerScript";
 import "./scripts/inlineChatScripts";
 import "./scripts/inlineBtnCopyRoomIdScript";
 
-import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
 import type {
   CreateMessageDto,
   InnerMessage,
@@ -27,6 +26,7 @@ import initChatInputBehavior from "./functions/initChatInputBehavior";
 import { renderNewMessageFromOthers } from "./functions/renderNewMessage";
 import renderParticipants from "./functions/renderParticipants";
 import updateEmptyState from "./functions/updateEmptyState";
+import type { Io } from "./types/SocketClient";
 import { aadFrom, decryptString, getCachedKey, initE2EE } from "./utils/e2ee";
 
 const roomIdInput = document.getElementById("roomId") as
@@ -42,8 +42,6 @@ const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
 if (roomId.length > MAX_ROOM_ID_LENGTH || !accessToken) {
   window.location.href = "/";
 }
-
-type Io = (opts?: Partial<ManagerOptions & SocketOptions>) => Socket;
 
 // io is injected by the socket.io script included in chat.html
 declare const io: Io;

@@ -1,4 +1,3 @@
-import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
 import type { CreateUserDto } from "src/chat/dto/create-user.dto";
 import {
   ERROR,
@@ -13,8 +12,7 @@ import {
 } from "src/shared/constants/validation-constraints";
 
 import showToast from "./components/toast";
-
-type Io = (opts?: Partial<ManagerOptions & SocketOptions>) => Socket;
+import type { Io } from "./types/SocketClient";
 
 // io is injected by the socket.io script included in main.html
 declare const io: Io;
