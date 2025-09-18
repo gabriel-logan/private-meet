@@ -229,17 +229,25 @@ socket.on(NEW_MESSAGE, async (payload: CreateMessageDto) => {
 initChatInputBehavior({ messageTextArea, sendButton });
 
 sendButton.addEventListener("click", () => {
-  void handleSendMessage({
+  handleSendMessage({
     messageTextArea,
     socket,
     roomId,
     messagesContainer,
     getUser: () => ({ userId, username }),
-  });
-
-  // After sending, reset the textarea height
-  messageTextArea.style.height = "auto";
-  messageTextArea.style.overflowY = "hidden";
+  })
+    .then(() => {
+      // After sending, reset the textarea height
+      messageTextArea.style.height = "auto";
+      messageTextArea.style.overflowY = "hidden";
+    })
+    .catch(() => {
+      showToast({
+        message: "Failed to send message.",
+        type: "error",
+        duration: 2000,
+      });
+    });
 });
 
 handleTyping({
