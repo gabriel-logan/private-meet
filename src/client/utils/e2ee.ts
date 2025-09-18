@@ -4,9 +4,9 @@ let cachedKey: CryptoKey | undefined;
 
 export async function initE2EE(
   passphrase: string,
-  roomId: string,
+  saltString: string,
 ): Promise<CryptoKey> {
-  const salt = await saltFromRoom(roomId);
+  const salt = await saltFromRoom(saltString);
   const key = await deriveKey(passphrase, salt);
 
   setCachedKey(key);
@@ -36,7 +36,7 @@ function toArrayBuffer(u8: Uint8Array): ArrayBuffer {
 export async function deriveKey(
   passphrase: string,
   salt: Uint8Array,
-  iterations = 200_000,
+  iterations = 200000,
 ): Promise<CryptoKey> {
   const enc = new TextEncoder();
 
