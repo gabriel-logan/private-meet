@@ -108,5 +108,8 @@
       "\\.schema\\.ts$"
     ]
   },
+  "engines": {
+    "node": ">=20"
+  },
   "packageManager": "yarn@4.9.4"
 }
