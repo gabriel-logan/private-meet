@@ -24,41 +24,39 @@ socket.on(ERROR, (message: string) => {
   showToast({ message, type: "error", duration: 2000 });
 });
 
-const loadingOverlay = document.getElementById(
-  "client-loading",
-) as HTMLDivElement;
+const loadingOverlayRaw = document.getElementById("client-loading");
+const roomIdInputRaw = document.getElementById("room-id-input");
+const userNameInputRaw = document.getElementById("username-input");
+const joinRoomBtnRaw = document.getElementById("join-room-button");
+const generateRoomBtnRaw = document.getElementById("generate-room-button");
+const createUserBtnRaw = document.getElementById("create-user-button");
+const deleteUserBtnRaw = document.getElementById("delete-user-button");
+const userCreationFormRaw = document.getElementById("user-creation-form");
+const joinRoomFormRaw = document.getElementById("join-room-form");
 
-const roomIdInput = document.getElementById(
-  "room-id-input",
-) as HTMLInputElement;
+if (
+  !loadingOverlayRaw ||
+  !roomIdInputRaw ||
+  !userNameInputRaw ||
+  !joinRoomBtnRaw ||
+  !generateRoomBtnRaw ||
+  !createUserBtnRaw ||
+  !deleteUserBtnRaw ||
+  !userCreationFormRaw ||
+  !joinRoomFormRaw
+) {
+  throw new Error("One or more required DOM elements are missing");
+}
 
-const userNameInput = document.getElementById(
-  "username-input",
-) as HTMLInputElement;
-
-const joinRoomBtn = document.getElementById(
-  "join-room-button",
-) as HTMLButtonElement;
-
-const generateRoomBtn = document.getElementById(
-  "generate-room-button",
-) as HTMLButtonElement;
-
-const createUserBtn = document.getElementById(
-  "create-user-button",
-) as HTMLButtonElement;
-
-const deleteUserBtn = document.getElementById(
-  "delete-user-button",
-) as HTMLButtonElement;
-
-const userCreationForm = document.getElementById(
-  "user-creation-form",
-) as HTMLDivElement;
-
-const joinRoomForm = document.getElementById(
-  "join-room-form",
-) as HTMLDivElement;
+const loadingOverlay = loadingOverlayRaw as HTMLDivElement;
+const roomIdInput = roomIdInputRaw as HTMLInputElement;
+const userNameInput = userNameInputRaw as HTMLInputElement;
+const joinRoomBtn = joinRoomBtnRaw as HTMLButtonElement;
+const generateRoomBtn = generateRoomBtnRaw as HTMLButtonElement;
+const createUserBtn = createUserBtnRaw as HTMLButtonElement;
+const deleteUserBtn = deleteUserBtnRaw as HTMLButtonElement;
+const userCreationForm = userCreationFormRaw as HTMLDivElement;
+const joinRoomForm = joinRoomFormRaw as HTMLDivElement;
 
 generateRoomBtn.disabled = true;
 joinRoomBtn.disabled = true;
@@ -86,8 +84,6 @@ function renderForms(): void {
     userCreationForm.classList.remove("hidden");
   }
 }
-
-renderForms();
 
 // ---- Actions ----
 function createUser(): void {
@@ -160,6 +156,9 @@ function generateRoomId(): void {
     });
   });
 }
+
+// Initial render
+renderForms();
 
 // ---- Event listeners ----
 createUserBtn.addEventListener("click", createUser);

@@ -67,33 +67,36 @@ socket.on(ERROR, (message: string) => {
   showToast({ message, type: "error", duration: 2000 });
 });
 
-const loadingOverlay = document.getElementById(
-  "client-loading",
-) as HTMLDivElement;
+const loadingOverlayRaw = document.getElementById("client-loading");
+const messageTextAreaRaw = document.getElementById("message-input");
+const sendButtonRaw = document.getElementById("send-button");
+const messagesContainerRaw = document.getElementById("messages");
+const participantsListRaw = document.getElementById("participant-list");
+const countSpanRaw = document.getElementById("participant-count");
+const typingIndicatorRaw = document.getElementById("typing-indicator");
+const leaveRoomButtonRaw = document.getElementById("leave-button");
 
-const messageTextArea = document.getElementById(
-  "message-input",
-) as HTMLTextAreaElement;
+if (
+  !loadingOverlayRaw ||
+  !messageTextAreaRaw ||
+  !sendButtonRaw ||
+  !messagesContainerRaw ||
+  !participantsListRaw ||
+  !countSpanRaw ||
+  !typingIndicatorRaw ||
+  !leaveRoomButtonRaw
+) {
+  throw new Error("Missing required DOM elements");
+}
 
-const sendButton = document.getElementById("send-button") as HTMLButtonElement;
-
-const messagesContainer = document.getElementById("messages") as HTMLDivElement;
-
-const participantsList = document.getElementById(
-  "participant-list",
-) as HTMLUListElement;
-
-const countSpan = document.getElementById(
-  "participant-count",
-) as HTMLSpanElement;
-
-const typingIndicator = document.getElementById(
-  "typing-indicator",
-) as HTMLDivElement;
-
-const leaveRoomButton = document.getElementById(
-  "leave-button",
-) as HTMLButtonElement;
+const loadingOverlay = loadingOverlayRaw as HTMLDivElement;
+const messageTextArea = messageTextAreaRaw as HTMLTextAreaElement;
+const sendButton = sendButtonRaw as HTMLButtonElement;
+const messagesContainer = messagesContainerRaw as HTMLDivElement;
+const participantsList = participantsListRaw as HTMLUListElement;
+const countSpan = countSpanRaw as HTMLSpanElement;
+const typingIndicator = typingIndicatorRaw as HTMLDivElement;
+const leaveRoomButton = leaveRoomButtonRaw as HTMLButtonElement;
 
 leaveRoomButton.disabled = true;
 sendButton.disabled = true;

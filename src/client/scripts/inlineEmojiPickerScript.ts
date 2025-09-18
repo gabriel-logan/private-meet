@@ -1,24 +1,18 @@
-const emojiBtn = document.getElementById(
-  "emoji-toggle",
-) as HTMLButtonElement | null;
+const emojiBtnRaw = document.getElementById("emoji-toggle");
+const emojiPickerRaw = document.getElementById("emoji-picker");
+const closeBtnRaw = document.getElementById("emoji-close");
+const messageInputRaw = document.getElementById("message-input");
 
-const emojiPicker = document.getElementById(
-  "emoji-picker",
-) as HTMLDivElement | null;
-
-const closeBtn = document.getElementById(
-  "emoji-close",
-) as HTMLButtonElement | null;
-
-const messageInput = document.getElementById(
-  "message-input",
-) as HTMLInputElement | null;
-
-const isMobile = window.matchMedia("(max-width: 640px)").matches;
-
-if (!emojiBtn || !emojiPicker || !messageInput || !closeBtn) {
+if (!emojiBtnRaw || !emojiPickerRaw || !messageInputRaw || !closeBtnRaw) {
   throw new Error("Emoji picker elements not found");
 }
+
+const emojiBtn = emojiBtnRaw as HTMLButtonElement;
+const emojiPicker = emojiPickerRaw as HTMLDivElement;
+const closeBtn = closeBtnRaw as HTMLButtonElement;
+const messageInput = messageInputRaw as HTMLInputElement;
+
+const isMobile = window.matchMedia("(max-width: 640px)").matches;
 
 function insertAtCursor(el: HTMLInputElement, text: string): void {
   const start = el.selectionStart ?? el.value.length;
@@ -31,7 +25,7 @@ function insertAtCursor(el: HTMLInputElement, text: string): void {
 }
 
 function openPicker(): void {
-  emojiPicker?.classList.remove("hidden");
+  emojiPicker.classList.remove("hidden");
 
   if (isMobile) {
     document.body.classList.add("emoji-open");
@@ -39,7 +33,7 @@ function openPicker(): void {
 }
 
 function closePicker(): void {
-  emojiPicker?.classList.add("hidden");
+  emojiPicker.classList.add("hidden");
 
   document.body.classList.remove("emoji-open");
 }

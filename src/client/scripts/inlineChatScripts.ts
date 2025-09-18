@@ -1,16 +1,12 @@
-// Toggle sidebar (mobile)
-const menuIcon = document.getElementById("menu-icon") as HTMLDivElement | null;
-const participants = document.getElementById(
-  "participants",
-) as HTMLDivElement | null;
+const menuIconRaw = document.getElementById("menu-icon");
+const participantsRaw = document.getElementById("participants");
+const containerRaw = document.getElementById("remote-videos");
+const messagesContainerRaw = document.getElementById("messages");
 
-const container = document.getElementById(
-  "remote-videos",
-) as HTMLDivElement | null;
-
-const messagesContainer = document.getElementById(
-  "messages",
-) as HTMLUListElement | null;
+const menuIcon = menuIconRaw as HTMLDivElement | null;
+const participants = participantsRaw as HTMLDivElement | null;
+const container = containerRaw as HTMLDivElement | null;
+const messagesContainer = messagesContainerRaw as HTMLUListElement | null;
 
 function updateVideoGrid(): void {
   if (!container) {
@@ -40,6 +36,10 @@ if (!menuIcon || !participants) {
   throw new Error("Menu icon or participants element not found");
 }
 
+// Initial calls
+updateVideoGrid();
+scrollToBottom();
+
 menuIcon.addEventListener("click", () => {
   participants.classList.toggle("-translate-x-full");
 });
@@ -53,7 +53,3 @@ document.addEventListener("click", (event) => {
     participants.classList.add("-translate-x-full");
   }
 });
-
-updateVideoGrid();
-
-scrollToBottom();
