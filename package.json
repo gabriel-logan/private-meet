@@ -6,7 +6,7 @@
     "name": "Gabriel Logan"
   },
   "private": true,
-  "license": "MIT",
+  "license": "AGPL-3.0",
   "scripts": {
     "build": "yarn build:backend && yarn build:frontend && yarn build:style",
     "build:backend": "nest build",
