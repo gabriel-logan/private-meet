@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
+import { randomUUID } from "crypto";
 import { EnvGlobalConfig } from "src/configs/types";
 import { AuthPayload, JwtPayload } from "src/shared/types";
-import { v4 as uuidv4 } from "uuid";
 
 import { CreateUserDto } from "./dto/create-user.dto";
 
@@ -35,6 +35,6 @@ export class ChatService {
   }
 
   generateRandomId(): string {
-    return uuidv4();
+    return randomUUID();
   }
 }

@@ -1,3 +1,5 @@
+import { ConfigModule } from "@nestjs/config";
+import { JwtModule } from "@nestjs/jwt";
 import type { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 
@@ -8,6 +10,7 @@ describe("ChatService", () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule, JwtModule],
       providers: [ChatService],
     }).compile();
 

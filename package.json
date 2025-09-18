@@ -24,7 +24,7 @@
     "start": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "lint:fix": "yarn lint --fix",
-    "test": "jest",
+    "test": "jest --verbose",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
@@ -47,8 +47,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1",
-    "uuid": "^13.0.0"
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -97,7 +96,16 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    },
+    "coveragePathIgnorePatterns": [
+      "src/main.ts",
+      "\\.module\\.ts$",
+      "\\.decorator\\.ts$",
+      "\\.schema\\.ts$"
+    ]
   },
   "packageManager": "yarn@4.9.4"
 }

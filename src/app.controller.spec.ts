@@ -17,7 +17,7 @@ describe("AppController", () => {
   describe("root", () => {
     it('should return "Hello World!"', () => {
       expect(appController.home()).toEqual({
-        message: "Welcome to Private Meet!",
+        title: "Welcome to Private Meet!",
       });
     });
   });
