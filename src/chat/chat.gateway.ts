@@ -85,6 +85,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return await this.chatService.signInJwt(createUserDto);
   }
 
+  @Public()
   @SubscribeMessage(GENERATE_ROOM_ID)
   handleGenerateRoomId(): string {
     return this.chatService.generateRandomId();
