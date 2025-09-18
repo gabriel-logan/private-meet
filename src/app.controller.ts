@@ -1,7 +1,15 @@
-import { Controller, Get, Query, Render, Res } from "@nestjs/common";
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Query,
+  Render,
+  Res,
+} from "@nestjs/common";
 import type { Response } from "express";
 
 import { EMOJIS } from "./common/constants/emojis";
+import { MAX_ROOM_ID_LENGTH } from "./common/constants/validation-constraints";
 
 @Controller()
 export class AppController {
@@ -24,6 +32,12 @@ export class AppController {
   ): { roomId: string; emojis: typeof EMOJIS } | void {
     if (!roomId) {
       return response.redirect("/");
+    }
+
+    if (roomId.length > MAX_ROOM_ID_LENGTH) {
+      throw new BadRequestException(
+        `Room ID must not exceed ${MAX_ROOM_ID_LENGTH} characters.`,
+      );
     }
 
     return { roomId, emojis: EMOJIS };
