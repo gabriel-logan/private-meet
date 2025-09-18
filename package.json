@@ -15,6 +15,7 @@
     "build:frontend:chat": "ENTRY=chat npx vite build",
     "build:style": "npx tailwindcss -i ./src/client/input.css -o ./public/styles.css --minify",
     "format": "prettier --write **/*.{ts,js,json,md,yml,yaml,mjs}",
+    "format:check": "yarn format --check",
     "dev": "concurrently \"yarn dev:backend\" \"yarn dev:frontend:main\" \"yarn dev:frontend:chat\" \"yarn dev:style\"",
     "dev:backend": "nest start --watch",
     "dev:frontend:main": "ENTRY=main npx vite build --watch",
