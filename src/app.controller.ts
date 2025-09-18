@@ -28,10 +28,14 @@ export class AppController {
   @Render("chat")
   chat(
     @Res() response: Response,
-    @Query("roomId") roomId?: string,
+    @Query("roomId") roomId?: string | string[],
   ): { roomId: string; emojis: typeof EMOJIS } | void {
     if (!roomId) {
       return response.redirect("/");
+    }
+
+    if (typeof roomId !== "string") {
+      throw new BadRequestException("Only one room ID is allowed.");
     }
 
     if (roomId.length > MAX_ROOM_ID_LENGTH) {
