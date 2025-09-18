@@ -2,7 +2,7 @@ import { IsString, IsUUID, Length } from "class-validator";
 import {
   MAX_USERNAME_LENGTH,
   MIN_USERNAME_LENGTH,
-} from "src/common/constants/validation-constraints";
+} from "src/shared/constants/validation-constraints";
 
 export class GetUserDto {
   @IsUUID()

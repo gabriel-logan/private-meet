@@ -8,7 +8,7 @@ import type {
   InnerMessage,
 } from "src/chat/dto/create-message.dto";
 import type { GetUserDto } from "src/chat/dto/get-user.dto";
-import { INVALID_TOKEN } from "src/common/constants/error-messages";
+import { INVALID_TOKEN } from "src/shared/constants/error-messages";
 import {
   ERROR,
   JOIN_ROOM,
@@ -16,9 +16,9 @@ import {
   NEW_MESSAGE,
   ONLINE_USERS,
   REQUEST_ONLINE_USERS,
-} from "src/common/constants/socket-events";
-import { ACCESS_TOKEN_KEY } from "src/common/constants/storage";
-import { MAX_ROOM_ID_LENGTH } from "src/common/constants/validation-constraints";
+} from "src/shared/constants/socket-events";
+import { ACCESS_TOKEN_KEY } from "src/shared/constants/storage";
+import { MAX_ROOM_ID_LENGTH } from "src/shared/constants/validation-constraints";
 
 import showToast from "./components/toast";
 import handleSendMessage from "./functions/handleSendMessage";

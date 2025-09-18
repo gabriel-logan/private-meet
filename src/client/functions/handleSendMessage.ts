@@ -4,8 +4,8 @@ import type {
   InnerMessage,
 } from "src/chat/dto/create-message.dto";
 import type { GetUserDto } from "src/chat/dto/get-user.dto";
-import { MESSAGE, STOP_TYPING } from "src/common/constants/socket-events";
-import { MAX_MESSAGE_LENGTH } from "src/common/constants/validation-constraints";
+import { MESSAGE, STOP_TYPING } from "src/shared/constants/socket-events";
+import { MAX_MESSAGE_LENGTH } from "src/shared/constants/validation-constraints";
 
 import showToast from "../components/toast";
 import { aadFrom, encryptString, getCachedKey } from "../utils/e2ee";

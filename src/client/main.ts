@@ -4,13 +4,13 @@ import {
   ERROR,
   GENERATE_ROOM_ID,
   SIGN_IN,
-} from "src/common/constants/socket-events";
-import { ACCESS_TOKEN_KEY } from "src/common/constants/storage";
+} from "src/shared/constants/socket-events";
+import { ACCESS_TOKEN_KEY } from "src/shared/constants/storage";
 import {
   MAX_ROOM_ID_LENGTH,
   MAX_USERNAME_LENGTH,
   MIN_USERNAME_LENGTH,
-} from "src/common/constants/validation-constraints";
+} from "src/shared/constants/validation-constraints";
 
 import showToast from "./components/toast";
 

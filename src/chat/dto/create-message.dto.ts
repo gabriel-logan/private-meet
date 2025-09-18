@@ -9,7 +9,7 @@ import {
 import {
   MAX_ROOM_ID_LENGTH,
   MAX_TIMESTAMP,
-} from "src/common/constants/validation-constraints";
+} from "src/shared/constants/validation-constraints";
 
 export interface InnerMessage {
   readonly text: string;

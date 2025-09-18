@@ -9,12 +9,12 @@ import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
 import { WsException } from "@nestjs/websockets";
 import { Socket } from "socket.io";
-import { IS_PUBLIC_KEY } from "src/common/decorators/routes/public.decorator";
-import { JwtPayload } from "src/common/types";
 import { EnvGlobalConfig } from "src/configs/types";
 
 import { INVALID_TOKEN, NO_TOKEN_PROVIDED } from "../constants/error-messages";
 import { ERROR } from "../constants/socket-events";
+import { IS_PUBLIC_KEY } from "../decorators/routes/public.decorator";
+import { JwtPayload } from "../types";
 
 @Injectable()
 export class WSAuthGuard implements CanActivate {

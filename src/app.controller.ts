@@ -8,8 +8,8 @@ import {
 } from "@nestjs/common";
 import type { Response } from "express";
 
-import { EMOJIS } from "./common/constants/emojis";
-import { MAX_ROOM_ID_LENGTH } from "./common/constants/validation-constraints";
+import { EMOJIS } from "./shared/constants/emojis";
+import { MAX_ROOM_ID_LENGTH } from "./shared/constants/validation-constraints";
 
 @Controller()
 export class AppController {
