@@ -85,7 +85,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     await client.join(roomId);
 
-    this.chatService.addUserToRoom(roomId, user);
+    this.chatService.addUserToRoom(roomId, user, client.id);
 
     this.logger.log(`Client ${client.id} joined room ${roomId}`);
 
@@ -106,7 +106,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     await client.leave(roomId);
 
-    this.chatService.removeUserFromRoom(roomId, sub);
+    this.chatService.removeUserFromRoom(roomId, sub, client.id);
 
     this.logger.log(`Client ${client.id} left room ${roomId}`);
 
