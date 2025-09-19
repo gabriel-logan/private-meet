@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
+import { Cron, CronExpression } from "@nestjs/schedule";
 import { randomUUID } from "crypto";
 import { EnvGlobalConfig } from "src/configs/types";
 import { AuthPayload, JwtPayload } from "src/shared/types";
@@ -16,6 +17,24 @@ export class ChatService {
     private readonly configService: ConfigService<EnvGlobalConfig, true>,
     private readonly jwtService: JwtService,
   ) {}
+
+  @Cron(CronExpression.EVERY_WEEK)
+  private cleanupOldUsersFromRooms(): void {
+    const now = Date.now();
+    const threshold = 6 * 24 * 60 * 60 * 1000; // 6 days in milliseconds
+
+    this.rooms.forEach((usersMap, roomId) => {
+      usersMap.forEach((user, userId) => {
+        if (now - user.joinedAt > threshold) {
+          usersMap.delete(userId);
+        }
+      });
+
+      if (usersMap.size === 0) {
+        this.rooms.delete(roomId);
+      }
+    });
+  }
 
   async signInJwt(createUserDto: CreateUserDto): Promise<string> {
     const userId = this.generateRandomId();
