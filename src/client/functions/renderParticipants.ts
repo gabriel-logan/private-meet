@@ -22,10 +22,13 @@ export default function renderParticipants({
   // Clear the current list
   participantsList.innerHTML = "";
 
+  // Create a document fragment to improve performance
+  const fragment = document.createDocumentFragment();
+
   // Add "You" (the current user) to the list
-  const li = document.createElement("li");
-  li.textContent = `You (${username})`;
-  li.classList.add(
+  const liYou = document.createElement("li");
+  liYou.textContent = `You (${username})`;
+  liYou.classList.add(
     "font-medium",
     "text-indigo-400",
     "mb-2",
@@ -33,36 +36,36 @@ export default function renderParticipants({
     "border-gray-600",
     "pb-2",
   );
-  participantsList.appendChild(li);
+  fragment.appendChild(liYou);
 
   // Add h3 "Others"
   const h3 = document.createElement("h3");
   h3.textContent = "Others";
   h3.classList.add("font-semibold", "text-gray-300", "mt-4", "mb-2");
-  participantsList.appendChild(h3);
+  fragment.appendChild(h3);
 
   const seen = new Set<string>();
-  const uniqueOnlineUsers = onlineUsers.filter((u) => {
+
+  for (const u of onlineUsers) {
+    if (u.userId === userId) {
+      continue;
+    }
+
     const key = `${u.userId}|${u.username.toLowerCase()}`;
+
     if (seen.has(key)) {
-      return false;
+      continue;
     }
 
     seen.add(key);
 
-    return true;
-  });
-
-  // Filter out the current user from the online users list
-  const otherUsers = uniqueOnlineUsers.filter((user) => user.userId !== userId);
-
-  countSpan.textContent = `(${otherUsers.length})`;
-
-  // Add the other online users to the list
-  otherUsers.forEach((user) => {
     const li = document.createElement("li");
-    li.textContent = user.username;
-    li.classList.add("font-semibold", "text-green-400");
-    participantsList.appendChild(li);
-  });
+    li.textContent = u.username;
+    li.classList.add("font-semibold", "text-green-400", "mb-1");
+    fragment.appendChild(li);
+  }
+
+  countSpan.textContent = `(${seen.size})`;
+
+  participantsList.appendChild(fragment);
 }
