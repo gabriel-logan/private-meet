@@ -9,6 +9,7 @@ import {
 import {
   MAX_ROOM_ID_LENGTH,
   MAX_TIMESTAMP,
+  MESSAGE_ENCRYPTED,
 } from "src/shared/constants/validation-constraints";
 
 export interface InnerMessage {
@@ -23,16 +24,19 @@ export class CreateMessageDto {
   @IsString()
   public roomId: string;
 
-  @MaxLength(5000)
+  @MaxLength(MESSAGE_ENCRYPTED.CIPHER_MAX_LENGTH)
   @IsString()
   public cipher: string;
 
-  @Length(16, 16)
+  @Length(MESSAGE_ENCRYPTED.IV_LENGTH, MESSAGE_ENCRYPTED.IV_LENGTH)
   @IsString()
   public iv: string;
 
-  @IsIn(["AES-GCM"])
-  @Length(7, 7)
+  @IsIn([MESSAGE_ENCRYPTED.ALGORITHM])
+  @Length(
+    MESSAGE_ENCRYPTED.ALGORITHM_LENGTH,
+    MESSAGE_ENCRYPTED.ALGORITHM_LENGTH,
+  )
   @IsString()
   public alg: string;
 
