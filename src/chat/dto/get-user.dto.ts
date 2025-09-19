@@ -12,3 +12,7 @@ export class GetUserDto {
   @IsString()
   public username: string;
 }
+
+export interface RoomsUserMapValue extends GetUserDto {
+  joinedAt: number;
+}

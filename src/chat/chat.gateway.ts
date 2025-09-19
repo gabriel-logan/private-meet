@@ -27,7 +27,7 @@ import { WSAuthGuard } from "src/shared/guards/ws-auth.guard";
 import { ChatService } from "./chat.service";
 import { CreateMessageDto } from "./dto/create-message.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { GetUserDto } from "./dto/get-user.dto";
+import { GetUserDto, RoomsUserMapValue } from "./dto/get-user.dto";
 import { RoomDto } from "./dto/room.dto";
 
 @UsePipes(ValidationPipe)
@@ -36,7 +36,7 @@ import { RoomDto } from "./dto/room.dto";
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(ChatGateway.name);
 
-  private readonly rooms = new Map<string, Map<string, GetUserDto>>();
+  private readonly rooms = new Map<string, Map<string, RoomsUserMapValue>>();
 
   constructor(private readonly chatService: ChatService) {}
 
@@ -48,7 +48,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.rooms.set(roomId, new Map());
     }
 
-    this.rooms.get(roomId)!.set(user.userId, user);
+    this.rooms.get(roomId)!.set(user.userId, { ...user, joinedAt: Date.now() });
   }
 
   private removeUserFromRoom(roomId: string, userId: string): void {
@@ -59,7 +59,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  private getOnlineUsersInRoom(roomId: string): GetUserDto[] {
+  private getOnlineUsersInRoom(roomId: string): RoomsUserMapValue[] {
     return Array.from(this.rooms.get(roomId)?.values() || []);
   }
 
