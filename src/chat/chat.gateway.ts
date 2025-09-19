@@ -27,7 +27,7 @@ import { WSAuthGuard } from "src/shared/guards/ws-auth.guard";
 import { ChatService } from "./chat.service";
 import { CreateMessageDto } from "./dto/create-message.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { GetUserDto, RoomsUserMapValue } from "./dto/get-user.dto";
+import { GetUserDto } from "./dto/get-user.dto";
 import { RoomDto } from "./dto/room.dto";
 
 @UsePipes(ValidationPipe)
@@ -36,32 +36,10 @@ import { RoomDto } from "./dto/room.dto";
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(ChatGateway.name);
 
-  private readonly rooms = new Map<string, Map<string, RoomsUserMapValue>>();
-
   constructor(private readonly chatService: ChatService) {}
 
   @WebSocketServer()
   private readonly server: Server;
-
-  private addUserToRoom(roomId: string, user: GetUserDto): void {
-    if (!this.rooms.has(roomId)) {
-      this.rooms.set(roomId, new Map());
-    }
-
-    this.rooms.get(roomId)!.set(user.userId, { ...user, joinedAt: Date.now() });
-  }
-
-  private removeUserFromRoom(roomId: string, userId: string): void {
-    this.rooms.get(roomId)?.delete(userId);
-
-    if (this.rooms.get(roomId)?.size === 0) {
-      this.rooms.delete(roomId);
-    }
-  }
-
-  private getOnlineUsersInRoom(roomId: string): RoomsUserMapValue[] {
-    return Array.from(this.rooms.get(roomId)?.values() || []);
-  }
 
   handleConnection(client: Socket): void {
     this.logger.log(`Client connected: ${client.id}`);
@@ -92,7 +70,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): void {
     const { roomId } = payload;
 
-    client.emit(ONLINE_USERS, this.getOnlineUsersInRoom(roomId));
+    client.emit(ONLINE_USERS, this.chatService.getOnlineUsersInRoom(roomId));
   }
 
   @SubscribeMessage(JOIN_ROOM)
@@ -107,11 +85,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     await client.join(roomId);
 
-    this.addUserToRoom(roomId, user);
+    this.chatService.addUserToRoom(roomId, user);
 
     this.logger.log(`Client ${client.id} joined room ${roomId}`);
 
-    client.to(roomId).emit(ONLINE_USERS, this.getOnlineUsersInRoom(roomId));
+    client
+      .to(roomId)
+      .emit(ONLINE_USERS, this.chatService.getOnlineUsersInRoom(roomId));
 
     return user;
   }
@@ -126,11 +106,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     await client.leave(roomId);
 
-    this.removeUserFromRoom(roomId, sub);
+    this.chatService.removeUserFromRoom(roomId, sub);
 
     this.logger.log(`Client ${client.id} left room ${roomId}`);
 
-    client.to(roomId).emit(ONLINE_USERS, this.getOnlineUsersInRoom(roomId));
+    client
+      .to(roomId)
+      .emit(ONLINE_USERS, this.chatService.getOnlineUsersInRoom(roomId));
   }
 
   @SubscribeMessage(MESSAGE)
