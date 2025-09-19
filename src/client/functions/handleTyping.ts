@@ -51,22 +51,22 @@ export default function handleTyping({
   });
 
   // ---- Render typing from other users ----
-  const usersTyping = new Set<string>();
+  const usersTyping: string[] = [];
 
   socket.on(TYPING, ({ username: otherUser }: Omit<GetUserDto, "userId">) => {
-    usersTyping.add(otherUser);
-    typingIndicator.innerText = `${Array.from(usersTyping).join(", ")} is typing...`;
+    usersTyping.push(otherUser);
+    typingIndicator.innerText = `${usersTyping.join(", ")} is typing...`;
     typingIndicator.style.display = "block";
   });
 
   socket.on(
     STOP_TYPING,
     ({ username: otherUser }: Omit<GetUserDto, "userId">) => {
-      usersTyping.delete(otherUser);
-      if (usersTyping.size === 0) {
+      usersTyping.splice(usersTyping.indexOf(otherUser), 1);
+      if (usersTyping.length === 0) {
         typingIndicator.style.display = "none";
       } else {
-        typingIndicator.innerText = `${Array.from(usersTyping).join(", ")} is typing...`;
+        typingIndicator.innerText = `${usersTyping.join(", ")} is typing...`;
       }
     },
   );
