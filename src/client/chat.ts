@@ -170,59 +170,53 @@ messagesObserver.observe(messagesContainer, { childList: true });
 updateEmptyState({ messagesContainer });
 
 socket.on(NEW_MESSAGE, async (payload: CreateMessageDto) => {
-  const { timestamp } = payload;
+  const { timestamp, cipher, iv } = payload;
 
-  // New encrypted case
-  if (payload.cipher && payload.iv) {
-    const key = getCachedKey();
+  const key = getCachedKey();
 
-    if (!key) {
-      renderNewMessageFromOthers({
-        text: "[Protected message: E2EE not configured]",
-        timestamp,
-        messagesContainer,
-        sender: { userId: "unknown", username: "unknown" },
-      });
+  if (!key) {
+    renderNewMessageFromOthers({
+      text: "[Protected message: E2EE not configured]",
+      timestamp,
+      messagesContainer,
+      sender: { userId: "unknown", username: "unknown" },
+    });
 
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-      return;
-    }
+    return;
+  }
 
-    try {
-      const aad = aadFrom(roomId);
-      const json = await decryptString(payload.cipher, payload.iv, key, aad);
+  try {
+    const aad = aadFrom(roomId);
+    const json = await decryptString(cipher, iv, key, aad);
 
-      const inner = JSON.parse(json) as InnerMessage;
+    const inner = JSON.parse(json) as InnerMessage;
 
-      const sender = {
-        userId: inner.userId,
-        username: inner.username,
-      };
+    const sender = {
+      userId: inner.userId,
+      username: inner.username,
+    };
 
-      // If the message is from another user, render as "others"
-      if (sender.userId !== userId) {
-        renderNewMessageFromOthers({
-          text: inner.text,
-          timestamp,
-          messagesContainer,
-          sender,
-        });
-      }
+    renderNewMessageFromOthers({
+      text: inner.text,
+      timestamp,
+      messagesContainer,
+      sender,
+    });
 
-      return;
-    } catch {
-      renderNewMessageFromOthers({
-        text: "[Protected message: failed to decrypt]",
-        timestamp,
-        messagesContainer,
-        sender: { userId: "unknown", username: "unknown" },
-      });
+    return;
+  } catch {
+    renderNewMessageFromOthers({
+      text: "[Protected message: failed to decrypt]",
+      timestamp,
+      messagesContainer,
+      sender: { userId: "unknown", username: "unknown" },
+    });
 
-      return;
-    } finally {
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
+    return;
+  } finally {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 });
 
