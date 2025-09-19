@@ -14,7 +14,6 @@ import {
 
 export interface InnerMessage {
   readonly text: string;
-  readonly roomId: string;
   readonly userId: string;
   readonly username: string;
 }

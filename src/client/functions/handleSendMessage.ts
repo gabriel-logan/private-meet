@@ -63,7 +63,6 @@ export default async function handleSendMessage({
 
   const innerMessage: InnerMessage = {
     text: message,
-    roomId,
     userId,
     username,
   };
