@@ -53,30 +53,15 @@ export default function handleTyping({
   // ---- Render typing from other users ----
   const usersTyping = new Set<string>();
 
-  socket.on(
-    TYPING,
-    ({ username: otherUser, userId: otherUserId }: GetUserDto) => {
-      const { username, userId } = getUser();
-
-      if (otherUser === username && otherUserId === userId) {
-        return;
-      } // do not show typing for myself
-
-      usersTyping.add(otherUser);
-      typingIndicator.innerText = `${Array.from(usersTyping).join(", ")} is typing...`;
-      typingIndicator.style.display = "block";
-    },
-  );
+  socket.on(TYPING, ({ username: otherUser }: Omit<GetUserDto, "userId">) => {
+    usersTyping.add(otherUser);
+    typingIndicator.innerText = `${Array.from(usersTyping).join(", ")} is typing...`;
+    typingIndicator.style.display = "block";
+  });
 
   socket.on(
     STOP_TYPING,
-    ({ username: otherUser, userId: otherUserId }: GetUserDto) => {
-      const { username, userId } = getUser();
-
-      if (otherUser === username && otherUserId === userId) {
-        return;
-      } // ignore myself
-
+    ({ username: otherUser }: Omit<GetUserDto, "userId">) => {
       usersTyping.delete(otherUser);
       if (usersTyping.size === 0) {
         typingIndicator.style.display = "none";

@@ -152,10 +152,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ): void {
     const { roomId } = payload;
-    const { sub, username } = client.user!;
+    const { username } = client.user!;
 
-    this.server.to(roomId).emit(TYPING, {
-      userId: sub,
+    client.broadcast.to(roomId).emit(TYPING, {
       username,
     });
   }
@@ -166,10 +165,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ): void {
     const { roomId } = payload;
-    const { sub, username } = client.user!;
+    const { username } = client.user!;
 
-    this.server.to(roomId).emit(STOP_TYPING, {
-      userId: sub,
+    client.broadcast.to(roomId).emit(STOP_TYPING, {
       username,
     });
   }
