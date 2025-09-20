@@ -18,8 +18,20 @@ import type { Io } from "./types/SocketClient";
 declare const io: Io;
 const socket = io();
 
-socket.on(ERROR, (message: string) => {
-  showToast({ message, type: "error", duration: 2000 });
+socket.on(ERROR, (data: string | string[] | object) => {
+  let message: string;
+
+  if (typeof data === "string") {
+    message = data;
+  } else if (typeof data === "object" && "message" in data) {
+    message = JSON.stringify(data);
+  } else if (Array.isArray(data)) {
+    message = data.join(", ");
+  } else {
+    message = "An unknown error occurred.";
+  }
+
+  return showToast({ message, type: "error", duration: 2000 });
 });
 
 const loadingOverlayRaw = document.getElementById("client-loading");

@@ -51,7 +51,19 @@ const socket = io({
   },
 });
 
-socket.on(ERROR, (message: string) => {
+socket.on(ERROR, (data: string | string[] | object) => {
+  let message: string;
+
+  if (typeof data === "string") {
+    message = data;
+  } else if (typeof data === "object" && "message" in data) {
+    message = JSON.stringify(data);
+  } else if (Array.isArray(data)) {
+    message = data.join(", ");
+  } else {
+    message = "An unknown error occurred.";
+  }
+
   if (message === INVALID_TOKEN) {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
 
@@ -62,7 +74,7 @@ socket.on(ERROR, (message: string) => {
     return;
   }
 
-  showToast({ message, type: "error", duration: 2000 });
+  return showToast({ message, type: "error", duration: 2000 });
 });
 
 const loadingOverlayRaw = document.getElementById("client-loading");

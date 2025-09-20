@@ -13,7 +13,9 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from "@nestjs/websockets";
+import { ValidationError } from "class-validator";
 import { Server, Socket } from "socket.io";
 import {
   GENERATE_ROOM_ID,
@@ -38,7 +40,17 @@ import { GetUserDto } from "./dto/get-user.dto";
 import { RoomDto } from "./dto/room.dto";
 
 @UseFilters(WsExceptionFilter)
-@UsePipes(ValidationPipe)
+@UsePipes(
+  new ValidationPipe({
+    exceptionFactory: (errors: ValidationError[]): void => {
+      const messages = errors
+        .map((error) => Object.values(error.constraints || {}))
+        .flat();
+
+      throw new WsException(messages);
+    },
+  }),
+)
 @UseGuards(WSAuthGuard)
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
