@@ -36,15 +36,17 @@ export class ChatService {
     const now = Date.now();
     const threshold = 6 * 24 * 60 * 60 * 1000; // 6 days in milliseconds
 
-    this.rooms.forEach((usersMap, roomId) => {
-      usersMap.forEach((user, userId) => {
+    this.rooms.forEach((roomUsers, roomId) => {
+      roomUsers.forEach((user, userId) => {
         if (now - user.joinedAt > threshold) {
-          usersMap.delete(userId);
+          roomUsers.delete(userId);
         }
       });
 
-      if (usersMap.size === 0) {
+      // If room is empty after cleanup, remove it
+      if (roomUsers.size === 0) {
         this.rooms.delete(roomId);
+        this.roomUserSockets.delete(roomId);
       }
     });
   }
