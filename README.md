@@ -2,6 +2,13 @@
 
 A private chat, video, and voice meeting application built with Nestjs, Handlebars, and Socket.io.
 
+## Folders
+
+- `src`: Contains the source code for the application.
+- `public`: Contains static assets like CSS, JavaScript, and images.
+- `views`: Contains Handlebars templates for rendering HTML pages.
+- `src/client`: Contains client-side TypeScript code for handling real-time communication and UI interactions.
+
 ## Installation
 
 1. Clone the repository:
