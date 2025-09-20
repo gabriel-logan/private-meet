@@ -136,15 +136,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(MESSAGE)
-  handleMessage(
-    @MessageBody() payload: CreateMessageDto,
-    @ConnectedSocket() client: Socket,
-  ): void {
+  handleMessage(@MessageBody() payload: CreateMessageDto): void {
     const timestamp = Date.now();
 
     payload.timestamp = timestamp;
 
-    client.broadcast.to(payload.roomId).emit(NEW_MESSAGE, payload);
+    this.server.to(payload.roomId).emit(NEW_MESSAGE, payload);
   }
 
   @SubscribeMessage(TYPING)

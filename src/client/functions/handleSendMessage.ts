@@ -9,13 +9,11 @@ import { MAX_MESSAGE_LENGTH } from "src/shared/constants/validation-constraints"
 
 import showToast from "../components/toast";
 import { aadFrom, encryptString, getCachedKey } from "../utils/e2ee";
-import { renderNewMessageFromMe } from "./renderNewMessage";
 
 interface HandleSendMessageParams {
   messageTextArea: HTMLTextAreaElement;
   socket: Socket;
   roomId: string;
-  messagesContainer: HTMLDivElement;
   getUser: () => Partial<GetUserDto>;
 }
 
@@ -23,7 +21,6 @@ export default async function handleSendMessage({
   messageTextArea,
   socket,
   roomId,
-  messagesContainer,
   getUser,
 }: HandleSendMessageParams): Promise<void> {
   // Normalize line endings but preserve internal newlines
@@ -80,18 +77,12 @@ export default async function handleSendMessage({
     cipher: content,
     iv,
     alg,
-    timestamp: Date.now(),
+    timestamp: 1, // Will be replaced by server
   };
 
   socket.emit(STOP_TYPING, { roomId });
 
   socket.emit(MESSAGE, payload);
-
-  renderNewMessageFromMe({
-    text: message,
-    timestamp: payload.timestamp,
-    messagesContainer,
-  });
 
   messageTextArea.value = "";
   messageTextArea.style.height = "auto";

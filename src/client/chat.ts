@@ -23,7 +23,9 @@ import showToast from "./components/toast";
 import handleSendMessage from "./functions/handleSendMessage";
 import handleTyping from "./functions/handleTyping";
 import initChatInputBehavior from "./functions/initChatInputBehavior";
-import { renderNewMessageFromOthers } from "./functions/renderNewMessage";
+import renderNewMessage, {
+  renderNewMessageFromOthers,
+} from "./functions/renderNewMessage";
 import renderParticipants from "./functions/renderParticipants";
 import updateEmptyState from "./functions/updateEmptyState";
 import type { Io } from "./types/SocketClient";
@@ -210,11 +212,12 @@ socket.on(NEW_MESSAGE, async (payload: CreateMessageDto) => {
       username: inner.username,
     };
 
-    renderNewMessageFromOthers({
+    renderNewMessage({
       text: inner.text,
       timestamp,
       messagesContainer,
       sender,
+      getUser: () => ({ userId, username }),
     });
 
     return;
@@ -240,7 +243,6 @@ sendButton.addEventListener("click", () => {
     messageTextArea,
     socket,
     roomId,
-    messagesContainer,
     getUser: () => ({ userId, username }),
   })
     .then(() => {
