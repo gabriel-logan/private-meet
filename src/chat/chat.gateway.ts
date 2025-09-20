@@ -1,4 +1,10 @@
-import { Logger, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
+import {
+  Logger,
+  UseFilters,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from "@nestjs/common";
 import {
   ConnectedSocket,
   MessageBody,
@@ -22,6 +28,7 @@ import {
   TYPING,
 } from "src/shared/constants/socket-events";
 import { Public } from "src/shared/decorators/routes/public.decorator";
+import { WsExceptionFilter } from "src/shared/filters/ws-exception.filter";
 import { WSAuthGuard } from "src/shared/guards/ws-auth.guard";
 
 import { ChatService } from "./chat.service";
@@ -30,6 +37,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { GetUserDto } from "./dto/get-user.dto";
 import { RoomDto } from "./dto/room.dto";
 
+@UseFilters(WsExceptionFilter)
 @UsePipes(ValidationPipe)
 @UseGuards(WSAuthGuard)
 @WebSocketGateway()

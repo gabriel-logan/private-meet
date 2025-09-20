@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from "@nestjs/common";
+import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
@@ -12,7 +7,6 @@ import { Socket } from "socket.io";
 import { EnvGlobalConfig } from "src/configs/types";
 
 import { INVALID_TOKEN, NO_TOKEN_PROVIDED } from "../constants/error-messages";
-import { ERROR } from "../constants/socket-events";
 import { IS_PUBLIC_KEY } from "../decorators/routes/public.decorator";
 import { JwtPayload } from "../types";
 
@@ -39,8 +33,7 @@ export class WSAuthGuard implements CanActivate {
     const token = client.handshake.auth.token as string | undefined;
 
     if (!token) {
-      client.emit(ERROR, NO_TOKEN_PROVIDED);
-      throw new WsException(new UnauthorizedException(NO_TOKEN_PROVIDED));
+      throw new WsException(NO_TOKEN_PROVIDED);
     }
 
     const { jwt } = this.configService.get<EnvGlobalConfig["server"]>("server");
@@ -52,8 +45,7 @@ export class WSAuthGuard implements CanActivate {
 
       client["user"] = payload;
     } catch {
-      client.emit(ERROR, INVALID_TOKEN);
-      throw new WsException(new UnauthorizedException(INVALID_TOKEN));
+      throw new WsException(INVALID_TOKEN);
     }
 
     return true;
