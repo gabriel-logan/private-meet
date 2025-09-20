@@ -243,6 +243,7 @@ sendButton.addEventListener("click", () => {
     messageTextArea,
     socket,
     roomId,
+    messagesContainer,
     getUser: () => ({ userId, username }),
   })
     .then(() => {
