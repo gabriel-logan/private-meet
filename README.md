@@ -1,4 +1,4 @@
-# private-meet
+# Private Meet
 
 A private chat, video, and voice meeting application built with Nestjs, Handlebars, and Socket.io.
 
