@@ -15,6 +15,7 @@ import {
   NEW_MESSAGE,
   ONLINE_USERS,
   REQUEST_ONLINE_USERS,
+  STOP_TYPING,
 } from "src/shared/constants/socket-events";
 import { ACCESS_TOKEN_KEY } from "src/shared/constants/storage";
 import { MAX_ROOM_ID_LENGTH } from "src/shared/constants/validation-constraints";
@@ -239,6 +240,8 @@ socket.on(NEW_MESSAGE, async (payload: CreateMessageDto) => {
 initChatInputBehavior({ messageTextArea, sendButton });
 
 sendButton.addEventListener("click", () => {
+  socket.emit(STOP_TYPING, { roomId });
+
   handleSendMessage({
     messageTextArea,
     socket,

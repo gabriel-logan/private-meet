@@ -4,7 +4,7 @@ import type {
   InnerMessage,
 } from "src/chat/dto/create-message.dto";
 import type { GetUserDto } from "src/chat/dto/get-user.dto";
-import { MESSAGE, STOP_TYPING } from "src/shared/constants/socket-events";
+import { MESSAGE } from "src/shared/constants/socket-events";
 import { MAX_MESSAGE_LENGTH } from "src/shared/constants/validation-constraints";
 
 import showToast from "../components/toast";
@@ -82,8 +82,6 @@ export default async function handleSendMessage({
     alg,
     timestamp: Date.now(), // Will be replaced by server
   };
-
-  socket.emit(STOP_TYPING, { roomId });
 
   socket.emit(MESSAGE, payload, (response: { ok?: boolean }) => {
     if (response.ok) {
