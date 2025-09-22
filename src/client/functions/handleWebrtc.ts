@@ -78,41 +78,31 @@ export default async function handleWebrtc({
   const originalCameraTrack: MediaStreamTrack | null = videoTrack;
   let latestOnlineUsers: GetUserDto[] = [];
 
-  // ---------- UI Handlers ----------
   function updateMicButton(): void {
-    const img = buttonToggleMic.querySelector("img");
-
-    if (!img) {
-      return;
-    }
-
-    img.src = audioTrack.enabled
-      ? "/icons/microphone-on-outline.svg"
-      : "/icons/microphone-off-outline.svg";
+    updateButtonsState(
+      buttonToggleMic,
+      audioTrack.enabled,
+      "/icons/microphone-on-outline.svg",
+      "/icons/microphone-off-outline.svg",
+    );
   }
 
   function updateVideoButton(): void {
-    const img = buttonToggleVideo.querySelector("img");
-
-    if (!img) {
-      return;
-    }
-
-    img.src = videoTrack.enabled
-      ? "/icons/video-on-outline.svg"
-      : "/icons/video-off-outline.svg";
+    updateButtonsState(
+      buttonToggleVideo,
+      videoTrack.enabled,
+      "/icons/video-on-outline.svg",
+      "/icons/video-off-outline.svg",
+    );
   }
 
   function updateScreenShareButton(): void {
-    const img = buttonShareScreen.querySelector("img");
-
-    if (!img) {
-      return;
-    }
-
-    img.src = isScreenSharing
-      ? "/icons/share-screen-on-outline.svg"
-      : "/icons/share-screen-off-outline.svg";
+    updateButtonsState(
+      buttonShareScreen,
+      isScreenSharing,
+      "/icons/share-screen-on-outline.svg",
+      "/icons/share-screen-off-outline.svg",
+    );
   }
 
   updateMicButton();
@@ -466,5 +456,19 @@ export default async function handleWebrtc({
     initiateConnections();
   } catch {
     // ignore
+  }
+}
+
+// ---------- UI Handlers ----------
+function updateButtonsState(
+  button: HTMLButtonElement,
+  isEnabled: boolean,
+  iconOn: string,
+  iconOff: string,
+): void {
+  const img = button.querySelector("img");
+
+  if (img) {
+    img.src = isEnabled ? iconOn : iconOff;
   }
 }
