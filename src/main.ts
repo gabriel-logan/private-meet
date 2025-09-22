@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import cookieParser from "cookie-parser";
+import { readFileSync } from "fs";
 import helmet from "helmet";
 import { join } from "path";
 
@@ -12,7 +13,12 @@ import type { EnvGlobalConfig } from "./configs/types";
 const logger = new Logger("Bootstrap");
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    httpsOptions: {
+      key: readFileSync(join(__dirname, "..", "secrets", "dev-key.pem")),
+      cert: readFileSync(join(__dirname, "..", "secrets", "dev-cert.pem")),
+    },
+  });
 
   const configService =
     app.get<ConfigService<EnvGlobalConfig, true>>(ConfigService);
@@ -22,6 +28,8 @@ async function bootstrap(): Promise<void> {
 
   if (nodeEnv === "production") {
     app.use(helmet());
+
+    app.set("trust proxy", true);
   }
 
   app.use(cookieParser());
@@ -33,7 +41,7 @@ async function bootstrap(): Promise<void> {
   await app.listen(port);
 
   logger.log(`Application running in ${nodeEnv} mode on port ${port}`);
-  logger.log(`Application URL: http://localhost:${port}`);
+  logger.log(`Application URL: https://localhost:${port}`);
 }
 
 void bootstrap();
