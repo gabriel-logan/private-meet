@@ -1,6 +1,6 @@
 import type { Socket } from "socket.io-client";
 import type { RoomsUserMapValue } from "src/chat/dto/get-user.dto";
-import { LEAVE_ROOM } from "src/shared/constants/socket-events";
+import { LEAVE_ROOM, ONLINE_USERS } from "src/shared/constants/socket-events";
 
 interface HandleWebrtcParams {
   socket: Socket;
@@ -207,7 +207,7 @@ export default async function handleWebrtc({
     const video = document.createElement("video");
     video.id = `remote-video-${remoteUserId}`;
     video.autoplay = true;
-
+    video.playsInline = true;
     video.classList.add(
       "rounded-lg",
       "shadow-lg",
@@ -370,7 +370,7 @@ export default async function handleWebrtc({
     initiateConnections();
   }
 
-  socket.on("ONLINE_USERS", onOnlineUsers);
+  socket.on(ONLINE_USERS, onOnlineUsers);
 
   // ---------- Signaling ----------
   function onWebrtcOffer(data: {
