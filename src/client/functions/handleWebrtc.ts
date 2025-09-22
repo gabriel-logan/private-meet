@@ -67,6 +67,10 @@ export default async function handleWebrtc({
   const audioTrack = localStream.getAudioTracks()[0];
   const videoTrack = localStream.getVideoTracks()[0];
 
+  // Start muted and video off
+  audioTrack.enabled = false;
+  videoTrack.enabled = false;
+
   // ---------- State ----------
   const peers = new Map<string, PeerContext>();
   let isScreenSharing = false;
