@@ -72,7 +72,7 @@ export default async function handleWebrtc({
   let isScreenSharing = false;
 
   const originalCameraTrack: MediaStreamTrack | null = videoTrack;
-  let latestOnlineUsers: { userId: string; username: string }[] = [];
+  let latestOnlineUsers: GetUserDto[] = [];
 
   // ---------- UI Handlers ----------
   function updateMicButton(): void {
