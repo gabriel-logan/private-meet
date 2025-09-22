@@ -16,9 +16,7 @@ let lastGridColsClass: string | null = null;
 
 function updateVideoGrid(): void {
   const count = Array.from(videoContainer.children).filter(
-    (c) =>
-      (c as HTMLElement).tagName === "VIDEO" ||
-      !!(c as HTMLElement).querySelector("video"),
+    (c) => c.tagName === "VIDEO" || !!c.querySelector("video"),
   ).length;
 
   // Cleanup previous
