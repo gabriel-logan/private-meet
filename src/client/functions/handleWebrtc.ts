@@ -78,6 +78,20 @@ export default async function handleWebrtc({
   const originalCameraTrack: MediaStreamTrack | null = videoTrack;
   let latestOnlineUsers: GetUserDto[] = [];
 
+  // ---------- UI Handlers ----------
+  function updateButtonsState(
+    button: HTMLButtonElement,
+    isEnabled: boolean,
+    iconOn: string,
+    iconOff: string,
+  ): void {
+    const img = button.querySelector("img");
+
+    if (img) {
+      img.src = isEnabled ? iconOn : iconOff;
+    }
+  }
+
   function updateMicButton(): void {
     updateButtonsState(
       buttonToggleMic,
@@ -436,11 +450,12 @@ export default async function handleWebrtc({
       ctx.pc.close();
       peers.delete(data.userId);
 
-      const el = document.getElementById(`remote-video-${data.userId}`);
+      const elRaw = document.getElementById(`remote-video-${data.userId}`);
+
+      const el = elRaw as HTMLVideoElement | null;
 
       if (el) {
-        // Clean up video element
-        (el as HTMLVideoElement).srcObject = null;
+        el.srcObject = null;
         el.remove();
       }
     }
@@ -451,18 +466,4 @@ export default async function handleWebrtc({
   // ---------- Initial Fallback ----------
   latestOnlineUsers = getOnlineUsers().filter((u) => !!u.userId);
   initiateConnections();
-}
-
-// ---------- UI Handlers ----------
-function updateButtonsState(
-  button: HTMLButtonElement,
-  isEnabled: boolean,
-  iconOn: string,
-  iconOff: string,
-): void {
-  const img = button.querySelector("img");
-
-  if (img) {
-    img.src = isEnabled ? iconOn : iconOff;
-  }
 }
