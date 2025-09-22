@@ -65,6 +65,8 @@ export default async function handleWebrtc({
   });
 
   localVideo.srcObject = localStream;
+  // Mute ourselves locally
+  localVideo.muted = true;
 
   const audioTrack = localStream.getAudioTracks()[0];
   const videoTrack = localStream.getVideoTracks()[0];
