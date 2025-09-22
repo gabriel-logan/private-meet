@@ -8,6 +8,7 @@ A private chat, video, and voice meeting application built with Nestjs, Handleba
 - `public`: Contains static assets like CSS, JavaScript, and images.
 - `views`: Contains Handlebars templates for rendering HTML pages.
 - `src/client`: Contains client-side TypeScript code for handling real-time communication and UI interactions.
+- `secrets`: Contains SSL certificates and private keys for HTTPS support.
 
 ## Installation
 

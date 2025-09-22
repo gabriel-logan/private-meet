@@ -112,11 +112,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.logger.log(`Client ${client.id} joined room ${roomId}`);
 
-    client
+    client.broadcast
       .to(roomId)
       .emit(ONLINE_USERS, this.chatService.getOnlineUsersInRoom(roomId));
 
-    this.server.to(roomId).emit(JOIN_ROOM, user);
+    client.broadcast.to(roomId).emit(JOIN_ROOM, user);
 
     return user;
   }
@@ -135,11 +135,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.logger.log(`Client ${client.id} left room ${roomId}`);
 
-    client
+    client.broadcast
       .to(roomId)
       .emit(ONLINE_USERS, this.chatService.getOnlineUsersInRoom(roomId));
 
-    this.server.to(roomId).emit(LEAVE_ROOM, { userId: sub });
+    client.broadcast.to(roomId).emit(LEAVE_ROOM, { userId: sub });
   }
 
   @SubscribeMessage(MESSAGE)
