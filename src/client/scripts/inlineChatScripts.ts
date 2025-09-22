@@ -29,17 +29,7 @@ function updateVideoGrid(): void {
     cols = 1;
   }
 
-  videoContainer.style.display = "grid";
-  videoContainer.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
-  videoContainer.style.alignItems = "stretch";
-  videoContainer.style.justifyItems = "stretch";
-  videoContainer.style.gridAutoRows = "";
-
-  Array.from(videoContainer.querySelectorAll("video")).forEach(
-    (videoElement) => {
-      videoElement.style.objectFit = "cover";
-    },
-  );
+  videoContainer.classList.add(`grid-cols-${cols}`);
 }
 
 function scrollToBottom(): void {
