@@ -176,7 +176,10 @@ export default async function handleWebrtc({
     peers.forEach(({ pc }) => {
       pc.getSenders().forEach((sender) => {
         if (sender.track?.kind === "video") {
-          void sender.replaceTrack(newTrack);
+          sender.replaceTrack(newTrack).catch((e) => {
+            // eslint-disable-next-line no-console
+            console.warn("[WebRTC] replaceTrack failed", e);
+          });
         }
       });
     });
