@@ -162,7 +162,7 @@ export default async function handleWebrtc({
     peers.forEach(({ pc }) => {
       pc.getSenders().forEach((sender) => {
         if (sender.track?.kind === "video") {
-          sender.replaceTrack(newTrack).catch(() => {});
+          void sender.replaceTrack(newTrack);
         }
       });
     });
@@ -317,11 +317,7 @@ export default async function handleWebrtc({
       return;
     }
 
-    try {
-      await ctx.pc.addIceCandidate(candidate);
-    } catch {
-      // ignore
-    }
+    await ctx.pc.addIceCandidate(candidate);
   }
 
   // ---------- Connection Strategy ----------
@@ -451,12 +447,8 @@ export default async function handleWebrtc({
   socket.on(LEAVE_ROOM, onUserLeft);
 
   // ---------- Initial Fallback ----------
-  try {
-    latestOnlineUsers = getOnlineUsers().filter((u) => !!u.userId);
-    initiateConnections();
-  } catch {
-    // ignore
-  }
+  latestOnlineUsers = getOnlineUsers().filter((u) => !!u.userId);
+  initiateConnections();
 }
 
 // ---------- UI Handlers ----------
