@@ -36,6 +36,7 @@ export default function renderParticipants({
     "border-gray-600",
     "pb-2",
   );
+  liYou.setAttribute("data-user", userId);
   fragment.appendChild(liYou);
 
   // Add h3 "Others"
@@ -62,6 +63,7 @@ export default function renderParticipants({
     const li = document.createElement("li");
     li.textContent = u.username;
     li.classList.add("font-semibold", "text-green-400", "mb-1");
+    li.setAttribute("data-user", u.userId);
     fragment.appendChild(li);
   }
 

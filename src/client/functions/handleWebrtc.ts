@@ -1,6 +1,6 @@
 import type { Socket } from "socket.io-client";
 import type { RoomsUserMapValue } from "src/chat/dto/get-user.dto";
-import { LEAVE_ROOM, ONLINE_USERS } from "src/shared/constants/socket-events";
+import { ONLINE_USERS } from "src/shared/constants/socket-events";
 
 interface HandleWebrtcParams {
   socket: Socket;
@@ -465,7 +465,7 @@ export default async function handleWebrtc({
     }
   }
 
-  socket.on(LEAVE_ROOM, onUserLeft);
+  socket.on("left_room", onUserLeft);
 
   // ---------- Initial Fallback ----------
   try {
