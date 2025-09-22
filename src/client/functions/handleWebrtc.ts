@@ -1,6 +1,11 @@
 import type { Socket } from "socket.io-client";
 import type { RoomsUserMapValue } from "src/chat/dto/get-user.dto";
-import { ONLINE_USERS } from "src/shared/constants/socket-events";
+import {
+  ONLINE_USERS,
+  WEBRTC_ANSWER,
+  WEBRTC_ICE_CANDIDATE,
+  WEBRTC_OFFER,
+} from "src/shared/constants/socket-events";
 
 interface HandleWebrtcParams {
   socket: Socket;
@@ -257,7 +262,7 @@ export default async function handleWebrtc({
 
     pc.onicecandidate = (ev): void => {
       if (ev.candidate) {
-        socket.emit("webrtc-ice-candidate", {
+        socket.emit(WEBRTC_ICE_CANDIDATE, {
           roomId,
           to: remoteUserId,
           candidate: ev.candidate,
@@ -288,7 +293,7 @@ export default async function handleWebrtc({
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
 
-    socket.emit("webrtc-offer", {
+    socket.emit(WEBRTC_OFFER, {
       roomId,
       to: remoteUserId,
       offer,
@@ -310,7 +315,7 @@ export default async function handleWebrtc({
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
 
-    socket.emit("webrtc-answer", {
+    socket.emit(WEBRTC_ANSWER, {
       roomId,
       to: from,
       answer,
@@ -454,9 +459,9 @@ export default async function handleWebrtc({
     void handleIncomingCandidate(from, candidate);
   }
 
-  socket.on("webrtc-offer", onWebrtcOffer);
-  socket.on("webrtc-answer", onWebrtcAnswer);
-  socket.on("webrtc-ice-candidate", onWebrtcIce);
+  socket.on(WEBRTC_OFFER, onWebrtcOffer);
+  socket.on(WEBRTC_ANSWER, onWebrtcAnswer);
+  socket.on(WEBRTC_ICE_CANDIDATE, onWebrtcIce);
 
   // ---------- User Left ----------
   function onUserLeft(data: { userId: string }): void {

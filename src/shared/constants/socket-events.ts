@@ -9,3 +9,6 @@ export const TYPING = "typing";
 export const STOP_TYPING = "stop-typing";
 export const SIGN_IN = "sign-in";
 export const ERROR = "error";
+export const WEBRTC_OFFER = "webrtc-offer";
+export const WEBRTC_ANSWER = "webrtc-answer";
+export const WEBRTC_ICE_CANDIDATE = "webrtc-ice-candidate";

@@ -28,6 +28,9 @@ import {
   SIGN_IN,
   STOP_TYPING,
   TYPING,
+  WEBRTC_ANSWER,
+  WEBRTC_ICE_CANDIDATE,
+  WEBRTC_OFFER,
 } from "src/shared/constants/socket-events";
 import { Public } from "src/shared/decorators/routes/public.decorator";
 import { WsExceptionFilter } from "src/shared/filters/ws-exception.filter";
@@ -195,7 +198,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return result;
   }
 
-  @SubscribeMessage("webrtc-offer")
+  @SubscribeMessage(WEBRTC_OFFER)
   handleWebrtcOffer(
     @MessageBody()
     payload: {
@@ -216,17 +219,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       targets.forEach((sock) => {
-        sock.emit("webrtc-offer", { offer, from: fromUserId, to });
+        sock.emit(WEBRTC_OFFER, { offer, from: fromUserId, to });
       });
     } else {
       // Fallback broadcast
       client.broadcast
         .to(roomId)
-        .emit("webrtc-offer", { offer, from: fromUserId });
+        .emit(WEBRTC_OFFER, { offer, from: fromUserId });
     }
   }
 
-  @SubscribeMessage("webrtc-answer")
+  @SubscribeMessage(WEBRTC_ANSWER)
   handleWebrtcAnswer(
     @MessageBody()
     payload: {
@@ -242,11 +245,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const targets = this.findSocketsByUserId(roomId, to);
 
     targets.forEach((sock) => {
-      sock.emit("webrtc-answer", { answer, from: fromUserId, to });
+      sock.emit(WEBRTC_ANSWER, { answer, from: fromUserId, to });
     });
   }
 
-  @SubscribeMessage("webrtc-ice-candidate")
+  @SubscribeMessage(WEBRTC_ICE_CANDIDATE)
   handleWebrtcIceCandidate(
     @MessageBody()
     payload: {
@@ -262,7 +265,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const targets = this.findSocketsByUserId(roomId, to);
 
     targets.forEach((sock) => {
-      sock.emit("webrtc-ice-candidate", {
+      sock.emit(WEBRTC_ICE_CANDIDATE, {
         candidate,
         from: fromUserId,
         to,
