@@ -17,11 +17,15 @@ interface HandleWebrtcParams {
 const rtcConfig: RTCConfiguration = {
   iceServers: [
     // Google
-    { urls: "stun:stun.l.google.com:19302" },
-    { urls: "stun:stun1.l.google.com:19302" },
-    { urls: "stun:stun2.l.google.com:19302" },
-    { urls: "stun:stun3.l.google.com:19302" },
-    { urls: "stun:stun4.l.google.com:19302" },
+    {
+      urls: [
+        "stun:stun.l.google.com:19302",
+        "stun:stun1.l.google.com:19302",
+        "stun:stun2.l.google.com:19302",
+        "stun:stun3.l.google.com:19302",
+        "stun:stun4.l.google.com:19302",
+      ],
+    },
 
     // Mozilla
     { urls: "stun:stun.services.mozilla.com" },
@@ -30,14 +34,18 @@ const rtcConfig: RTCConfiguration = {
     { urls: "stun:global.stun.twilio.com:3478" },
 
     // Open relay
-    { urls: "stun:stun.stunprotocol.org:3478" },
-    { urls: "stun:stun.sipnet.net:3478" },
-    { urls: "stun:stun.ideasip.com:3478" },
-    { urls: "stun:stun.iptel.org:3478" },
-    { urls: "stun:stun.voipstunt.com:3478" },
-    { urls: "stun:stun.voipbuster.com:3478" },
-    { urls: "stun:stun.counterpath.net:3478" },
-    { urls: "stun:stun.xten.com:3478" },
+    {
+      urls: [
+        "stun:stun.stunprotocol.org:3478",
+        "stun:stun.sipnet.net:3478",
+        "stun:stun.ideasip.com:3478",
+        "stun:stun.iptel.org:3478",
+        "stun:stun.voipstunt.com:3478",
+        "stun:stun.voipbuster.com:3478",
+        "stun:stun.counterpath.net:3478",
+        "stun:stun.xten.com:3478",
+      ],
+    },
   ],
 };
 
