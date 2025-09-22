@@ -3,16 +3,16 @@ const participantsRaw = document.getElementById("participants");
 const videoContainerRaw = document.getElementById("remote-videos");
 const messagesContainerRaw = document.getElementById("messages");
 
+if (!videoContainerRaw) {
+  throw new Error("Remote videos videoContainer not found");
+}
+
 const menuIcon = menuIconRaw as HTMLDivElement | null;
 const participants = participantsRaw as HTMLDivElement | null;
-const videoContainer = videoContainerRaw as HTMLDivElement | null;
+const videoContainer = videoContainerRaw as HTMLDivElement;
 const messagesContainer = messagesContainerRaw as HTMLDivElement | null;
 
 function updateVideoGrid(): void {
-  if (!videoContainer) {
-    throw new Error("Remote videos videoContainer not found");
-  }
-
   const count = Array.from(videoContainer.children).filter(
     (c) => (c as HTMLElement).tagName === "VIDEO" || c.querySelector("video"),
   ).length;
@@ -61,13 +61,17 @@ document.addEventListener("click", (event) => {
     participants.classList.add("-translate-x-full");
   }
 });
+const observer = new MutationObserver(() => {
+  requestAnimationFrame(updateVideoGrid);
+});
+
+observer.observe(videoContainer, {
+  childList: true,
+  subtree: true,
+});
 
 // Observe changes in videos (entry/exit)
 if (messagesContainer) {
-  const observer = new MutationObserver(() => {
-    requestAnimationFrame(updateVideoGrid);
-  });
-
   observer.observe(messagesContainer, { childList: true, subtree: true });
 }
 
