@@ -174,4 +174,99 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       username,
     });
   }
+
+  private findSocketsByUserId(roomId: string, userId: string): Socket[] {
+    const room = this.server.sockets.adapter.rooms.get(roomId);
+
+    if (!room) {
+      return [];
+    }
+
+    const result: Socket[] = [];
+
+    room.forEach((socketId) => {
+      const s = this.server.sockets.sockets.get(socketId);
+
+      if (s && s.user?.sub === userId) {
+        result.push(s);
+      }
+    });
+
+    return result;
+  }
+
+  @SubscribeMessage("webrtc-offer")
+  handleWebrtcOffer(
+    @MessageBody()
+    payload: {
+      roomId: string;
+      offer: RTCSessionDescriptionInit;
+      to?: string; // Destination userId
+    },
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const { roomId, offer, to } = payload;
+    const fromUserId = client.user!.sub;
+
+    if (to) {
+      const targets = this.findSocketsByUserId(roomId, to);
+
+      if (targets.length === 0) {
+        return;
+      }
+
+      targets.forEach((sock) => {
+        sock.emit("webrtc-offer", { offer, from: fromUserId, to });
+      });
+    } else {
+      // Fallback broadcast
+      client.broadcast
+        .to(roomId)
+        .emit("webrtc-offer", { offer, from: fromUserId });
+    }
+  }
+
+  @SubscribeMessage("webrtc-answer")
+  handleWebrtcAnswer(
+    @MessageBody()
+    payload: {
+      roomId: string;
+      answer: RTCSessionDescriptionInit;
+      to: string; // Destination userId
+    },
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const { roomId, answer, to } = payload;
+    const fromUserId = client.user!.sub;
+
+    const targets = this.findSocketsByUserId(roomId, to);
+
+    targets.forEach((sock) => {
+      sock.emit("webrtc-answer", { answer, from: fromUserId, to });
+    });
+  }
+
+  @SubscribeMessage("webrtc-ice-candidate")
+  handleWebrtcIceCandidate(
+    @MessageBody()
+    payload: {
+      roomId: string;
+      candidate: RTCIceCandidateInit;
+      to: string; // Destination userId
+    },
+    @ConnectedSocket() client: Socket,
+  ): void {
+    const { roomId, candidate, to } = payload;
+    const fromUserId = client.user!.sub;
+
+    const targets = this.findSocketsByUserId(roomId, to);
+
+    targets.forEach((sock) => {
+      sock.emit("webrtc-ice-candidate", {
+        candidate,
+        from: fromUserId,
+        to,
+      });
+    });
+  }
 }

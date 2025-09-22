@@ -23,6 +23,7 @@ import { MAX_ROOM_ID_LENGTH } from "src/shared/constants/validation-constraints"
 import showToast from "./components/toast";
 import handleSendMessage from "./functions/handleSendMessage";
 import handleTyping from "./functions/handleTyping";
+import handleWebrtc from "./functions/handleWebrtc";
 import initChatInputBehavior from "./functions/initChatInputBehavior";
 import renderNewMessage, {
   renderNewMessageFromOthers,
@@ -89,6 +90,12 @@ const countSpanRaw = document.getElementById("participant-count");
 const typingIndicatorRaw = document.getElementById("typing-indicator");
 const leaveRoomButtonRaw = document.getElementById("leave-button");
 
+const remoteVideosDivRaw = document.getElementById("remote-videos");
+const localVideoRaw = document.getElementById("local-video");
+const buttonToggleMicRaw = document.getElementById("mute-button");
+const buttonToggleVideoRaw = document.getElementById("video-button");
+const buttonShareScreenRaw = document.getElementById("share-screen-button");
+
 if (
   !loadingOverlayRaw ||
   !messageTextAreaRaw ||
@@ -97,7 +104,12 @@ if (
   !participantsListRaw ||
   !countSpanRaw ||
   !typingIndicatorRaw ||
-  !leaveRoomButtonRaw
+  !leaveRoomButtonRaw ||
+  !remoteVideosDivRaw ||
+  !localVideoRaw ||
+  !buttonToggleMicRaw ||
+  !buttonToggleVideoRaw ||
+  !buttonShareScreenRaw
 ) {
   throw new Error("Missing required DOM elements");
 }
@@ -110,6 +122,12 @@ const participantsList = participantsListRaw as HTMLUListElement;
 const countSpan = countSpanRaw as HTMLSpanElement;
 const typingIndicator = typingIndicatorRaw as HTMLDivElement;
 const leaveRoomButton = leaveRoomButtonRaw as HTMLButtonElement;
+
+const remoteVideosDiv = remoteVideosDivRaw as HTMLDivElement;
+const localVideo = localVideoRaw as HTMLVideoElement;
+const buttonToggleMic = buttonToggleMicRaw as HTMLButtonElement;
+const buttonToggleVideo = buttonToggleVideoRaw as HTMLButtonElement;
+const buttonShareScreen = buttonShareScreenRaw as HTMLButtonElement;
 
 leaveRoomButton.disabled = true;
 sendButton.disabled = true;
@@ -132,6 +150,32 @@ function handleJoinRoom(): void {
     initE2EE(roomId, roomId)
       .then(() => {
         sendButton.disabled = false;
+
+        handleWebrtc({
+          socket,
+          roomId,
+          localVideo,
+          remoteVideosContainer: remoteVideosDiv,
+          buttonToggleMic,
+          buttonToggleVideo,
+          buttonShareScreen,
+          getUser: () => ({ userId, username }),
+          getOnlineUsers: () =>
+            // Reuses the last snapshot rendered in the UI (participantsList)
+            // Ideal: store internal cache when receiving ONLINE_USERS
+            Array.from(participantsList.querySelectorAll("li"))
+              .map((li) => li.getAttribute("data-user"))
+              .filter(Boolean)
+              .map((id) => ({ userId: id as string, username: id as string })),
+        }).catch((e) => {
+          // eslint-disable-next-line no-console
+          console.error("WebRTC initialization error:", e);
+          showToast({
+            message: "Failed to initialize WebRTC.",
+            type: "error",
+            duration: 4000,
+          });
+        });
       })
       .catch(() => {
         showToast({

@@ -1,32 +1,50 @@
 const menuIconRaw = document.getElementById("menu-icon");
 const participantsRaw = document.getElementById("participants");
-const containerRaw = document.getElementById("remote-videos");
+const videoContainerRaw = document.getElementById("remote-videos");
 const messagesContainerRaw = document.getElementById("messages");
 
 const menuIcon = menuIconRaw as HTMLDivElement | null;
 const participants = participantsRaw as HTMLDivElement | null;
-const container = containerRaw as HTMLDivElement | null;
-const messagesContainer = messagesContainerRaw as HTMLUListElement | null;
+const videoContainer = videoContainerRaw as HTMLDivElement | null;
+const messagesContainer = messagesContainerRaw as HTMLDivElement | null;
 
 function updateVideoGrid(): void {
-  if (!container) {
-    throw new Error("Remote videos container not found");
+  if (!videoContainer) {
+    throw new Error("Remote videos videoContainer not found");
   }
 
-  const videos = container.children.length;
+  const count = Array.from(videoContainer.children).filter(
+    (c) => (c as HTMLElement).tagName === "VIDEO" || c.querySelector("video"),
+  ).length;
 
-  // Define colunas
-  const cols = Math.ceil(Math.sqrt(videos));
-  container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  if (count === 0) {
+    return;
+  }
 
-  // Ajusta a altura de cada linha
-  const rows = Math.ceil(videos / cols);
-  container.style.gridAutoRows = `calc(100% / ${rows} - 1rem)`;
+  // Define columns
+  let cols = Math.ceil(Math.sqrt(count));
+
+  // Force 1 column on small screens
+  if (window.innerWidth < 640) {
+    cols = 1;
+  }
+
+  videoContainer.style.display = "grid";
+  videoContainer.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+  videoContainer.style.alignItems = "stretch";
+  videoContainer.style.justifyItems = "stretch";
+  videoContainer.style.gridAutoRows = "";
+
+  Array.from(videoContainer.querySelectorAll("video")).forEach(
+    (videoElement) => {
+      videoElement.style.objectFit = "cover";
+    },
+  );
 }
 
 function scrollToBottom(): void {
   if (!messagesContainer) {
-    throw new Error("Messages container not found");
+    throw new Error("Messages messagesContainer not found");
   }
 
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -53,3 +71,20 @@ document.addEventListener("click", (event) => {
     participants.classList.add("-translate-x-full");
   }
 });
+
+// Observe changes in videos (entry/exit)
+if (messagesContainer) {
+  const observer = new MutationObserver(() => {
+    requestAnimationFrame(updateVideoGrid);
+  });
+
+  observer.observe(messagesContainer, { childList: true, subtree: true });
+}
+
+// Recalculate on resize
+window.addEventListener("resize", () => {
+  requestAnimationFrame(updateVideoGrid);
+});
+
+// Expose for debugging if needed
+// (window as any).forceVideoGridUpdate = updateVideoGrid;
