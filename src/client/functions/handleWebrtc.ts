@@ -439,6 +439,8 @@ export default async function handleWebrtc({
       const el = document.getElementById(`remote-video-${data.userId}`);
 
       if (el) {
+        // Clean up video element
+        (el as HTMLVideoElement).srcObject = null;
         el.remove();
       }
     }
