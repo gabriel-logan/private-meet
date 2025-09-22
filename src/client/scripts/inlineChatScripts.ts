@@ -12,10 +12,20 @@ const participants = participantsRaw as HTMLDivElement | null;
 const videoContainer = videoContainerRaw as HTMLDivElement;
 const messagesContainer = messagesContainerRaw as HTMLDivElement | null;
 
+let lastGridColsClass: string | null = null;
+
 function updateVideoGrid(): void {
   const count = Array.from(videoContainer.children).filter(
-    (c) => (c as HTMLElement).tagName === "VIDEO" || c.querySelector("video"),
+    (c) =>
+      (c as HTMLElement).tagName === "VIDEO" ||
+      !!(c as HTMLElement).querySelector("video"),
   ).length;
+
+  // Cleanup previous
+  if (lastGridColsClass) {
+    videoContainer.classList.remove(lastGridColsClass);
+    lastGridColsClass = null;
+  }
 
   if (count === 0) {
     return;
@@ -29,7 +39,9 @@ function updateVideoGrid(): void {
     cols = 1;
   }
 
-  videoContainer.classList.add(`grid-cols-${cols}`);
+  const newClass = `grid-cols-${cols}`;
+  videoContainer.classList.add(newClass);
+  lastGridColsClass = newClass;
 }
 
 function scrollToBottom(): void {
