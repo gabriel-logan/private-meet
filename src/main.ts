@@ -13,12 +13,20 @@ import type { EnvGlobalConfig } from "./configs/types";
 const logger = new Logger("Bootstrap");
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    httpsOptions: {
-      key: readFileSync(join(__dirname, "..", "secrets", "dev-key.pem")),
-      cert: readFileSync(join(__dirname, "..", "secrets", "dev-cert.pem")),
-    },
-  });
+  const isDev = process.env.NODE_ENV === "development";
+
+  let app: NestExpressApplication;
+
+  if (isDev) {
+    app = await NestFactory.create<NestExpressApplication>(AppModule, {
+      httpsOptions: {
+        key: readFileSync(join(__dirname, "..", "secrets", "dev-key.pem")),
+        cert: readFileSync(join(__dirname, "..", "secrets", "dev-cert.pem")),
+      },
+    });
+  } else {
+    app = await NestFactory.create<NestExpressApplication>(AppModule);
+  }
 
   const configService =
     app.get<ConfigService<EnvGlobalConfig, true>>(ConfigService);
@@ -40,8 +48,15 @@ async function bootstrap(): Promise<void> {
 
   await app.listen(port);
 
-  logger.log(`Application running in ${nodeEnv} mode on port ${port}`);
-  logger.log(`Application URL: https://localhost:${port}`);
+  if (nodeEnv !== "production") {
+    logger.log(`Application running in ${nodeEnv} mode on port ${port}`);
+    logger.log(
+      `Application URL: ${nodeEnv === "development" ? "https" : "http"}://localhost:${port}`,
+    );
+    logger.debug(
+      "In development mode - HTTPS enabled - WEBRtc needs HTTPS to work properly",
+    );
+  }
 }
 
 void bootstrap();
