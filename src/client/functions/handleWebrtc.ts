@@ -439,7 +439,7 @@ export default async function handleWebrtc({
   socket.on(WEBRTC_ICE_CANDIDATE, onWebrtcIce);
 
   // ---------- User Left ----------
-  function onUserLeft(data: { userId: string }): void {
+  function onUserLeft(data: GetUserDto): void {
     const ctx = peers.get(data.userId);
 
     if (ctx) {
