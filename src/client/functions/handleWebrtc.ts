@@ -8,6 +8,8 @@ import {
   WEBRTC_OFFER,
 } from "src/shared/constants/socket-events";
 
+import { isMobile } from "../utils/responsiveness";
+
 interface HandleWebrtcParams {
   socket: Socket;
   roomId: string;
@@ -121,7 +123,11 @@ export default async function handleWebrtc({
 
   updateMicButton();
   updateVideoButton();
-  updateScreenShareButton();
+  if (isMobile) {
+    buttonShareScreen.classList.add("hidden");
+  } else {
+    updateScreenShareButton();
+  }
 
   buttonToggleMic.addEventListener("click", () => {
     audioTrack.enabled = !audioTrack.enabled;

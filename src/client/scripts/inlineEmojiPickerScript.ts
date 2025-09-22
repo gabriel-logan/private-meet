@@ -1,3 +1,5 @@
+import { isMobile } from "../utils/responsiveness";
+
 const emojiBtnRaw = document.getElementById("emoji-toggle");
 const emojiPickerRaw = document.getElementById("emoji-picker");
 const closeBtnRaw = document.getElementById("emoji-close");
@@ -11,8 +13,6 @@ const emojiBtn = emojiBtnRaw as HTMLButtonElement;
 const emojiPicker = emojiPickerRaw as HTMLDivElement;
 const closeBtn = closeBtnRaw as HTMLButtonElement;
 const messageInput = messageInputRaw as HTMLInputElement;
-
-const isMobile = window.matchMedia("(max-width: 640px)").matches;
 
 function insertAtCursor(el: HTMLInputElement, text: string): void {
   const start = el.selectionStart ?? el.value.length;
