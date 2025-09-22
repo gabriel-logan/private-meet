@@ -202,6 +202,8 @@ export default async function handleWebrtc({
       "h-full",
       "object-cover",
       "aspect-video",
+      "border",
+      "border-gray-700",
     );
 
     video.title = remoteUserId;
