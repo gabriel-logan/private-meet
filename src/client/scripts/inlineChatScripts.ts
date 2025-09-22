@@ -21,7 +21,7 @@ function updateVideoGrid(): void {
 
   // Cleanup previous
   if (lastGridColsClass) {
-    videoContainer.classList.remove(lastGridColsClass);
+    videoContainer.style.gridTemplateColumns = "";
     lastGridColsClass = null;
   }
 
@@ -37,9 +37,8 @@ function updateVideoGrid(): void {
     cols = 1;
   }
 
-  const newClass = `grid-cols-${cols}`;
-  videoContainer.classList.add(newClass);
-  lastGridColsClass = newClass;
+  videoContainer.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+  lastGridColsClass = `grid-cols-${cols}`;
 }
 
 function scrollToBottom(): void {
