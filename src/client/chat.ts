@@ -143,6 +143,32 @@ function handleJoinRoom(): void {
     loadingOverlay.style.display = "none";
     leaveRoomButton.disabled = false;
 
+    handleWebrtc({
+      socket,
+      roomId,
+      localVideo,
+      remoteVideosContainer: remoteVideosDiv,
+      buttonToggleMic,
+      buttonToggleVideo,
+      buttonShareScreen,
+      getUser: () => ({ userId, username }),
+      getOnlineUsers: () =>
+        // Reuses the last snapshot rendered in the UI (participantsList)
+        // Ideal: store internal cache when receiving ONLINE_USERS
+        Array.from(participantsList.querySelectorAll("li"))
+          .map((li) => li.getAttribute("data-user"))
+          .filter(Boolean)
+          .map((id) => ({ userId: id as string, username: id as string })),
+    }).catch((e) => {
+      // eslint-disable-next-line no-console
+      console.error("WebRTC initialization error:", e);
+      showToast({
+        message: "Failed to initialize WebRTC.",
+        type: "error",
+        duration: 4000,
+      });
+    });
+
     socket.emit(REQUEST_ONLINE_USERS, { roomId });
 
     // TEMPORARY solution using roomId as key ID
@@ -150,32 +176,6 @@ function handleJoinRoom(): void {
     initE2EE(roomId, roomId)
       .then(() => {
         sendButton.disabled = false;
-
-        handleWebrtc({
-          socket,
-          roomId,
-          localVideo,
-          remoteVideosContainer: remoteVideosDiv,
-          buttonToggleMic,
-          buttonToggleVideo,
-          buttonShareScreen,
-          getUser: () => ({ userId, username }),
-          getOnlineUsers: () =>
-            // Reuses the last snapshot rendered in the UI (participantsList)
-            // Ideal: store internal cache when receiving ONLINE_USERS
-            Array.from(participantsList.querySelectorAll("li"))
-              .map((li) => li.getAttribute("data-user"))
-              .filter(Boolean)
-              .map((id) => ({ userId: id as string, username: id as string })),
-        }).catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error("WebRTC initialization error:", e);
-          showToast({
-            message: "Failed to initialize WebRTC.",
-            type: "error",
-            duration: 4000,
-          });
-        });
       })
       .catch(() => {
         showToast({

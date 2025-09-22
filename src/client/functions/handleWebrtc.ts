@@ -1,5 +1,5 @@
 import type { Socket } from "socket.io-client";
-import type { RoomsUserMapValue } from "src/chat/dto/get-user.dto";
+import type { GetUserDto, RoomsUserMapValue } from "src/chat/dto/get-user.dto";
 import {
   LEAVE_ROOM,
   ONLINE_USERS,
@@ -16,8 +16,8 @@ interface HandleWebrtcParams {
   buttonToggleMic: HTMLButtonElement;
   buttonToggleVideo: HTMLButtonElement;
   buttonShareScreen: HTMLButtonElement;
-  getUser: () => { userId?: string; username?: string };
-  getOnlineUsers: () => { userId: string; username: string }[];
+  getUser: () => Partial<GetUserDto>;
+  getOnlineUsers: () => GetUserDto[];
 }
 
 const rtcConfig: RTCConfiguration = {
@@ -203,7 +203,6 @@ export default async function handleWebrtc({
       "object-cover",
       "aspect-video",
     );
-    video.playsInline = true;
 
     video.title = remoteUserId;
 
