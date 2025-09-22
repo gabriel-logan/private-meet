@@ -106,3 +106,25 @@ temp/
 
 # Miscellaneous
 .DS_Store
+
+# Security
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.jks
+*.pfx
+*.der
+*.csr
+*.jceks
+*.jks
+*.keystore
+*.truststore
+*.asc
+*.gpg
+*.kdb
+*.db
+*.sdb
+!dev-cert.pem
+!dev-key.pem
