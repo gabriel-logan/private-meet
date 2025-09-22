@@ -224,6 +224,7 @@ export default async function handleWebrtc({
       "object-cover",
       "aspect-video",
     );
+    video.playsInline = true;
 
     video.title = remoteUserId;
 
