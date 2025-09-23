@@ -1,6 +1,6 @@
 # Learning Resources for Private Meet
 
-This document provides a curated list of resources to help you learn and understand the technologies used in the Private Meet application, including NestJS, Handlebars, and Socket.io.
+This document provides a curated list of resources to help you learn and understand the technologies used in the Private Meet application, including NestJS, Handlebars, Socket.io, and WebRTC.
 
 ## NestJS
 
@@ -14,6 +14,11 @@ This document provides a curated list of resources to help you learn and underst
 ## Socket.io
 
 - [Socket.io Documentation](https://socket.io/docs/v4/)
+
+## WebRTC
+
+- [WebRTC Documentation](https://webrtc.org/)
+- [Mozilla WebRTC Guide](https://developer.mozilla.org/docs/Web/API/WebRTC_API)
 
 ## Additional Resources
 
