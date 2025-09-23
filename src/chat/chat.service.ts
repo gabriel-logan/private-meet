@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { randomUUID } from "crypto";
+import { Server, Socket } from "socket.io";
 import { EnvGlobalConfig } from "src/configs/types";
 import { AuthPayload, JwtPayload } from "src/shared/types";
 
@@ -27,7 +28,7 @@ export class ChatService {
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_3AM)
-  protected cleanupOldUsersFromRooms(): void {
+  cleanupOldUsersFromRooms(): void {
     const now = Date.now();
     const threshold = 1000 * 60 * 60 * 23; // 23 hours
 
@@ -134,5 +135,41 @@ export class ChatService {
     }
 
     return Array.from(roomUsers.values()).map((entry) => entry.user);
+  }
+
+  getUserSocketIdsInRoom(roomId: string, userId: string): string[] {
+    const roomUsers = this.rooms.get(roomId);
+
+    if (!roomUsers) {
+      return [];
+    }
+
+    const entry = roomUsers.get(userId);
+
+    if (!entry) {
+      return [];
+    }
+
+    return Array.from(entry.sockets);
+  }
+
+  findSocketsByUserId(
+    roomId: string,
+    userId: string,
+    server: Server,
+  ): Socket[] {
+    const socketIds = this.getUserSocketIdsInRoom(roomId, userId);
+
+    const result: Socket[] = [];
+
+    socketIds.forEach((socketId) => {
+      const s = server.sockets.sockets.get(socketId);
+
+      if (s && s.user?.sub === userId) {
+        result.push(s);
+      }
+    });
+
+    return result;
   }
 }

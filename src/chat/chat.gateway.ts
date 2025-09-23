@@ -182,26 +182,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  private findSocketsByUserId(roomId: string, userId: string): Socket[] {
-    const room = this.server.sockets.adapter.rooms.get(roomId);
-
-    if (!room) {
-      return [];
-    }
-
-    const result: Socket[] = [];
-
-    room.forEach((socketId) => {
-      const s = this.server.sockets.sockets.get(socketId);
-
-      if (s && s.user?.sub === userId) {
-        result.push(s);
-      }
-    });
-
-    return result;
-  }
-
   @SubscribeMessage(WEBRTC_OFFER)
   handleWebrtcOffer(
     @MessageBody()
@@ -216,7 +196,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const fromUserId = client.user!.sub;
 
     if (to) {
-      const targets = this.findSocketsByUserId(roomId, to);
+      const targets = this.chatService.findSocketsByUserId(
+        roomId,
+        to,
+        this.server,
+      );
 
       if (targets.length === 0) {
         return;
@@ -246,7 +230,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const { roomId, answer, to } = payload;
     const fromUserId = client.user!.sub;
 
-    const targets = this.findSocketsByUserId(roomId, to);
+    const targets = this.chatService.findSocketsByUserId(
+      roomId,
+      to,
+      this.server,
+    );
 
     targets.forEach((sock) => {
       sock.emit(WEBRTC_ANSWER, { answer, from: fromUserId, to });
@@ -266,7 +254,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const { roomId, candidate, to } = payload;
     const fromUserId = client.user!.sub;
 
-    const targets = this.findSocketsByUserId(roomId, to);
+    const targets = this.chatService.findSocketsByUserId(
+      roomId,
+      to,
+      this.server,
+    );
 
     targets.forEach((sock) => {
       sock.emit(WEBRTC_ICE_CANDIDATE, {
