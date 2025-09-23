@@ -1,7 +1,7 @@
-import type { GetUserDto, RoomsUserMapValue } from "src/chat/dto/get-user.dto";
+import type { GetUserDto, RoomsUserValue } from "src/chat/dto/get-user.dto";
 
 interface RenderParticipantsParams {
-  onlineUsers: RoomsUserMapValue[];
+  onlineUsers: RoomsUserValue[];
   participantsList: HTMLUListElement;
   countSpan: HTMLSpanElement;
   getUser: () => Partial<GetUserDto>;

@@ -6,7 +6,7 @@ import type {
   CreateMessageDto,
   InnerMessage,
 } from "src/chat/dto/create-message.dto";
-import type { GetUserDto, RoomsUserMapValue } from "src/chat/dto/get-user.dto";
+import type { GetUserDto, RoomsUserValue } from "src/chat/dto/get-user.dto";
 import { INVALID_TOKEN } from "src/shared/constants/error-messages";
 import {
   ERROR,
@@ -210,7 +210,7 @@ socket.on("disconnect", () => {
   handleLeaveRoom();
 });
 
-socket.on(ONLINE_USERS, (onlineUsers: RoomsUserMapValue[]) => {
+socket.on(ONLINE_USERS, (onlineUsers: RoomsUserValue[]) => {
   renderParticipants({
     onlineUsers,
     participantsList,

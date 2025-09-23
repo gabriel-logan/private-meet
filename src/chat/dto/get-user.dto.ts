@@ -13,6 +13,6 @@ export class GetUserDto {
   public username: string;
 }
 
-export interface RoomsUserMapValue extends GetUserDto {
+export interface RoomsUserValue extends GetUserDto {
   joinedAt: number;
 }

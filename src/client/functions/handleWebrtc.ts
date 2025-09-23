@@ -1,5 +1,5 @@
 import type { Socket } from "socket.io-client";
-import type { GetUserDto, RoomsUserMapValue } from "src/chat/dto/get-user.dto";
+import type { GetUserDto, RoomsUserValue } from "src/chat/dto/get-user.dto";
 import {
   LEAVE_ROOM,
   ONLINE_USERS,
@@ -370,7 +370,7 @@ export default async function handleWebrtc({
   }
 
   // ---------- Online Users ----------
-  function onOnlineUsers(users: RoomsUserMapValue[]): void {
+  function onOnlineUsers(users: RoomsUserValue[]): void {
     if (!Array.isArray(users)) {
       return;
     }

@@ -7,18 +7,18 @@ import { EnvGlobalConfig } from "src/configs/types";
 import { AuthPayload, JwtPayload } from "src/shared/types";
 
 import { CreateUserDto } from "./dto/create-user.dto";
-import { GetUserDto, RoomsUserMapValue } from "./dto/get-user.dto";
+import { GetUserDto, RoomsUserValue } from "./dto/get-user.dto";
 
 @Injectable()
 export class ChatService {
   /**
-   * @description roomId -> (userId -> { user: RoomsUserMapValue, sockets: Set<socketId> })
-   * @description new Map<roomId, Map<userId, { user: RoomsUserMapValue, sockets: Set<socketId> }>>();
+   * @description roomId -> (userId -> { user: RoomsUserValue, sockets: Set<socketId> })
+   * @description new Map<roomId, Map<userId, { user: RoomsUserValue, sockets: Set<socketId> }>>();
    * @description This structure allows tracking multiple socket connections per user in a room.
    */
   private readonly rooms = new Map<
     string,
-    Map<string, { user: RoomsUserMapValue; sockets: Set<string> }>
+    Map<string, { user: RoomsUserValue; sockets: Set<string> }>
   >();
 
   constructor(
@@ -125,7 +125,7 @@ export class ChatService {
     return affected;
   }
 
-  getOnlineUsersInRoom(roomId: string): RoomsUserMapValue[] {
+  getOnlineUsersInRoom(roomId: string): RoomsUserValue[] {
     const roomUsers = this.rooms.get(roomId);
 
     if (!roomUsers) {
