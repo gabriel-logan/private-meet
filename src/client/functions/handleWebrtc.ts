@@ -219,11 +219,10 @@ export default async function handleWebrtc({
     video.id = `remote-video-${remoteUserId}`;
     video.autoplay = true;
     video.playsInline = true;
+    video.controls = true;
     video.classList.add(
       "rounded-lg",
       "shadow-lg",
-      "w-full",
-      "h-full",
       "object-cover",
       "aspect-video",
       "border",
