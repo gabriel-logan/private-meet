@@ -94,6 +94,8 @@ export default async function handleSendMessage({
       messageTextArea.value = "";
       messageTextArea.style.height = "auto";
       messageTextArea.style.overflowY = "hidden";
+
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
   });
 }
