@@ -12,18 +12,13 @@ import { GetUserDto, RoomsUserMapValue } from "./dto/get-user.dto";
 @Injectable()
 export class ChatService {
   /**
-   * @description roomId -> (userId -> RoomsUserMapValue)
-   * @description new Map<roomId, Map<userId, RoomsUserMapValue>>();
+   * @description roomId -> (userId -> { user: RoomsUserMapValue, sockets: Set<socketId> })
+   * @description new Map<roomId, Map<userId, { user: RoomsUserMapValue, sockets: Set<socketId> }>>();
+   * @description This structure allows tracking multiple socket connections per user in a room.
    */
-  private readonly rooms = new Map<string, Map<string, RoomsUserMapValue>>();
-
-  /**
-   * @description roomId -> (userId -> Set<socketId>)
-   * @description new Map<roomId, Map<userId, Set<socketId>>>();
-   */
-  private readonly roomUserSockets = new Map<
+  private readonly rooms = new Map<
     string,
-    Map<string, Set<string>>
+    Map<string, { user: RoomsUserMapValue; sockets: Set<string> }>
   >();
 
   constructor(
@@ -37,16 +32,14 @@ export class ChatService {
     const threshold = 6 * 24 * 60 * 60 * 1000; // 6 days in milliseconds
 
     this.rooms.forEach((roomUsers, roomId) => {
-      roomUsers.forEach((user, userId) => {
-        if (now - user.joinedAt > threshold) {
+      roomUsers.forEach((entry, userId) => {
+        if (now - entry.user.joinedAt > threshold) {
           roomUsers.delete(userId);
         }
       });
 
-      // If room is empty after cleanup, remove it
       if (roomUsers.size === 0) {
         this.rooms.delete(roomId);
-        this.roomUserSockets.delete(roomId);
       }
     });
   }
@@ -80,68 +73,65 @@ export class ChatService {
     if (!this.rooms.has(roomId)) {
       this.rooms.set(roomId, new Map());
     }
-    if (!this.roomUserSockets.has(roomId)) {
-      this.roomUserSockets.set(roomId, new Map());
-    }
 
-    // Get the maps for the room and user sockets
     const roomUsers = this.rooms.get(roomId)!;
-    const roomSockets = this.roomUserSockets.get(roomId)!;
 
-    // Add the user to the room if not already present
     if (!roomUsers.has(user.userId)) {
-      roomUsers.set(user.userId, { ...user, joinedAt: Date.now() });
+      roomUsers.set(user.userId, {
+        user: { ...user, joinedAt: Date.now() },
+        sockets: new Set([socketId]),
+      });
+
+      return void 0;
     }
 
-    // Add the socket ID to the user's set of sockets
-    if (!roomSockets.has(user.userId)) {
-      roomSockets.set(user.userId, new Set());
-    }
-
-    roomSockets.get(user.userId)!.add(socketId);
+    roomUsers.get(user.userId)!.sockets.add(socketId);
   }
 
   removeUserFromRoom(roomId: string, userId: string, socketId: string): void {
-    const roomSockets = this.roomUserSockets.get(roomId);
     const roomUsers = this.rooms.get(roomId);
 
-    if (!roomSockets?.has(userId)) {
-      return;
+    if (!roomUsers) {
+      return void 0;
     }
 
-    const sockets = roomSockets.get(userId)!;
+    const entry = roomUsers.get(userId);
 
-    sockets.delete(socketId);
+    if (!entry) {
+      return void 0;
+    }
 
-    if (sockets.size === 0) {
-      // Last socket for this user, remove user from room
-      roomSockets.delete(userId);
-      roomUsers?.delete(userId);
+    entry.sockets.delete(socketId);
 
-      // If room is empty, remove room
-      if (roomUsers?.size === 0) {
+    if (entry.sockets.size === 0) {
+      roomUsers.delete(userId);
+
+      if (roomUsers.size === 0) {
         this.rooms.delete(roomId);
-      }
-      if (roomSockets.size === 0) {
-        this.roomUserSockets.delete(roomId);
       }
     }
   }
 
   removeUserFromAllRooms(userId: string, socketId: string): string[] {
-    const affectedRooms: string[] = [];
+    const affected: string[] = [];
 
-    this.roomUserSockets.forEach((roomSockets, roomId) => {
-      if (roomSockets.has(userId)) {
+    this.rooms.forEach((roomUsers, roomId) => {
+      if (roomUsers.has(userId)) {
         this.removeUserFromRoom(roomId, userId, socketId);
-        affectedRooms.push(roomId);
+        affected.push(roomId);
       }
     });
 
-    return affectedRooms;
+    return affected;
   }
 
   getOnlineUsersInRoom(roomId: string): RoomsUserMapValue[] {
-    return Array.from(this.rooms.get(roomId)?.values() || []);
+    const roomUsers = this.rooms.get(roomId);
+
+    if (!roomUsers) {
+      return [];
+    }
+
+    return Array.from(roomUsers.values()).map((entry) => entry.user);
   }
 }
