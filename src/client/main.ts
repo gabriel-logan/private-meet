@@ -130,6 +130,12 @@ function deleteUser(): void {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
 
   renderForms();
+
+  showToast({
+    message: "User deleted. You can create a new user.",
+    type: "success",
+    duration: 3000,
+  });
 }
 
 function joinRoom(): void {
