@@ -26,10 +26,10 @@ export class ChatService {
     private readonly jwtService: JwtService,
   ) {}
 
-  @Cron(CronExpression.EVERY_WEEK)
+  @Cron(CronExpression.EVERY_DAY_AT_3AM)
   protected cleanupOldUsersFromRooms(): void {
     const now = Date.now();
-    const threshold = 6 * 24 * 60 * 60 * 1000; // 6 days in milliseconds
+    const threshold = 1000 * 60 * 60 * 23; // 23 hours
 
     this.rooms.forEach((roomUsers, roomId) => {
       roomUsers.forEach((entry, userId) => {
@@ -118,6 +118,7 @@ export class ChatService {
     this.rooms.forEach((roomUsers, roomId) => {
       if (roomUsers.has(userId)) {
         this.removeUserFromRoom(roomId, userId, socketId);
+
         affected.push(roomId);
       }
     });
