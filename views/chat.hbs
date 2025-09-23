@@ -9,32 +9,6 @@
     <link rel="shortcut icon" href="favicon.svg" type="image/x-icon">
     <link rel="stylesheet" href="/styles.css">
     <script src="/socket.io/socket.io.js"></script>
-    <style>
-        @media (max-width: 640px) {
-            #emoji-picker {
-                position: fixed !important;
-                left: 0;
-                right: 0;
-                bottom: calc(env(safe-area-inset-bottom, 0) + 60px);
-                width: 100%;
-                max-height: 40vh !important;
-                border-top: 1px solid #374151;
-                border-radius: 16px 16px 0 0;
-                box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.55);
-                background: #1f2937;
-            }
-
-            body.emoji-open {
-                overflow: hidden;
-            }
-        }
-
-        /* Preserve line breaks inside messages */
-        #messages {
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-    </style>
 </head>
 
 <body class="h-screen flex flex-col bg-gray-900 text-white">
@@ -75,7 +49,8 @@
         <section id="video-container"
             class="flex flex-col items-center justify-center bg-black relative flex-1 lg:col-span-7 p-4 overflow-hidden h-full lg:min-h-0">
             <div id="remote-videos" class="grid gap-4 w-full h-full place-items-center">
-                <video id="local-video" class="rounded-lg shadow-lg w-full h-full object-cover aspect-video border border-gray-700" autoplay
+                <video id="local-video"
+                    class="rounded-lg shadow-lg w-full h-full object-cover aspect-video border border-gray-700" autoplay
                     playsinline></video>
             </div>
             <!-- Controls -->
