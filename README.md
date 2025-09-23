@@ -1,6 +1,28 @@
 # Private Meet
 
-A private chat, video, and voice meeting application built with Nestjs, Handlebars, and Socket.io.
+A private chat, video, and voice meeting application built with Nestjs, Handlebars, WebRTC, and WebSockets(Socket.io).
+Free, open-source, and self-hostable.
+
+## Purpose
+
+Private Meet is designed to provide a secure and frictionless way to connect with others without the need for accounts or metadata collection. It emphasizes end-to-end confidentiality, structured access control, and transparent technology that users can fully trust.
+
+## Public Demo
+
+You can try out a live demo of Private Meet at [https://private-meet-76by.onrender.com](https://private-meet-76by.onrender.com).
+This demo is hosted on Render.com and may have limitations on usage.
+We are not using TURN servers, so connectivity may vary based on your network conditions.
+We are using free instances, so performance may vary.
+
+## Features
+
+- No accounts required — create or join a room instantly.
+- Flexible room identifiers — define IDs with 1 to 128 characters, or generate unguessable ones via UUID v4.
+- End-to-end encrypted chat for private messaging.
+- WebRTC-based voice, video, and screen sharing, with low latency and peer-to-peer security.
+- Unlimited participants in each room.
+- Structured access control to manage entry and participation.
+- Open source freedom — anyone can clone, self-host, and redeploy Private Meet on their own infrastructure.
 
 ## Folders
 
