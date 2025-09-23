@@ -223,6 +223,8 @@ export default async function handleWebrtc({
     video.classList.add(
       "rounded-lg",
       "shadow-lg",
+      "w-full",
+      "h-full",
       "object-cover",
       "aspect-video",
       "border",
