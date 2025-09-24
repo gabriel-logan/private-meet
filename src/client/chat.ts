@@ -32,6 +32,7 @@ import renderParticipants from "./functions/renderParticipants";
 import updateEmptyState from "./functions/updateEmptyState";
 import type { Io } from "./types/SocketClient";
 import { aadFrom, decryptString, getCachedKey, initE2EE } from "./utils/e2ee";
+import observer from "./utils/observer";
 
 const roomIdInput = document.getElementById("roomId") as
   | HTMLInputElement
@@ -220,9 +221,10 @@ socket.on(ONLINE_USERS, (onlineUsers: RoomsUserValue[]) => {
 });
 
 // Observe changes in the messages container to update the empty state
-const messagesObserver = new MutationObserver(() => {
+const messagesObserver = observer(() => {
   updateEmptyState({ messagesContainer });
 });
+
 messagesObserver.observe(messagesContainer, { childList: true });
 
 // Initial check

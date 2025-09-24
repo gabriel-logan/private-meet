@@ -1,7 +1,8 @@
+import observer from "../utils/observer";
+
 const menuIconRaw = document.getElementById("menu-icon");
 const participantsRaw = document.getElementById("participants");
 const videoContainerRaw = document.getElementById("remote-videos");
-const messagesContainerRaw = document.getElementById("messages");
 
 if (!videoContainerRaw) {
   throw new Error("Remote videos videoContainer not found");
@@ -10,7 +11,6 @@ if (!videoContainerRaw) {
 const menuIcon = menuIconRaw as HTMLDivElement | null;
 const participants = participantsRaw as HTMLDivElement | null;
 const videoContainer = videoContainerRaw as HTMLDivElement;
-const messagesContainer = messagesContainerRaw as HTMLDivElement | null;
 
 let lastGridColsClass: string | null = null;
 
@@ -41,21 +41,21 @@ function updateVideoGrid(): void {
   lastGridColsClass = `grid-cols-${cols}`;
 }
 
-function scrollToBottom(): void {
-  if (!messagesContainer) {
-    throw new Error("Messages messagesContainer not found");
-  }
-
-  messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
 if (!menuIcon || !participants) {
   throw new Error("Menu icon or participants element not found");
 }
 
 // Initial calls
 updateVideoGrid();
-scrollToBottom();
+
+const obs = observer(() => {
+  requestAnimationFrame(updateVideoGrid);
+});
+
+obs.observe(videoContainer, {
+  childList: true,
+  subtree: true,
+});
 
 menuIcon.addEventListener("click", () => {
   participants.classList.toggle("-translate-x-full");
@@ -70,24 +70,3 @@ document.addEventListener("click", (event) => {
     participants.classList.add("-translate-x-full");
   }
 });
-const observer = new MutationObserver(() => {
-  requestAnimationFrame(updateVideoGrid);
-});
-
-observer.observe(videoContainer, {
-  childList: true,
-  subtree: true,
-});
-
-// Observe changes in videos (entry/exit)
-if (messagesContainer) {
-  observer.observe(messagesContainer, { childList: true, subtree: true });
-}
-
-// Recalculate on resize
-window.addEventListener("resize", () => {
-  requestAnimationFrame(updateVideoGrid);
-});
-
-// Expose for debugging if needed
-// (window as any).forceVideoGridUpdate = updateVideoGrid;
