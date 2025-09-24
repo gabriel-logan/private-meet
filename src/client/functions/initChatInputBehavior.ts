@@ -1,3 +1,5 @@
+import { isMobile } from "../utils/responsiveness";
+
 interface ChatInputBehaviorOptions {
   messageTextArea: HTMLTextAreaElement;
   sendButton: HTMLButtonElement;
@@ -7,16 +9,6 @@ export default function initChatInputBehavior({
   messageTextArea,
   sendButton,
 }: ChatInputBehaviorOptions): void {
-  const isMobile = (): boolean => {
-    const coarse =
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(pointer: coarse)").matches;
-    const uaMobile = /Mobi|Android|iPhone|iPad|iPod|IEMobile|BlackBerry/i.test(
-      navigator.userAgent,
-    );
-    return coarse || uaMobile;
-  };
-
   // Auto-resize textarea up to a max height
   const maxHeight = 160; // px (~10 lines depending on font)
   const autoResize = (): void => {

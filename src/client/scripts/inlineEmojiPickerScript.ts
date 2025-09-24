@@ -27,7 +27,7 @@ function insertAtCursor(el: HTMLInputElement, text: string): void {
 function openPicker(): void {
   emojiPicker.classList.remove("hidden");
 
-  if (isMobile) {
+  if (isMobile()) {
     document.body.classList.add("emoji-open");
   }
 }
@@ -79,7 +79,7 @@ emojiPicker.addEventListener("click", (e) => {
   // Trigger typing logic (handleTyping listens to the native input event)
   messageInput.dispatchEvent(new Event("input", { bubbles: true }));
 
-  if (!isMobile) {
+  if (!isMobile()) {
     messageInput.focus({ preventScroll: true });
   }
 });

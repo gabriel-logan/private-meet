@@ -130,7 +130,7 @@ export default async function handleWebrtc({
 
   updateMicButton();
   updateVideoButton();
-  if (isMobile) {
+  if (isMobile()) {
     buttonShareScreen.classList.add("hidden");
   } else {
     updateScreenShareButton();
