@@ -7,16 +7,20 @@ import { ERROR } from "../constants/socket-events";
 
 @Catch()
 export class WsExceptionFilter extends BaseWsExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost): boolean {
+  catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToWs();
     const client = ctx.getClient<Socket>();
 
     if (exception instanceof WsException) {
       const errorMessage = exception.getError();
 
-      return client.emit(ERROR, errorMessage);
+      client.emit(ERROR, errorMessage);
+
+      return super.catch(exception, host);
     }
 
-    return client.emit(ERROR, INTERNAL_SERVER_ERROR);
+    client.emit(ERROR, INTERNAL_SERVER_ERROR);
+
+    return super.catch(exception, host);
   }
 }
