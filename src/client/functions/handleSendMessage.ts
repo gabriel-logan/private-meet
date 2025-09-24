@@ -16,6 +16,7 @@ interface HandleSendMessageParams {
   socket: Socket;
   roomId: string;
   messagesContainer: HTMLDivElement;
+  sendButton: HTMLButtonElement;
   getUser: () => Partial<GetUserDto>;
 }
 
@@ -24,6 +25,7 @@ export default async function handleSendMessage({
   socket,
   roomId,
   messagesContainer,
+  sendButton,
   getUser,
 }: HandleSendMessageParams): Promise<void> {
   // Normalize line endings but preserve internal newlines
@@ -67,6 +69,8 @@ export default async function handleSendMessage({
     username,
   };
 
+  sendButton.disabled = true;
+
   const aad = aadFrom(roomId);
 
   const { iv, content, alg } = await encryptString(
@@ -98,4 +102,6 @@ export default async function handleSendMessage({
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
   });
+
+  sendButton.disabled = false;
 }

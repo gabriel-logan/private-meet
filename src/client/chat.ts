@@ -291,20 +291,15 @@ sendButton.addEventListener("click", () => {
     socket,
     roomId,
     messagesContainer,
+    sendButton,
     getUser: () => ({ userId, username }),
-  })
-    .then(() => {
-      // After sending, reset the textarea height
-      messageTextArea.style.height = "auto";
-      messageTextArea.style.overflowY = "hidden";
-    })
-    .catch(() => {
-      showToast({
-        message: "Failed to send message.",
-        type: "error",
-        duration: 2000,
-      });
+  }).catch(() => {
+    showToast({
+      message: "Failed to send message.",
+      type: "error",
+      duration: 2000,
     });
+  });
 });
 
 handleTyping({
