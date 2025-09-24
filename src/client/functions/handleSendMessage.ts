@@ -100,8 +100,8 @@ export default async function handleSendMessage({
       messageTextArea.style.overflowY = "hidden";
 
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      sendButton.disabled = false;
     }
   });
-
-  sendButton.disabled = false;
 }

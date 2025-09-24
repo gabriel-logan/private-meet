@@ -299,6 +299,8 @@ sendButton.addEventListener("click", () => {
       type: "error",
       duration: 2000,
     });
+
+    sendButton.disabled = false;
   });
 });
 
