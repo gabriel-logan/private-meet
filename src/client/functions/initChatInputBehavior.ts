@@ -43,7 +43,9 @@ export default function initChatInputBehavior({
       // Desktop: Enter sends, Shift+Enter inserts a newline
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        sendButton.click();
+        if (!sendButton.disabled) {
+          sendButton.click();
+        }
       }
     } else {
       // Mobile: Enter always inserts a newline (no interception)
