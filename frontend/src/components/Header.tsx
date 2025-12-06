@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 export default function Header() {
   return (
     <header className="flex items-center justify-between border-b border-gray-600/50 bg-linear-to-r from-gray-800 via-gray-900 to-gray-800 p-4 shadow-lg backdrop-blur-sm">
@@ -21,12 +23,12 @@ export default function Header() {
           </svg>
         </div>
         <h1 className="bg-linear-to-r from-white to-gray-300 bg-clip-text text-lg font-bold text-transparent lg:text-xl">
-          <a
-            href="/"
+          <Link
+            to="/"
             className="transition-all duration-300 hover:from-indigo-300 hover:to-purple-300"
           >
             Private Meet
-          </a>
+          </Link>
         </h1>
       </div>
 
