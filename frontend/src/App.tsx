@@ -1,14 +1,16 @@
-import "./App.css";
-
 import { BrowserRouter, Route, Routes } from "react-router";
 
+import ChatPage from "./pages/Chat";
 import HomePage from "./pages/Home";
+import NotFoundPage from "./pages/NotFound";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/:id" element={<ChatPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );
