@@ -1,14 +1,9 @@
-import Loading from "../components/Loading";
-
 export default function HomePage() {
   const title = "Welcome to the Collaborative App";
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-gray-900 via-gray-800 to-black text-white">
       <div className="w-full max-w-md rounded-2xl border border-gray-700/50 bg-gray-800/70 p-8 shadow-2xl backdrop-blur-lg">
-        {/** Overlay de loading */}
-        <Loading />
-
         {/** Title */}
         <h1 className="mb-8 animate-pulse bg-linear-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-center text-3xl font-extrabold text-transparent">
           {title}
