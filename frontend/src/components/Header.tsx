@@ -1,15 +1,11 @@
+import { MdMenu } from "react-icons/md";
 import { Link } from "react-router";
 
 export default function Header() {
   return (
     <header className="flex items-center justify-between border-b border-gray-600/50 bg-linear-to-r from-gray-800 via-gray-900 to-gray-800 p-4 shadow-lg backdrop-blur-sm">
       <div className="flex items-center lg:hidden">
-        <img
-          src="/icons/menu.svg"
-          alt="Menu"
-          id="menu-icon"
-          className="h-6 w-6 cursor-pointer filter transition-all duration-200 hover:scale-110 hover:rotate-180 hover:brightness-125"
-        />
+        <MdMenu className="h-6 w-6 cursor-pointer text-gray-300 hover:text-white" />
       </div>
 
       <div className="flex items-center gap-2 lg:gap-3">
