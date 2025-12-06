@@ -8,15 +8,15 @@
   "private": true,
   "license": "AGPL-3.0",
   "scripts": {
-    "build": "yarn build:backend && yarn build:frontend && yarn build:style",
+    "build": "pnpm build:backend && pnpm build:frontend && pnpm build:style",
     "build:backend": "nest build",
-    "build:frontend": "yarn build:frontend:main && yarn build:frontend:chat",
+    "build:frontend": "pnpm build:frontend:main && pnpm build:frontend:chat",
     "build:frontend:main": "ENTRY=main npx vite build",
     "build:frontend:chat": "ENTRY=chat npx vite build",
     "build:style": "npx tailwindcss -i ./src/client/input.css -o ./public/styles.css --minify",
-    "format": "prettier --write **/*.{ts,js,json,md,yml,yaml,mjs}",
-    "format:check": "yarn format --check",
-    "dev": "concurrently \"yarn dev:backend\" \"yarn dev:frontend:main\" \"yarn dev:frontend:chat\" \"yarn dev:style\"",
+    "format": "prettier --write **/*.{ts,js,json,md,yml,mjs}",
+    "format:check": "pnpm format --check",
+    "dev": "concurrently \"pnpm dev:backend\" \"pnpm dev:frontend:main\" \"pnpm dev:frontend:chat\" \"pnpm dev:style\"",
     "dev:backend": "nest start --watch",
     "dev:frontend:main": "ENTRY=main npx vite build --watch",
     "dev:frontend:chat": "ENTRY=chat npx vite build --watch",
@@ -24,7 +24,7 @@
     "debug": "nest start --debug --watch",
     "start": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
-    "lint:fix": "yarn lint --fix",
+    "lint:fix": "pnpm lint --fix",
     "test": "jest --verbose",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -111,6 +111,5 @@
   },
   "engines": {
     "node": ">=20"
-  },
-  "packageManager": "yarn@4.9.4"
+  }
 }
