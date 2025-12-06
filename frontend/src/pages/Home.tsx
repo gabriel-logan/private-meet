@@ -35,7 +35,7 @@ export default function HomePage() {
         </div>
 
         {/** Join Room */}
-        <div id="join-room-form" className="hidden space-y-6">
+        <div id="join-room-form" className="space-y-6">
           <div className="flex flex-col">
             <label
               htmlFor="room-id-input"
