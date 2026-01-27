@@ -16,23 +16,41 @@ function buildURL(token?: string) {
   return url.toString();
 }
 
-export function initWSInstance(token?: string): Promise<WebSocket> {
+export function initWSInstance(
+  token?: string,
+  maxRetries = 10,
+  retryDelay = 1000,
+): Promise<WebSocket> {
+  let attempts = 0;
+
   return new Promise((resolve, reject) => {
-    if (ws) {
-      return resolve(ws);
-    }
+    const connect = () => {
+      attempts++;
 
-    const url = buildURL(token);
+      const url = buildURL(token);
 
-    ws = new WebSocket(url);
+      ws = new WebSocket(url);
 
-    ws.onopen = () => {
-      resolve(ws as WebSocket);
+      ws.onopen = () => {
+        resolve(ws as WebSocket);
+      };
+
+      ws.onerror = () => {
+        ws?.close();
+      };
+
+      ws.onclose = () => {
+        if (attempts >= maxRetries) {
+          ws = null;
+          reject(new Error("WebSocket connection failed"));
+          return;
+        }
+
+        setTimeout(connect, retryDelay);
+      };
     };
 
-    ws.onerror = (event) => {
-      reject(new Error(event.type));
-    };
+    connect();
   });
 }
 
