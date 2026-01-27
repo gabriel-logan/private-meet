@@ -16,19 +16,27 @@ function buildURL(token?: string) {
   return url.toString();
 }
 
-export function initWSInstance(token?: string): WebSocket {
-  if (ws) {
-    return ws;
-  }
+export function initWSInstance(token?: string): Promise<WebSocket> {
+  return new Promise((resolve, reject) => {
+    if (ws) {
+      return resolve(ws);
+    }
 
-  const url = buildURL(token);
+    const url = buildURL(token);
 
-  ws = new WebSocket(url);
+    ws = new WebSocket(url);
 
-  return ws;
+    ws.onopen = () => {
+      resolve(ws as WebSocket);
+    };
+
+    ws.onerror = (event) => {
+      reject(new Error(event.type));
+    };
+  });
 }
 
-export function updateWSInstanceToken(token: string): WebSocket {
+export function updateWSInstanceToken(token: string): Promise<WebSocket> {
   if (!ws) {
     return initWSInstance(token);
   }
