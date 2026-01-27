@@ -2,11 +2,7 @@ let ws: WebSocket | null = null;
 
 const baseURL = import.meta.env.VITE_WS_API_URL as string;
 
-export function initWSInstance(token?: string): WebSocket {
-  if (ws) {
-    return ws;
-  }
-
+function buildURL(token?: string) {
   const url = new URL(baseURL);
 
   url.protocol = url.protocol.replace("http", "ws");
@@ -17,7 +13,17 @@ export function initWSInstance(token?: string): WebSocket {
     url.searchParams.append("token", token);
   }
 
-  ws = new WebSocket(url.toString());
+  return url.toString();
+}
+
+export function initWSInstance(token?: string): WebSocket {
+  if (ws) {
+    return ws;
+  }
+
+  const url = buildURL(token);
+
+  ws = new WebSocket(url);
 
   return ws;
 }
