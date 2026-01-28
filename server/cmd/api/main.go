@@ -3,22 +3,31 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gabriel-logan/private-meet/server/internal/server"
 	"github.com/gabriel-logan/private-meet/server/internal/ws"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load("../.env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	hub := ws.NewHub()
 	go hub.Run()
 
 	r := server.NewRouter(hub)
 
+	serverPort := os.Getenv("SERVER_PORT")
+
 	server := &http.Server{
-		Addr:    ":3000",
+		Addr:    ":" + serverPort,
 		Handler: r,
 	}
 
-	log.Println("Starting server on http://localhost:3000")
+	log.Println("Starting server on http://localhost:" + serverPort)
 	log.Fatal(server.ListenAndServe())
 }

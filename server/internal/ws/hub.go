@@ -35,7 +35,6 @@ func (h *Hub) Run() {
 			h.clients[c] = true
 			h.mu.Unlock()
 
-			// canal pessoal para notificações
 			h.JoinRoom("user:"+c.UserID, c)
 
 		case c := <-h.unregister:
