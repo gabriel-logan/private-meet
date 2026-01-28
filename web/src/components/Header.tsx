@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { motion } from "motion/react";
 
 export default function Header() {
@@ -21,13 +22,13 @@ export default function Header() {
 
         <nav className="flex items-center gap-6">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
-              href={link.href}
+              to={link.href}
               className="text-sm text-zinc-400 transition hover:text-zinc-100"
             >
               {link.name}
-            </a>
+            </Link>
           ))}
         </nav>
       </motion.div>
