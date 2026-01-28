@@ -3,6 +3,7 @@ package ws
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -52,6 +53,19 @@ func (c *Client) readPump() {
 
 		case "chat.message":
 			c.hub.broadcast <- &msg
+
+		case "utils.generateRoomID":
+			newRoomID := uuid.NewString()
+
+			response := Message{
+				Type: "utils.generateRoomID",
+				Data: mustJSON(struct {
+					RoomID string `json:"roomID"`
+				}{
+					RoomID: newRoomID,
+				}),
+			}
+			c.send <- mustJSON(&response)
 		}
 	}
 }
