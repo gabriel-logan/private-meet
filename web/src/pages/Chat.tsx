@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import {
   FiImage,
+  FiMenu,
   FiMic,
   FiMicOff,
   FiMonitor,
@@ -33,6 +34,7 @@ type OnlineUser = {
 export default function ChatPage() {
   const [message, setMessage] = useState("");
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [usersOpen, setUsersOpen] = useState(false);
 
   const [speakerMuted, setSpeakerMuted] = useState(false);
   const [micEnabled, setMicEnabled] = useState(true);
@@ -95,6 +97,15 @@ export default function ChatPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setUsersOpen(true)}
+              className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-xs font-medium text-zinc-200 transition hover:bg-zinc-950 md:hidden"
+              aria-label="Open users"
+            >
+              <FiMenu />
+              Users
+            </button>
             <span className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1 text-xs text-zinc-300">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
               Connected
@@ -105,9 +116,92 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[280px_minmax(0,2fr)_420px] xl:grid-cols-[320px_minmax(0,3fr)_460px]">
+        {/* Mobile users drawer (always mounted for smooth animations) */}
+        <div
+          className={
+            usersOpen
+              ? "fixed inset-0 z-50 md:hidden"
+              : "pointer-events-none fixed inset-0 z-50 md:hidden"
+          }
+          aria-hidden={!usersOpen}
+        >
+          <button
+            type="button"
+            className={
+              usersOpen
+                ? "absolute inset-0 bg-black/60 opacity-100 transition-opacity duration-200 ease-out"
+                : "absolute inset-0 bg-black/60 opacity-0 transition-opacity duration-200 ease-out"
+            }
+            aria-label="Close users"
+            onClick={() => setUsersOpen(false)}
+            tabIndex={usersOpen ? 0 : -1}
+          />
+
+          <div
+            className={
+              usersOpen
+                ? "absolute inset-y-0 left-0 w-[86%] max-w-xs translate-x-0 transition-transform duration-200 ease-out will-change-transform"
+                : "absolute inset-y-0 left-0 w-[86%] max-w-xs -translate-x-full transition-transform duration-200 ease-out will-change-transform"
+            }
+          >
+            <div className="flex h-full min-h-0 flex-col rounded-r-xl border border-zinc-800 bg-zinc-900/95 shadow-[0_18px_40px_-18px_rgba(0,0,0,0.75)]">
+              <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <FiUsers className="text-zinc-300" />
+                  Users
+                  <span className="rounded-full bg-zinc-950 px-2 py-1 text-xs text-zinc-400">
+                    {onlineUsers.length}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setUsersOpen(false)}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
+                  aria-label="Close"
+                  tabIndex={usersOpen ? 0 : -1}
+                >
+                  <FiX />
+                </button>
+              </div>
+
+              <div className="min-h-0 flex-1 overflow-auto p-2">
+                <ul className="space-y-1">
+                  {onlineUsers.map((u) => (
+                    <li
+                      key={u.id}
+                      className="flex items-center justify-between rounded-lg border border-transparent px-3 py-2 transition hover:border-zinc-800 hover:bg-zinc-950/40"
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="grid h-9 w-9 place-items-center rounded-full border border-zinc-800 bg-zinc-950 text-zinc-200">
+                          <FiUser />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm text-zinc-100">
+                            {u.name}
+                          </p>
+                          <p className="text-xs text-zinc-500">
+                            {u.status === "idle" ? "Idle" : "Online"}
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className={
+                          u.status === "idle"
+                            ? "h-2 w-2 rounded-full bg-amber-500"
+                            : "h-2 w-2 rounded-full bg-emerald-500"
+                        }
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-4 md:grid-cols-2 md:grid-rows-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[280px_minmax(0,2fr)_420px] lg:grid-rows-1 xl:grid-cols-[320px_minmax(0,3fr)_460px]">
           {/* Users */}
-          <aside className="order-3 min-h-0 lg:order-1">
+          <aside className="order-3 hidden min-h-0 md:order-0 md:col-start-2 md:row-start-2 md:block lg:order-1 lg:col-start-auto lg:row-start-auto">
             <section className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
@@ -155,7 +249,7 @@ export default function ChatPage() {
           </aside>
 
           {/* Stage */}
-          <section className="order-1 min-h-0 lg:order-2">
+          <section className="order-1 row-start-1 min-h-0 md:order-0 md:row-span-2 lg:order-2 lg:row-span-1">
             <div className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
@@ -235,7 +329,7 @@ export default function ChatPage() {
           </section>
 
           {/* Chat */}
-          <aside className="order-2 min-h-0 lg:order-3">
+          <aside className="order-2 row-start-2 min-h-0 md:order-0 md:col-start-2 md:row-start-1 lg:order-3 lg:col-start-auto lg:row-start-auto">
             <section className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
