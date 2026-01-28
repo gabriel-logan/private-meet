@@ -3,17 +3,14 @@ package ws
 import (
 	"net/http"
 
+	"github.com/gabriel-logan/private-meet/server/internal/security"
 	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		return true // ajuste em prod
+		return true
 	},
-}
-
-func validateJWT(token string) (string, error) {
-	return "extractedUserID: " + token, nil
 }
 
 func ServeWS(hub *Hub) http.HandlerFunc {
@@ -21,7 +18,13 @@ func ServeWS(hub *Hub) http.HandlerFunc {
 
 		token := r.URL.Query().Get("token")
 
-		userID, err := validateJWT(token)
+		claims, err := security.ValidateJWT(token)
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		userID, err := claims.GetSubject()
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
