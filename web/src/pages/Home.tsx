@@ -3,7 +3,7 @@ import { FiLogIn, FiShuffle, FiTrash2, FiUser } from "react-icons/fi";
 import { motion } from "motion/react";
 
 import apiInstance from "../lib/apiInstance";
-import { getWSInstance, updateWSInstanceToken } from "../lib/wsInstance";
+import { getWSInstance } from "../lib/wsInstance";
 import { useAuthStore } from "../stores/authStore";
 
 export default function HomePage() {
@@ -61,14 +61,9 @@ function CreateUser() {
 
       const accessToken = response.data.accessToken;
 
-      console.log("Access Token:", accessToken);
-
       setAccessToken(accessToken);
 
-      const ws = await updateWSInstanceToken(accessToken);
-      ws.onopen = () => {
-        setUsername("");
-      };
+      setUsername("");
     } catch (error) {
       console.error("Error creating user:", error);
     }

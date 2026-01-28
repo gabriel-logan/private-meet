@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import ErrorPage from "./components/Error";
 import Loading from "./components/Loading";
-import { initWSInstance } from "./lib/wsInstance";
+import { closeWSInstance, updateWSInstanceToken } from "./lib/wsInstance";
 import Router from "./Router";
 import { useAuthStore } from "./stores/authStore";
 
@@ -13,9 +13,53 @@ function App() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    initWSInstance(accessToken, 10, 1000)
-      .then(() => setReady(true))
-      .catch(() => setError(true));
+    let cancelled = false;
+
+    if (!accessToken) {
+      closeWSInstance();
+
+      queueMicrotask(() => {
+        if (cancelled) {
+          return;
+        }
+
+        setReady(false);
+        setError(false);
+      });
+
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    queueMicrotask(() => {
+      if (cancelled) {
+        return;
+      }
+
+      setReady(false);
+      setError(false);
+    });
+
+    updateWSInstanceToken(accessToken)
+      .then(() => {
+        if (cancelled) {
+          return;
+        }
+
+        setReady(true);
+      })
+      .catch(() => {
+        if (cancelled) {
+          return;
+        }
+
+        setError(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [accessToken]);
 
   if (!accessToken) {
