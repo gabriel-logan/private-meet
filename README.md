@@ -1,5 +1,7 @@
 # Private Meet
 
+# OBS: NOT WORKING, IN PROGRESS
+
 A private chat, video, and voice meeting application built with Nestjs, Handlebars, WebRTC, and WebSockets(Socket.io).
 Free, open-source, and self-hostable.
 
