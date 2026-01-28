@@ -1,13 +1,13 @@
 import { create } from "zustand";
 
 interface AuthStore {
-  accessToken: string | null;
+  accessToken?: string;
 
-  setAccessToken: (token: string | null) => void;
+  setAccessToken: (token: string) => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
-  accessToken: null,
+  accessToken: undefined,
 
   setAccessToken: (token) =>
     set(() => ({
