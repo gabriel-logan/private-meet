@@ -7,10 +7,19 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func ValidateJWT(token string) (*jwt.RegisteredClaims, error) {
+type CustomClaims struct {
+	jwt.RegisteredClaims
+	Username string `json:"username"`
+}
+
+func (c *CustomClaims) GetUsername() (string, error) {
+	return c.Username, nil
+}
+
+func ValidateJWT(token string) (*CustomClaims, error) {
 	secretKey := os.Getenv("JWT_SECRET")
 
-	claims := &jwt.RegisteredClaims{}
+	claims := &CustomClaims{}
 
 	parsedToken, err := jwt.ParseWithClaims(
 		token,
@@ -43,7 +52,7 @@ func ValidateJWT(token string) (*jwt.RegisteredClaims, error) {
 	return claims, nil
 }
 
-func GenerateJWT(userID string) (string, error) {
+func GenerateJWT(userID, username string) (string, error) {
 	secretKey := os.Getenv("JWT_SECRET")
 	expiration := os.Getenv("JWT_EXPIRATION")
 
@@ -52,10 +61,13 @@ func GenerateJWT(userID string) (string, error) {
 		parsedExpiration = 12 * time.Hour
 	}
 
-	claims := &jwt.RegisteredClaims{
-		Subject:   userID,
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
-		ExpiresAt: jwt.NewNumericDate(GenerateJwtExpirationTime(parsedExpiration)),
+	claims := &CustomClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(GenerateJwtExpirationTime(parsedExpiration)),
+			Subject:   userID,
+		},
+		Username: username,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

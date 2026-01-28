@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { FiLogIn, FiShuffle, FiTrash2, FiUser } from "react-icons/fi";
 import { motion } from "motion/react";
 
-import { getWSInstance } from "../lib/wsInstance";
+import apiInstance from "../lib/apiInstance";
+import { getWSInstance, updateWSInstanceToken } from "../lib/wsInstance";
 import { useAuthStore } from "../stores/authStore";
 
 export default function HomePage() {
@@ -41,28 +42,36 @@ export default function HomePage() {
           no noise.
         </p>
 
-        {!accessToken ? <JoinMeeting /> : <CreateUser />}
+        {accessToken ? <JoinMeeting /> : <CreateUser />}
       </motion.div>
     </main>
   );
 }
 
 function CreateUser() {
+  const { setAccessToken } = useAuthStore();
+
   const [username, setUsername] = useState("");
 
-  function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const ws = getWSInstance();
+    try {
+      const response = await apiInstance.post("/auth/sign-in");
 
-    ws.send(
-      JSON.stringify({
-        type: "create_user",
-        data: {
-          username,
-        },
-      }),
-    );
+      const accessToken = response.data.accessToken;
+
+      console.log("Access Token:", accessToken);
+
+      setAccessToken(accessToken);
+
+      const ws = await updateWSInstanceToken(accessToken);
+      ws.onopen = () => {
+        setUsername("");
+      };
+    } catch (error) {
+      console.error("Error creating user:", error);
+    }
   }
 
   return (

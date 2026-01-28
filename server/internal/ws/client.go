@@ -12,8 +12,9 @@ type Client struct {
 	conn *websocket.Conn
 	send chan []byte
 
-	UserID string
-	Rooms  map[string]bool
+	UserID   string
+	Username string
+	Rooms    map[string]bool
 }
 
 const (

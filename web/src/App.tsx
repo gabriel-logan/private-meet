@@ -18,6 +18,10 @@ function App() {
       .catch(() => setError(true));
   }, [accessToken]);
 
+  if (!accessToken) {
+    return <Router />;
+  }
+
   if (error) {
     return <ErrorPage message="Failed to connect to WebSocket." />;
   }

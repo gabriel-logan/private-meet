@@ -30,17 +30,24 @@ func ServeWS(hub *Hub) http.HandlerFunc {
 			return
 		}
 
+		username, err := claims.GetUsername()
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			return
 		}
 
 		client := &Client{
-			hub:    hub,
-			conn:   conn,
-			send:   make(chan []byte, 256),
-			UserID: userID,
-			Rooms:  make(map[string]bool),
+			hub:      hub,
+			conn:     conn,
+			send:     make(chan []byte, 256),
+			UserID:   userID,
+			Username: username,
+			Rooms:    make(map[string]bool),
 		}
 
 		hub.register <- client
