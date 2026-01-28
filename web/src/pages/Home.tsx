@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { FiLogIn, FiShuffle, FiTrash2, FiUser } from "react-icons/fi";
+import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { motion } from "motion/react";
 
@@ -29,14 +30,14 @@ function handleGenerateRoomIdClick() {
   }
 }
 
-function joinRoom(roomId: string) {
+function joinRoom(roomId: string, navigate: (to: string) => void) {
   if (!roomId.trim()) {
     toast.error("Please enter a Room ID.");
     return;
   }
 
-  // Placeholder for later routing/meeting join logic.
-  toast.info("Join room is not implemented yet.");
+  const normalized = roomId.trim();
+  navigate(`/chat?room=${encodeURIComponent(normalized)}`);
 }
 
 export default function HomePage() {
@@ -140,13 +141,14 @@ function CreateUser() {
 }
 
 function JoinMeeting() {
+  const navigate = useNavigate();
   const { revokeAccessToken } = useAuthStore();
 
   const [roomId, setRoomId] = useState("");
 
   const handleJoinRoom = useCallback(() => {
-    joinRoom(roomId);
-  }, [roomId]);
+    joinRoom(roomId, navigate);
+  }, [navigate, roomId]);
 
   function handleDeleteUser() {
     revokeAccessToken();

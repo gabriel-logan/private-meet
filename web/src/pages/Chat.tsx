@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   FiImage,
   FiMenu,
@@ -15,8 +15,12 @@ import {
   FiVolumeX,
   FiX,
 } from "react-icons/fi";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
+import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
+
+import { getWSInstance } from "../lib/wsInstance";
+import { useAuthStore } from "../stores/authStore";
 
 type ChatMessage = {
   id: string;
@@ -32,8 +36,67 @@ type OnlineUser = {
   status?: "online" | "idle";
 };
 
+type WSMessageType =
+  | "chat.message"
+  | "chat.join"
+  | "chat.leave"
+  | "utils.generateRoomID";
+
+type WSMessage = {
+  type: WSMessageType;
+  room?: string;
+  data: unknown;
+  from?: string;
+};
+
+function getTimeLabel() {
+  return new Date().toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function base64UrlDecode(input: string) {
+  const base64 = input.replaceAll("-", "+").replaceAll("_", "/");
+  const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+  return atob(padded);
+}
+
+function parseJwt(token?: string): { sub?: string; username?: string } {
+  if (!token) return {};
+  const parts = token.split(".");
+  if (parts.length < 2) return {};
+
+  try {
+    const payload = JSON.parse(base64UrlDecode(parts[1])) as Record<
+      string,
+      unknown
+    >;
+    return {
+      sub: typeof payload.sub === "string" ? payload.sub : undefined,
+      username:
+        typeof payload.username === "string" ? payload.username : undefined,
+    };
+  } catch {
+    return {};
+  }
+}
+
+function normalizeRoomId(roomId: string) {
+  return `room:${roomId}`;
+}
+
 export default function ChatPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const accessToken = useAuthStore((s) => s.accessToken);
+
+  const rawRoomId = (searchParams.get("room") ?? "").trim();
+  const room = useMemo(
+    () => (rawRoomId ? normalizeRoomId(rawRoomId) : ""),
+    [rawRoomId],
+  );
+  const me = useMemo(() => parseJwt(accessToken), [accessToken]);
 
   const [message, setMessage] = useState("");
   const [emojiOpen, setEmojiOpen] = useState(false);
@@ -46,6 +109,9 @@ export default function ChatPage() {
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
 
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const listEndRef = useRef<HTMLDivElement | null>(null);
+
   const onlineUsers: OnlineUser[] = [
     { id: "u1", name: "You", status: "online" },
     { id: "u2", name: "Aline", status: "online" },
@@ -54,35 +120,157 @@ export default function ChatPage() {
     { id: "u5", name: "Diego", status: "online" },
   ];
 
-  const messages: ChatMessage[] = [
-    {
-      id: "m1",
-      author: "Aline",
-      text: "Oi! Bora testar câmera e áudio?",
-      timestamp: "09:14",
-    },
-    {
-      id: "m2",
-      author: "You",
-      text: "Fechado — já tô aqui.",
-      timestamp: "09:14",
-      isMe: true,
-    },
-    {
-      id: "m3",
-      author: "Bruno",
-      text: "Se travar, tenta compartilhar tela só pra ver.",
-      timestamp: "09:15",
-    },
-  ];
+  useEffect(() => {
+    listEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages.length]);
 
   function trigger(ref: React.RefObject<HTMLInputElement | null>) {
     ref.current?.click();
   }
 
   function handleLeaveRoom() {
+    if (room) {
+      try {
+        const ws = getWSInstance();
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(
+            JSON.stringify({
+              type: "chat.leave",
+              room,
+              data: {},
+            }),
+          );
+        }
+      } catch {
+        // no-op
+      }
+    }
     navigate("/");
   }
+
+  function handleSend() {
+    const text = message.trim();
+    if (!text) return;
+
+    if (!room) {
+      toast.error("Missing room id.");
+      return;
+    }
+
+    try {
+      const ws = getWSInstance();
+      if (ws.readyState !== WebSocket.OPEN) {
+        toast.error("Not connected yet.");
+        return;
+      }
+
+      ws.send(
+        JSON.stringify({
+          type: "chat.message",
+          room,
+          data: { message: text },
+        }),
+      );
+      setMessage("");
+      setEmojiOpen(false);
+    } catch {
+      toast.error("WebSocket not ready.");
+    }
+  }
+
+  useEffect(() => {
+    if (!accessToken) {
+      toast.error("Please create a user first.");
+      navigate("/");
+      return;
+    }
+
+    if (!room) {
+      toast.error("Invalid room.");
+      navigate("/");
+      return;
+    }
+
+    let ws: WebSocket;
+
+    try {
+      ws = getWSInstance();
+    } catch {
+      toast.error("WebSocket not initialized.");
+      navigate("/");
+      return;
+    }
+
+    if (ws.readyState !== WebSocket.OPEN) {
+      toast.error("Connecting… try again in a moment.");
+      navigate("/");
+      return;
+    }
+
+    ws.send(
+      JSON.stringify({
+        type: "chat.join",
+        room,
+        data: {},
+      }),
+    );
+
+    const onMessage = (event: MessageEvent) => {
+      let parsed: WSMessage;
+      try {
+        parsed = JSON.parse(String(event.data)) as WSMessage;
+      } catch {
+        return;
+      }
+
+      if (parsed.type === "chat.message" && parsed.room === room) {
+        const payload = parsed.data as { message?: unknown } | undefined;
+        const text =
+          typeof payload?.message === "string" ? payload.message : "";
+        if (!text) return;
+
+        const from = typeof parsed.from === "string" ? parsed.from : "";
+        const isMe = Boolean(me.sub && from && from === me.sub);
+        let author = "Unknown";
+        if (isMe) {
+          author = me.username || "You";
+        } else if (from) {
+          author = from.slice(0, 8);
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+            author,
+            text,
+            timestamp: getTimeLabel(),
+            isMe,
+          },
+        ]);
+      }
+    };
+
+    ws.addEventListener("message", onMessage);
+
+    return () => {
+      try {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(
+            JSON.stringify({
+              type: "chat.leave",
+              room,
+              data: {},
+            }),
+          );
+        }
+      } catch {
+        // no-op
+      }
+
+      ws.removeEventListener("message", onMessage);
+    };
+  }, [accessToken, me.sub, me.username, navigate, room]);
 
   return (
     <main className="h-screen bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 px-3 py-4 text-zinc-100 sm:px-6">
@@ -93,7 +281,7 @@ export default function ChatPage() {
               Meeting Room
             </h1>
             <p className="text-sm text-zinc-400">
-              Design-only layout — you will plug real-time logic later.
+              Text chat enabled. WebRTC tiles later.
             </p>
           </div>
 
@@ -256,7 +444,8 @@ export default function ChatPage() {
                 </div>
 
                 <span className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-400">
-                  Room: <span className="text-zinc-200">ABCD-1234</span>
+                  Room:{" "}
+                  <span className="text-zinc-200">{rawRoomId || "—"}</span>
                 </span>
               </div>
 
@@ -336,7 +525,7 @@ export default function ChatPage() {
                 </div>
 
                 <span className="text-xs text-zinc-500">
-                  Press Enter to send (later)
+                  Enter to send • Shift+Enter for newline
                 </span>
               </div>
 
@@ -362,6 +551,7 @@ export default function ChatPage() {
                       <p className="mt-1 text-sm text-zinc-100">{m.text}</p>
                     </div>
                   ))}
+                  <div ref={listEndRef} />
                 </div>
               </div>
 
@@ -455,6 +645,7 @@ export default function ChatPage() {
 
                       <button
                         type="button"
+                        onClick={handleSend}
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500"
                         aria-label="Send message"
                       >
@@ -471,6 +662,12 @@ export default function ChatPage() {
                         id="message"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSend();
+                          }
+                        }}
                         placeholder="Write a message…"
                         rows={3}
                         className="max-h-48 min-h-16 w-full resize-none overflow-auto rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm leading-relaxed text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
@@ -479,7 +676,7 @@ export default function ChatPage() {
                   </div>
 
                   <p className="mt-2 text-xs text-zinc-500">
-                    Attachments and sending are UI-only here.
+                    Messages are sent via WebSocket.
                   </p>
                 </div>
               </div>
