@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   FiImage,
   FiMenu,
@@ -43,41 +43,35 @@ export default function ChatPage() {
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
 
-  const onlineUsers: OnlineUser[] = useMemo(
-    () => [
-      { id: "u1", name: "You", status: "online" },
-      { id: "u2", name: "Aline", status: "online" },
-      { id: "u3", name: "Bruno", status: "online" },
-      { id: "u4", name: "Camila", status: "idle" },
-      { id: "u5", name: "Diego", status: "online" },
-    ],
-    [],
-  );
+  const onlineUsers: OnlineUser[] = [
+    { id: "u1", name: "You", status: "online" },
+    { id: "u2", name: "Aline", status: "online" },
+    { id: "u3", name: "Bruno", status: "online" },
+    { id: "u4", name: "Camila", status: "idle" },
+    { id: "u5", name: "Diego", status: "online" },
+  ];
 
-  const messages: ChatMessage[] = useMemo(
-    () => [
-      {
-        id: "m1",
-        author: "Aline",
-        text: "Oi! Bora testar câmera e áudio?",
-        timestamp: "09:14",
-      },
-      {
-        id: "m2",
-        author: "You",
-        text: "Fechado — já tô aqui.",
-        timestamp: "09:14",
-        isMe: true,
-      },
-      {
-        id: "m3",
-        author: "Bruno",
-        text: "Se travar, tenta compartilhar tela só pra ver.",
-        timestamp: "09:15",
-      },
-    ],
-    [],
-  );
+  const messages: ChatMessage[] = [
+    {
+      id: "m1",
+      author: "Aline",
+      text: "Oi! Bora testar câmera e áudio?",
+      timestamp: "09:14",
+    },
+    {
+      id: "m2",
+      author: "You",
+      text: "Fechado — já tô aqui.",
+      timestamp: "09:14",
+      isMe: true,
+    },
+    {
+      id: "m3",
+      author: "Bruno",
+      text: "Se travar, tenta compartilhar tela só pra ver.",
+      timestamp: "09:15",
+    },
+  ];
 
   function trigger(ref: React.RefObject<HTMLInputElement | null>) {
     ref.current?.click();
