@@ -15,6 +15,7 @@ import {
   FiVolumeX,
   FiX,
 } from "react-icons/fi";
+import { useNavigate } from "react-router";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
 type ChatMessage = {
@@ -32,6 +33,8 @@ type OnlineUser = {
 };
 
 export default function ChatPage() {
+  const navigate = useNavigate();
+
   const [message, setMessage] = useState("");
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [usersOpen, setUsersOpen] = useState(false);
@@ -75,6 +78,10 @@ export default function ChatPage() {
 
   function trigger(ref: React.RefObject<HTMLInputElement | null>) {
     ref.current?.click();
+  }
+
+  function handleLeaveRoom() {
+    navigate("/");
   }
 
   return (
@@ -313,6 +320,7 @@ export default function ChatPage() {
                   <button
                     type="button"
                     className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm font-medium text-red-300 transition hover:bg-zinc-800"
+                    onClick={handleLeaveRoom}
                   >
                     <FiX />
                     Leave
