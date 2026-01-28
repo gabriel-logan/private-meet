@@ -4,42 +4,19 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/websocket"
+	"github.com/gabriel-logan/private-meet/server/internal/server"
+	"github.com/gabriel-logan/private-meet/server/internal/ws"
 )
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
-
 func main() {
-	serverMux := http.NewServeMux()
+	hub := ws.NewHub()
+	go hub.Run()
 
-	serverMux.HandleFunc("GET /ws", func(w http.ResponseWriter, r *http.Request) {
-		conn, err := upgrader.Upgrade(w, r, nil)
-		if err != nil {
-			http.Error(w, "Failed to upgrade to WebSocket", http.StatusInternalServerError)
-			return
-		}
-		defer conn.Close()
-
-		for {
-			_, message, err := conn.ReadMessage()
-			if err != nil {
-				break
-			}
-
-			err = conn.WriteMessage(websocket.TextMessage, message)
-			if err != nil {
-				break
-			}
-		}
-	})
+	r := server.NewRouter(hub)
 
 	server := &http.Server{
 		Addr:    ":3000",
-		Handler: serverMux,
+		Handler: r,
 	}
 
 	log.Println("Starting server on http://localhost:3000")
