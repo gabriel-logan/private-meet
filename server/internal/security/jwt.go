@@ -1,9 +1,9 @@
 package security
 
 import (
-	"os"
 	"time"
 
+	"github.com/gabriel-logan/private-meet/server/internal/config"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -17,7 +17,7 @@ func (c *CustomClaims) GetUsername() (string, error) {
 }
 
 func ValidateJWT(token string) (*CustomClaims, error) {
-	secretKey := os.Getenv("JWT_SECRET")
+	secretKey := config.GetEnv().JwtSecret
 
 	claims := &CustomClaims{}
 
@@ -53,18 +53,13 @@ func ValidateJWT(token string) (*CustomClaims, error) {
 }
 
 func GenerateJWT(userID, username string) (string, error) {
-	secretKey := os.Getenv("JWT_SECRET")
-	expiration := os.Getenv("JWT_EXPIRATION")
-
-	parsedExpiration, err := time.ParseDuration(expiration)
-	if err != nil {
-		parsedExpiration = 12 * time.Hour
-	}
+	secretKey := config.GetEnv().JwtSecret
+	expiration := config.GetEnv().JwtExpiration
 
 	claims := &CustomClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(GenerateJwtExpirationTime(parsedExpiration)),
+			ExpiresAt: jwt.NewNumericDate(GenerateJwtExpirationTime(expiration)),
 			Subject:   userID,
 		},
 		Username: username,
