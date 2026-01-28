@@ -7,17 +7,15 @@ import HomePage from "./pages/Home";
 import NotFoundPage from "./pages/NotFound";
 
 export default function Router() {
-  const isChatPage = globalThis.location.pathname === "/chat";
-
   return (
     <BrowserRouter>
-      {!isChatPage && <Header />}
+      <Header />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-      {!isChatPage && <Footer />}
+      <Footer />
     </BrowserRouter>
   );
 }

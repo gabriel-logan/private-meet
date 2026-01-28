@@ -1,7 +1,13 @@
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { motion } from "motion/react";
 
 export default function Header() {
+  const isChatPage = useLocation().pathname === "/chat";
+
+  if (isChatPage) {
+    return null;
+  }
+
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
