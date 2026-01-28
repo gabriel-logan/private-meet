@@ -10,5 +10,5 @@ type Message struct {
 }
 
 type ChatPayload struct {
-	Text string `json:"text"`
+	Message string `json:"message"`
 }

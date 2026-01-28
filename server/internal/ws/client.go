@@ -44,13 +44,13 @@ func (c *Client) readPump() {
 
 		switch msg.Type {
 
-		case "join":
+		case "chat.join":
 			c.hub.JoinRoom(msg.Room, c)
 
-		case "leave":
+		case "chat.leave":
 			c.hub.LeaveRoom(msg.Room, c)
 
-		case "chat":
+		case "chat.message":
 			c.hub.broadcast <- &msg
 		}
 	}

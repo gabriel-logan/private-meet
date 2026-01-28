@@ -13,13 +13,14 @@ var upgrader = websocket.Upgrader{
 }
 
 func validateJWT(token string) (string, error) {
-	return "extractedUserID", nil
+	return "extractedUserID: " + token, nil
 }
 
 func ServeWS(hub *Hub) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		token := r.URL.Query().Get("token")
+
 		userID, err := validateJWT(token)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
