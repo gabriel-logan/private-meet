@@ -117,7 +117,6 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* Mobile users drawer (always mounted for smooth animations) */}
         <div
           className={
             usersOpen
@@ -201,7 +200,6 @@ export default function ChatPage() {
         </div>
 
         <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-4 md:grid-cols-2 md:grid-rows-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[280px_minmax(0,2fr)_420px] lg:grid-rows-1 xl:grid-cols-[320px_minmax(0,3fr)_460px]">
-          {/* Users */}
           <aside className="order-3 hidden min-h-0 md:order-0 md:col-start-2 md:row-start-2 md:block lg:order-1 lg:col-start-auto lg:row-start-auto">
             <section className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
@@ -249,7 +247,6 @@ export default function ChatPage() {
             </section>
           </aside>
 
-          {/* Stage */}
           <section className="order-1 row-start-1 min-h-0 md:order-0 md:row-span-2 lg:order-2 lg:row-span-1">
             <div className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
@@ -330,7 +327,6 @@ export default function ChatPage() {
             </div>
           </section>
 
-          {/* Chat */}
           <aside className="order-2 row-start-2 min-h-0 md:order-0 md:col-start-2 md:row-start-1 lg:order-3 lg:col-start-auto lg:row-start-auto">
             <section className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
