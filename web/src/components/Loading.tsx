@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 
 export default function Loading() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
+    <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
