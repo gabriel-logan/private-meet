@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiLogIn, FiShuffle, FiTrash2, FiUser } from "react-icons/fi";
 import { motion } from "motion/react";
 
@@ -41,7 +41,7 @@ export default function HomePage() {
           no noise.
         </p>
 
-        {accessToken ? <JoinMeeting /> : <CreateUser />}
+        {!accessToken ? <JoinMeeting /> : <CreateUser />}
       </motion.div>
     </main>
   );
@@ -103,8 +103,28 @@ function JoinMeeting() {
   const [roomId, setRoomId] = useState("");
 
   function handleJoinRoom() {}
-  function handleGenerateRoomId() {}
+  function handleGenerateRoomId() {
+    const ws = getWSInstance();
+
+    ws.send(
+      JSON.stringify({
+        type: "utils.generateRoomID",
+      }),
+    );
+  }
   function handleDeleteUser() {}
+
+  useEffect(() => {
+    const ws = getWSInstance();
+
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+
+      if (message.type === "utils.generateRoomID") {
+        setRoomId(message.data.roomID);
+      }
+    };
+  }, []);
 
   return (
     <motion.div
