@@ -82,9 +82,9 @@ export default function ChatPage() {
   }
 
   return (
-    <main className="min-h-screen bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 px-3 py-4 text-zinc-100 sm:px-6">
-      <div className="mx-auto w-full max-w-6xl">
-        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+    <main className="h-screen bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 px-3 py-4 text-zinc-100 sm:px-6">
+      <div className="mx-auto flex h-full w-full flex-col gap-4">
+        <div className="flex shrink-0 flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-xl font-semibold tracking-tight">
               Meeting Room
@@ -105,10 +105,10 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[260px_1fr_360px]">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[280px_minmax(0,2fr)_420px] xl:grid-cols-[320px_minmax(0,3fr)_460px]">
           {/* Users */}
-          <aside className="order-3 lg:order-1">
-            <section className="rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
+          <aside className="order-3 min-h-0 lg:order-1">
+            <section className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <FiUsers className="text-zinc-300" />
@@ -119,7 +119,7 @@ export default function ChatPage() {
                 </span>
               </div>
 
-              <div className="max-h-[45vh] overflow-auto p-2 lg:max-h-[calc(100vh-220px)]">
+              <div className="min-h-0 flex-1 overflow-auto p-2">
                 <ul className="space-y-1">
                   {onlineUsers.map((u) => (
                     <li
@@ -155,8 +155,8 @@ export default function ChatPage() {
           </aside>
 
           {/* Stage */}
-          <section className="order-1 lg:order-2">
-            <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
+          <section className="order-1 min-h-0 lg:order-2">
+            <div className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <FiVideo className="text-zinc-300" />
@@ -168,13 +168,13 @@ export default function ChatPage() {
                 </span>
               </div>
 
-              <div className="p-4">
-                <div className="relative grid aspect-video w-full place-items-center overflow-hidden rounded-lg border border-zinc-800 bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950">
+              <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
+                <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-lg border border-zinc-800 bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950">
                   <div className="absolute inset-0 mask-[radial-gradient(circle_at_center,black,transparent_70%)] opacity-50">
                     <div className="h-full w-full bg-[linear-gradient(to_right,rgba(99,102,241,0.15),transparent),linear-gradient(to_top,rgba(0,0,0,0.35),transparent)]" />
                   </div>
 
-                  <div className="relative flex flex-col items-center gap-3 px-6 text-center">
+                  <div className="relative flex max-w-md flex-col items-center gap-3 px-6 text-center">
                     <div className="grid h-12 w-12 place-items-center rounded-full border border-zinc-800 bg-zinc-950 text-indigo-300">
                       <FiVideo />
                     </div>
@@ -189,7 +189,7 @@ export default function ChatPage() {
                   </div>
                 </div>
 
-                <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-2">
                   <button
                     type="button"
                     onClick={() => setSpeakerMuted((v) => !v)}
@@ -235,8 +235,8 @@ export default function ChatPage() {
           </section>
 
           {/* Chat */}
-          <aside className="order-2 lg:order-3">
-            <section className="flex h-full flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
+          <aside className="order-2 min-h-0 lg:order-3">
+            <section className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <FiSend className="text-zinc-300" />
@@ -248,7 +248,7 @@ export default function ChatPage() {
                 </span>
               </div>
 
-              <div className="flex-1 overflow-auto p-3">
+              <div className="min-h-0 flex-1 overflow-auto p-3">
                 <div className="space-y-3">
                   {messages.map((m) => (
                     <div
@@ -273,7 +273,7 @@ export default function ChatPage() {
                 </div>
               </div>
 
-              <div className="border-t border-zinc-800 p-3">
+              <div className="shrink-0 border-t border-zinc-800 p-3">
                 <input ref={fileInputRef} type="file" className="hidden" />
                 <input
                   ref={imageInputRef}
@@ -361,13 +361,13 @@ export default function ChatPage() {
                       <label htmlFor="message" className="sr-only">
                         Message
                       </label>
-                      <input
+                      <textarea
                         id="message"
-                        type="text"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Write a message…"
-                        className="h-10 w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 text-sm text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
+                        rows={2}
+                        className="min-h-12 w-full resize-none rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
                       />
                     </div>
 
