@@ -1,0 +1,18 @@
+# Exported from Render on 2026-01-28T05:40:17Z
+version: "1"
+services:
+- type: web
+  name: private-meet
+  runtime: node
+  repo: https://github.com/gabriel-logan/private-meet
+  plan: free
+  envVars:
+  - key: .env
+    sync: false
+  region: virginia
+  buildCommand: make build
+  startCommand: cd server/ && ./bin/server
+  healthCheckPath: /health
+  autoDeployTrigger: commit
+  previews:
+    generation: automatic
