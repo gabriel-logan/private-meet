@@ -108,9 +108,12 @@ function CreateUser() {
 }
 
 function JoinMeeting() {
+  const { revokeAccessToken } = useAuthStore();
+
   const [roomId, setRoomId] = useState("");
 
   function handleJoinRoom() {}
+
   function handleGenerateRoomId() {
     const ws = getWSInstance();
 
@@ -120,7 +123,10 @@ function JoinMeeting() {
       }),
     );
   }
-  function handleDeleteUser() {}
+  function handleDeleteUser() {
+    revokeAccessToken();
+    toast.info("User deleted. Please create a new user to continue.");
+  }
 
   useEffect(() => {
     const ws = getWSInstance();

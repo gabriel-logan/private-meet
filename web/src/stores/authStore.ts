@@ -4,6 +4,7 @@ interface AuthStore {
   accessToken?: string;
 
   setAccessToken: (token: string) => void;
+  revokeAccessToken: () => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -12,5 +13,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
   setAccessToken: (token) =>
     set(() => ({
       accessToken: token,
+    })),
+
+  revokeAccessToken: () =>
+    set(() => ({
+      accessToken: undefined,
     })),
 }));
