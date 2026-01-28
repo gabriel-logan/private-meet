@@ -317,47 +317,61 @@ export default function ChatPage() {
                     </div>
                   ) : null}
 
-                  <div className="flex items-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setEmojiOpen((v) => !v)}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
-                      aria-label="Open emoji picker"
-                    >
-                      <FiSmile />
-                    </button>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setEmojiOpen((v) => !v)}
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
+                          aria-label="Open emoji picker"
+                          aria-expanded={emojiOpen}
+                        >
+                          <FiSmile />
+                        </button>
 
-                    <button
-                      type="button"
-                      onClick={() => trigger(fileInputRef)}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
-                      aria-label="Attach file"
-                      title="Attach file"
-                    >
-                      <FiPaperclip />
-                    </button>
+                        <button
+                          type="button"
+                          onClick={() => trigger(fileInputRef)}
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
+                          aria-label="Attach file"
+                          title="Attach file"
+                        >
+                          <FiPaperclip />
+                        </button>
 
-                    <button
-                      type="button"
-                      onClick={() => trigger(imageInputRef)}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
-                      aria-label="Attach image"
-                      title="Attach image"
-                    >
-                      <FiImage />
-                    </button>
+                        <button
+                          type="button"
+                          onClick={() => trigger(imageInputRef)}
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
+                          aria-label="Attach image"
+                          title="Attach image"
+                        >
+                          <FiImage />
+                        </button>
 
-                    <button
-                      type="button"
-                      onClick={() => trigger(videoInputRef)}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
-                      aria-label="Attach video"
-                      title="Attach video"
-                    >
-                      <FiVideo />
-                    </button>
+                        <button
+                          type="button"
+                          onClick={() => trigger(videoInputRef)}
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
+                          aria-label="Attach video"
+                          title="Attach video"
+                        >
+                          <FiVideo />
+                        </button>
+                      </div>
 
-                    <div className="flex-1">
+                      <button
+                        type="button"
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500"
+                        aria-label="Send message"
+                      >
+                        <FiSend />
+                        <span className="hidden sm:inline">Send</span>
+                      </button>
+                    </div>
+
+                    <div>
                       <label htmlFor="message" className="sr-only">
                         Message
                       </label>
@@ -366,19 +380,10 @@ export default function ChatPage() {
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Write a message…"
-                        rows={2}
-                        className="min-h-12 w-full resize-none rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
+                        rows={3}
+                        className="max-h-48 min-h-16 w-full resize-none overflow-auto rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm leading-relaxed text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
                       />
                     </div>
-
-                    <button
-                      type="button"
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500"
-                      aria-label="Send message"
-                    >
-                      <FiSend />
-                      <span className="hidden sm:inline">Send</span>
-                    </button>
                   </div>
 
                   <p className="mt-2 text-xs text-zinc-500">
