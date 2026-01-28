@@ -42,5 +42,6 @@ func main() {
 		Handler: serverMux,
 	}
 
+	log.Println("Starting server on http://localhost:3000")
 	log.Fatal(server.ListenAndServe())
 }
