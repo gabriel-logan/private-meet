@@ -3,10 +3,10 @@
 .PHONY: run build test tidy clean
 
 run:
-	cd server && go run main.go
+	cd server && go run ./cmd/api/main.go
 
 build:
-	cd server && go build -o bin/server main.go
+	cd server && go build -o bin/server ./cmd/api/main.go
 	cd web && pnpm install && pnpm build
 
 install:
