@@ -2,8 +2,27 @@ package ws
 
 import "encoding/json"
 
+type MessageType string
+
+const (
+	MessageChatJoin    MessageType = "chat.join"
+	MessageChatLeave   MessageType = "chat.leave"
+	MessageChatMessage MessageType = "chat.message"
+
+	MessageUtilsGenerateRoomID MessageType = "utils.generateRoomID"
+)
+
+func (t MessageType) IsValid() bool {
+	switch t {
+	case MessageChatJoin, MessageChatLeave, MessageChatMessage, MessageUtilsGenerateRoomID:
+		return true
+	default:
+		return false
+	}
+}
+
 type Message struct {
-	Type string          `json:"type"`
+	Type MessageType     `json:"type"`
 	Room string          `json:"room,omitempty"`
 	Data json.RawMessage `json:"data"`
 	From string          `json:"from,omitempty"`

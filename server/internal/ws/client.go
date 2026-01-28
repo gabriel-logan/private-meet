@@ -44,22 +44,26 @@ func (c *Client) readPump() {
 
 		msg.From = c.UserID
 
+		if !msg.Type.IsValid() {
+			continue
+		}
+
 		switch msg.Type {
 
-		case "chat.join":
+		case MessageChatJoin:
 			c.hub.JoinRoom(msg.Room, c)
 
-		case "chat.leave":
+		case MessageChatLeave:
 			c.hub.LeaveRoom(msg.Room, c)
 
-		case "chat.message":
+		case MessageChatMessage:
 			c.hub.broadcast <- &msg
 
-		case "utils.generateRoomID":
+		case MessageUtilsGenerateRoomID:
 			newRoomID := uuid.NewString()
 
 			response := Message{
-				Type: "utils.generateRoomID",
+				Type: MessageUtilsGenerateRoomID,
 				Data: mustJSON(struct {
 					RoomID string `json:"roomID"`
 				}{
