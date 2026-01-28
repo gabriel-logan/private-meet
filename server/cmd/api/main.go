@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gabriel-logan/private-meet/server/internal/server"
+	"github.com/gabriel-logan/private-meet/server/internal/httpapi"
 	"github.com/gabriel-logan/private-meet/server/internal/ws"
 	"github.com/joho/godotenv"
 )
@@ -19,7 +19,7 @@ func main() {
 	hub := ws.NewHub()
 	go hub.Run()
 
-	r := server.NewRouter(hub)
+	r := httpapi.NewRouter(hub)
 
 	serverPort := os.Getenv("SERVER_PORT")
 
