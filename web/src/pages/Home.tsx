@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { FiLogIn, FiShuffle, FiTrash2, FiUser } from "react-icons/fi";
+import { toast } from "react-toastify";
 import { motion } from "motion/react";
 
 import apiInstance from "../lib/apiInstance";
@@ -64,8 +65,11 @@ function CreateUser() {
       setAccessToken(accessToken);
 
       setUsername("");
+
+      toast.success("User created successfully!");
     } catch (error) {
       console.error("Error creating user:", error);
+      toast.error("Failed to create user.");
     }
   }
 

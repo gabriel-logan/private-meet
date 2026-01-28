@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { type ReactElement, useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
 
 import ErrorPage from "./components/Error";
 import Loading from "./components/Loading";
@@ -6,7 +7,7 @@ import { closeWSInstance, updateWSInstanceToken } from "./lib/wsInstance";
 import Router from "./Router";
 import { useAuthStore } from "./stores/authStore";
 
-function App() {
+export default function App() {
   const accessToken = useAuthStore((state) => state.accessToken);
 
   const [ready, setReady] = useState(false);
@@ -62,19 +63,24 @@ function App() {
     };
   }, [accessToken]);
 
-  if (!accessToken) {
-    return <Router />;
+  let content: ReactElement;
+
+  if (accessToken) {
+    if (error) {
+      content = <ErrorPage message="Failed to connect to WebSocket." />;
+    } else if (ready) {
+      content = <Router />;
+    } else {
+      content = <Loading />;
+    }
+  } else {
+    content = <Router />;
   }
 
-  if (error) {
-    return <ErrorPage message="Failed to connect to WebSocket." />;
-  }
-
-  if (!ready) {
-    return <Loading />;
-  }
-
-  return <Router />;
+  return (
+    <>
+      <ToastContainer autoClose={3000} />
+      {content}
+    </>
+  );
 }
-
-export default App;
