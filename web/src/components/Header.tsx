@@ -22,9 +22,7 @@ export default function Header() {
         transition={{ duration: 0.25 }}
         className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6"
       >
-        <h1 className="text-lg font-semibold text-zinc-100">
-          My Application Header
-        </h1>
+        <h1 className="text-lg font-semibold text-zinc-100">Private Meet</h1>
 
         <nav className="flex items-center gap-6">
           {navLinks.map((link) => (
