@@ -15,7 +15,7 @@ func NewRouter(hub *ws.Hub) http.Handler {
 	mux.HandleFunc("GET /health", handlers.Health)
 	mux.HandleFunc("POST /auth/sign-in", handlers.SignIn)
 
-	mux.Handle("GET /", http.FileServer(http.Dir("./web/build/")))
+	mux.HandleFunc("GET /", handlers.ServeSPA)
 
 	return middleware.Apply(mux, middleware.CORS())
 }
