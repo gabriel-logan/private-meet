@@ -1,10 +1,17 @@
+import { motion } from "motion/react";
+
 export default function Loading() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-100">
-      <div className="loader mb-4 h-32 w-32 rounded-full border-8 border-t-8 border-gray-200 ease-linear"></div>
-      <h2 className="text-center text-xl font-semibold text-gray-700">
-        Loading...
-      </h2>
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col items-center gap-4"
+      >
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-zinc-700 border-t-indigo-500" />
+        <span className="text-sm text-zinc-400">Loading...</span>
+      </motion.div>
     </main>
   );
 }

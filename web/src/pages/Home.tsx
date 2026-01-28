@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { FiLogIn, FiShuffle, FiTrash2, FiUser } from "react-icons/fi";
+import { motion } from "motion/react";
 
 import { getWSInstance } from "../lib/wsInstance";
 import { useAuthStore } from "../stores/authStore";
@@ -7,10 +9,23 @@ export default function HomePage() {
   const { accessToken } = useAuthStore();
 
   return (
-    <main>
-      <h1>Welcome to Private Meet!</h1>
-      <p>Loren ipsum dolor sit amet, consectetur adipiscing elit.</p>
-      {accessToken ? <JoinMeeting /> : <CreateUser />}
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 px-4 text-zinc-100">
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        className="w-full max-w-md rounded-xl border border-zinc-800 bg-zinc-900/90 p-8 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]"
+      >
+        <h1 className="mb-2 text-center text-2xl font-semibold tracking-tight">
+          Welcome to <span className="text-indigo-400">Private Meet</span>
+        </h1>
+
+        <p className="mb-8 text-center text-sm text-zinc-400">
+          Loren ipsum dolor sit amet, consectetur adipiscing elit.
+        </p>
+
+        {accessToken ? <JoinMeeting /> : <CreateUser />}
+      </motion.div>
     </main>
   );
 }
@@ -34,8 +49,17 @@ function CreateUser() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label htmlFor="username">Username:</label>
+    <motion.form
+      onSubmit={handleSubmit}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+      className="flex flex-col gap-4"
+    >
+      <label htmlFor="username" className="text-sm text-zinc-300">
+        Username
+      </label>
+
       <input
         required
         id="username"
@@ -44,9 +68,17 @@ function CreateUser() {
         placeholder="Enter your username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
+        className="w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
       />
-      <button type="submit">✅ Create User</button>
-    </form>
+
+      <button
+        type="submit"
+        className="mt-2 flex items-center justify-center gap-2 rounded-md bg-indigo-600 py-2 text-sm font-medium transition hover:bg-indigo-500"
+      >
+        <FiUser />
+        Create User
+      </button>
+    </motion.form>
   );
 }
 
@@ -58,9 +90,17 @@ function JoinMeeting() {
   function handleDeleteUser() {}
 
   return (
-    <div>
-      <div>
-        <label htmlFor="roomId">Room ID:</label>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+      className="flex flex-col gap-3"
+    >
+      <div className="flex flex-col gap-2">
+        <label htmlFor="roomId" className="text-sm text-zinc-300">
+          Room ID
+        </label>
+
         <input
           required
           id="roomId"
@@ -69,17 +109,36 @@ function JoinMeeting() {
           placeholder="Enter the room ID"
           value={roomId}
           onChange={(e) => setRoomId(e.target.value)}
+          className="w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
         />
       </div>
-      <button type="button" onClick={handleJoinRoom}>
-        🚀 Join Room
+
+      <button
+        type="button"
+        onClick={handleJoinRoom}
+        className="flex items-center justify-center gap-2 rounded-md bg-indigo-600 py-2 text-sm font-medium transition hover:bg-indigo-500"
+      >
+        <FiLogIn />
+        Join Room
       </button>
-      <button type="button" onClick={handleGenerateRoomId}>
-        🎲 Generate Random Secure Room ID
+
+      <button
+        type="button"
+        onClick={handleGenerateRoomId}
+        className="flex items-center justify-center gap-2 rounded-md bg-zinc-800 py-2 text-sm font-medium transition hover:bg-zinc-700"
+      >
+        <FiShuffle />
+        Generate Random Secure Room ID
       </button>
-      <button type="button" onClick={handleDeleteUser}>
-        🗑️ Delete User
+
+      <button
+        type="button"
+        onClick={handleDeleteUser}
+        className="flex items-center justify-center gap-2 rounded-md border border-zinc-800 bg-zinc-900 py-2 text-sm font-medium text-red-400 transition hover:bg-zinc-800"
+      >
+        <FiTrash2 />
+        Delete User
       </button>
-    </div>
+    </motion.div>
   );
 }
