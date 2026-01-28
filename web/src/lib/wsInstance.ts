@@ -1,4 +1,5 @@
 let ws: WebSocket | null = null;
+let connectionVersion = 0;
 
 const baseURL = import.meta.env.VITE_WS_API_URL as string;
 
@@ -21,32 +22,59 @@ export function initWSInstance(
   maxRetries = 10,
   retryDelay = 1000,
 ): Promise<WebSocket> {
+  const myVersion = ++connectionVersion;
   let attempts = 0;
 
   return new Promise((resolve, reject) => {
     const connect = () => {
+      if (myVersion !== connectionVersion) {
+        return;
+      }
+
       attempts++;
 
       const url = buildURL(token);
 
-      ws = new WebSocket(url);
+      const socket = new WebSocket(url);
+      ws = socket;
 
-      ws.onopen = () => {
-        resolve(ws as WebSocket);
+      socket.onopen = () => {
+        if (myVersion !== connectionVersion) {
+          socket.close();
+          return;
+        }
+
+        resolve(socket);
       };
 
-      ws.onerror = () => {
-        ws?.close();
+      socket.onerror = () => {
+        if (myVersion !== connectionVersion) {
+          return;
+        }
+
+        socket.close();
       };
 
-      ws.onclose = () => {
+      socket.onclose = () => {
+        if (myVersion !== connectionVersion) {
+          return;
+        }
+
         if (attempts >= maxRetries) {
-          ws = null;
+          if (ws === socket) {
+            ws = null;
+          }
           reject(new Error("WebSocket connection failed"));
           return;
         }
 
-        setTimeout(connect, retryDelay);
+        setTimeout(() => {
+          if (myVersion !== connectionVersion) {
+            return;
+          }
+
+          connect();
+        }, retryDelay);
       };
     };
 
@@ -55,19 +83,7 @@ export function initWSInstance(
 }
 
 export function updateWSInstanceToken(token: string): Promise<WebSocket> {
-  if (!ws) {
-    return initWSInstance(token);
-  }
-
-  if (
-    ws.readyState === WebSocket.OPEN ||
-    ws.readyState === WebSocket.CONNECTING
-  ) {
-    ws.close();
-  }
-
-  ws = null;
-
+  closeWSInstance();
   return initWSInstance(token);
 }
 
@@ -80,8 +96,22 @@ export function getWSInstance(): WebSocket {
 }
 
 export function closeWSInstance() {
-  if (ws) {
-    ws.close();
-    ws = null;
+  connectionVersion++;
+
+  if (!ws) return;
+
+  const socket = ws;
+  ws = null;
+
+  socket.onopen = null;
+  socket.onclose = null;
+  socket.onerror = null;
+  socket.onmessage = null;
+
+  if (
+    socket.readyState === WebSocket.OPEN ||
+    socket.readyState === WebSocket.CONNECTING
+  ) {
+    socket.close();
   }
 }

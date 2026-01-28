@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FiLogIn, FiShuffle, FiTrash2, FiUser } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { motion } from "motion/react";
@@ -6,6 +6,38 @@ import { motion } from "motion/react";
 import apiInstance from "../lib/apiInstance";
 import { getWSInstance } from "../lib/wsInstance";
 import { useAuthStore } from "../stores/authStore";
+
+function requestGenerateRoomId() {
+  const ws = getWSInstance();
+
+  if (ws.readyState !== WebSocket.OPEN) {
+    throw new Error("WebSocket is not connected.");
+  }
+
+  ws.send(
+    JSON.stringify({
+      type: "utils.generateRoomID",
+    }),
+  );
+}
+
+function handleGenerateRoomIdClick() {
+  try {
+    requestGenerateRoomId();
+  } catch {
+    toast.error("Not connected yet. Try again in a second.");
+  }
+}
+
+function joinRoom(roomId: string) {
+  if (!roomId.trim()) {
+    toast.error("Please enter a Room ID.");
+    return;
+  }
+
+  // Placeholder for later routing/meeting join logic.
+  toast.info("Join room is not implemented yet.");
+}
 
 export default function HomePage() {
   const { accessToken } = useAuthStore();
@@ -112,17 +144,10 @@ function JoinMeeting() {
 
   const [roomId, setRoomId] = useState("");
 
-  function handleJoinRoom() {}
+  const handleJoinRoom = useCallback(() => {
+    joinRoom(roomId);
+  }, [roomId]);
 
-  function handleGenerateRoomId() {
-    const ws = getWSInstance();
-
-    ws.send(
-      JSON.stringify({
-        type: "utils.generateRoomID",
-      }),
-    );
-  }
   function handleDeleteUser() {
     revokeAccessToken();
     toast.info("User deleted. Please create a new user to continue.");
@@ -137,6 +162,10 @@ function JoinMeeting() {
       if (message.type === "utils.generateRoomID") {
         setRoomId(message.data.roomID);
       }
+    };
+
+    return () => {
+      ws.onmessage = null;
     };
   }, []);
 
@@ -175,7 +204,7 @@ function JoinMeeting() {
 
       <button
         type="button"
-        onClick={handleGenerateRoomId}
+        onClick={handleGenerateRoomIdClick}
         className="flex items-center justify-center gap-2 rounded-md bg-zinc-800 py-2 text-sm font-medium transition hover:bg-zinc-700"
       >
         <FiShuffle />
