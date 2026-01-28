@@ -19,7 +19,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
-import { getWSInstance } from "../lib/wsInstance";
+import { getWSInstance, type WSMessage } from "../lib/wsInstance";
 import { useAuthStore } from "../stores/authStore";
 
 type ChatMessage = {
@@ -34,19 +34,6 @@ type OnlineUser = {
   id: string;
   name: string;
   status?: "online" | "idle";
-};
-
-type WSMessageType =
-  | "chat.message"
-  | "chat.join"
-  | "chat.leave"
-  | "utils.generateRoomID";
-
-type WSMessage = {
-  type: WSMessageType;
-  room?: string;
-  data: unknown;
-  from?: string;
 };
 
 function getTimeLabel() {
