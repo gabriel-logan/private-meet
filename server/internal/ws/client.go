@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -20,10 +21,17 @@ type Client struct {
 }
 
 const (
-	writeWait  = 10 * time.Second
-	pongWait   = 60 * time.Second
-	pingPeriod = (pongWait * 9) / 10
+	writeWait         = 10 * time.Second
+	pongWait          = 60 * time.Second
+	pingPeriod        = (pongWait * 9) / 10
+	maxWSMessageBytes = 64 * 1024
+	maxChatRunes      = 5000
 )
+
+var response struct {
+	Type MessageType `json:"type"`
+	Data any         `json:"data"`
+}
 
 func (c *Client) readPump() { // nosonar
 	defer func() {
@@ -31,7 +39,7 @@ func (c *Client) readPump() { // nosonar
 		c.conn.Close()
 	}()
 
-	c.conn.SetReadLimit(1024)
+	c.conn.SetReadLimit(maxWSMessageBytes)
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error {
 		c.conn.SetReadDeadline(time.Now().Add(pongWait))
@@ -81,6 +89,26 @@ func (c *Client) readPump() { // nosonar
 
 			payload.Message = strings.TrimSpace(payload.Message)
 			if payload.Message == "" {
+				response = struct {
+					Type MessageType `json:"type"`
+					Data any         `json:"data"`
+				}{
+					Type: MessageError,
+					Data: map[string]string{"error": "Message cannot be empty"},
+				}
+
+				return
+			}
+
+			if len([]rune(payload.Message)) > maxChatRunes {
+				response = struct {
+					Type MessageType `json:"type"`
+					Data any         `json:"data"`
+				}{
+					Type: MessageError,
+					Data: map[string]string{"error": fmt.Sprintf("Message too long (maximum is %d characters)", maxChatRunes)},
+				}
+
 				return
 			}
 
@@ -101,13 +129,12 @@ func (c *Client) readPump() { // nosonar
 		case MessageUtilsGenerateRoomID:
 			newRoomID := uuid.NewString()
 
-			response := Message{
+			response = struct {
+				Type MessageType `json:"type"`
+				Data any         `json:"data"`
+			}{
 				Type: MessageUtilsGenerateRoomID,
-				Data: mustJSON(struct {
-					RoomID string `json:"roomID"`
-				}{
-					RoomID: newRoomID,
-				}),
+				Data: map[string]string{"roomID": newRoomID},
 			}
 
 			c.send <- mustJSON(&response)

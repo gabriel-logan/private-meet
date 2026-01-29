@@ -19,7 +19,8 @@ const (
 
 func (t MessageType) IsValid() bool {
 	switch t {
-	case MessageChatJoin,
+	case MessageError,
+		MessageChatJoin,
 		MessageChatLeave,
 		MessageChatMessage,
 		MessageChatTyping,
