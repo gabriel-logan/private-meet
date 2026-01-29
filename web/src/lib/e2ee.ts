@@ -38,6 +38,7 @@ export async function initE2EE(
 
 function toArrayBuffer(u8: Uint8Array): ArrayBuffer {
   const ab = new ArrayBuffer(u8.byteLength);
+
   new Uint8Array(ab).set(u8);
 
   return ab;
@@ -81,6 +82,7 @@ export async function encryptString(
   aad?: Uint8Array,
 ): Promise<{ iv: string; content: string; alg: AesGcmAlg; v?: 1 }> {
   const ivU8 = crypto.getRandomValues(new Uint8Array(E2EE_DEFAULTS.ivBytes));
+
   const dataU8 = new TextEncoder().encode(plaintext);
 
   const cipher = await crypto.subtle.encrypt(
@@ -108,6 +110,7 @@ export async function decryptString(
   aad?: Uint8Array,
 ): Promise<string> {
   const cipherU8 = fromB64(cipherB64);
+
   const ivU8 = fromB64(ivB64);
 
   const plain = await crypto.subtle.decrypt(
@@ -132,16 +135,30 @@ export function packEnvelope(envelope: E2EEEnvelopeV1): string {
 }
 
 export function unpackEnvelope(text: string): E2EEEnvelopeV1 | null {
-  if (!isEncryptedWireMessage(text)) return null;
+  if (!isEncryptedWireMessage(text)) {
+    return null;
+  }
 
   try {
     const json = text.slice(E2EE_DEFAULTS.WIRE_PREFIX.length);
+
     const parsed = JSON.parse(json) as Partial<E2EEEnvelopeV1>;
 
-    if (parsed.v !== 1) return null;
-    if (parsed.alg !== "AES-GCM") return null;
-    if (typeof parsed.iv !== "string") return null;
-    if (typeof parsed.content !== "string") return null;
+    if (parsed.v !== 1) {
+      return null;
+    }
+
+    if (parsed.alg !== "AES-GCM") {
+      return null;
+    }
+
+    if (typeof parsed.iv !== "string") {
+      return null;
+    }
+
+    if (typeof parsed.content !== "string") {
+      return null;
+    }
 
     return parsed as E2EEEnvelopeV1;
   } catch {
@@ -167,6 +184,7 @@ export async function encryptTextToWire(
   }
 
   const aad = aadFrom(opts.roomId, opts.userId);
+
   const encrypted = await encryptString(plaintext, key, aad);
 
   const envelope: E2EEEnvelopeV1 = {
@@ -177,7 +195,9 @@ export async function encryptTextToWire(
   };
 
   const wire = packEnvelope(envelope);
+
   const maxWireChars = opts.maxWireChars ?? E2EE_DEFAULTS.maxWireChars;
+
   if (wire.length > maxWireChars) {
     throw new Error("Encrypted message is too large for the wire format.");
   }
@@ -191,9 +211,13 @@ export async function decryptWireToText(
   opts: { roomId: string; userId?: string },
 ): Promise<string | null> {
   const envelope = unpackEnvelope(wireText);
-  if (!envelope) return null;
+
+  if (!envelope) {
+    return null;
+  }
 
   const aad = aadFrom(opts.roomId, opts.userId);
+
   return decryptString(envelope.content, envelope.iv, key, aad);
 }
 
@@ -212,6 +236,7 @@ export function toB64(bytes: Uint8Array): string {
 
 export function fromB64(b64: string): Uint8Array {
   const bin = atob(b64);
+
   const out = new Uint8Array(bin.length);
 
   for (let i = 0; i < bin.length; i++) {
