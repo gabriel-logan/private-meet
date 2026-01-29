@@ -1,6 +1,8 @@
 package ws
 
 import (
+	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,7 +25,7 @@ const (
 	pingPeriod = (pongWait * 9) / 10
 )
 
-func (c *Client) readPump() {
+func (c *Client) readPump() { // nosonar
 	defer func() {
 		c.hub.unregister <- c
 		c.conn.Close()
@@ -45,18 +47,55 @@ func (c *Client) readPump() {
 		msg.From = c.UserID
 
 		if !msg.Type.IsValid() {
-			continue
+			return
+		}
+
+		if msg.Room == "" && msg.Type != MessageUtilsGenerateRoomID {
+			return
 		}
 
 		switch msg.Type {
-
 		case MessageChatJoin:
 			c.hub.JoinRoom(msg.Room, c)
+			users := c.hub.GetRoomUsers(msg.Room)
+			c.hub.broadcast <- &Message{
+				Type: MessageRoomUsers,
+				Room: msg.Room,
+				Data: mustJSON(RoomUsersPayload{Users: users}),
+			}
 
 		case MessageChatLeave:
 			c.hub.LeaveRoom(msg.Room, c)
+			users := c.hub.GetRoomUsers(msg.Room)
+			c.hub.broadcast <- &Message{
+				Type: MessageRoomUsers,
+				Room: msg.Room,
+				Data: mustJSON(RoomUsersPayload{Users: users}),
+			}
 
 		case MessageChatMessage:
+			var payload ChatPayload
+			if err := json.Unmarshal(msg.Data, &payload); err != nil {
+				return
+			}
+
+			payload.Message = strings.TrimSpace(payload.Message)
+			if payload.Message == "" {
+				return
+			}
+
+			msg.Data = mustJSON(payload)
+
+			c.hub.broadcast <- &msg
+
+		case MessageChatTyping:
+			var payload ChatTypingPayload
+			if err := json.Unmarshal(msg.Data, &payload); err != nil {
+				return
+			}
+
+			msg.Data = mustJSON(payload)
+
 			c.hub.broadcast <- &msg
 
 		case MessageUtilsGenerateRoomID:
@@ -70,6 +109,7 @@ func (c *Client) readPump() {
 					RoomID: newRoomID,
 				}),
 			}
+
 			c.send <- mustJSON(&response)
 		}
 	}

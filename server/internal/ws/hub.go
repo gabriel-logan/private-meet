@@ -40,10 +40,22 @@ func (h *Hub) Run() {
 		case c := <-h.unregister:
 			h.mu.Lock()
 			delete(h.clients, c)
+
+			affectedRooms := make([]string, 0, len(c.Rooms))
 			for room := range c.Rooms {
+				affectedRooms = append(affectedRooms, room)
 				delete(h.rooms[room], c)
 			}
+
+			// Broadcast updated presence snapshots for rooms the client was in.
+			// We cannot send on h.broadcast here (it would deadlock because Run is the receiver),
+			// so we write directly to clients' send channels.
+			for _, room := range affectedRooms {
+				h.broadcastRoomUsersSnapshotLocked(room)
+			}
+
 			close(c.send)
+
 			h.mu.Unlock()
 
 		case msg := <-h.broadcast:
@@ -78,6 +90,47 @@ func (h *Hub) LeaveRoom(room string, c *Client) {
 
 	delete(h.rooms[room], c)
 	delete(c.Rooms, room)
+}
+
+func (h *Hub) GetRoomUsers(room string) []RoomUser {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+
+	clients := h.rooms[room]
+	if clients == nil {
+		return nil
+	}
+
+	users := make([]RoomUser, 0, len(clients))
+	for c := range clients {
+		users = append(users, RoomUser{UserID: c.UserID, Username: c.Username})
+	}
+
+	return users
+}
+
+func (h *Hub) broadcastRoomUsersSnapshotLocked(room string) {
+	clients := h.rooms[room]
+	if clients == nil {
+		return
+	}
+
+	users := make([]RoomUser, 0, len(clients))
+	for c := range clients {
+		users = append(users, RoomUser{UserID: c.UserID, Username: c.Username})
+	}
+
+	payload := mustJSON(&Message{
+		Type: MessageRoomUsers,
+		Room: room,
+		Data: mustJSON(RoomUsersPayload{Users: users}),
+	})
+	for c := range clients {
+		select {
+		case c.send <- payload:
+		default:
+		}
+	}
 }
 
 func mustJSON(v any) []byte {

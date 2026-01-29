@@ -8,13 +8,21 @@ const (
 	MessageChatJoin    MessageType = "chat.join"
 	MessageChatLeave   MessageType = "chat.leave"
 	MessageChatMessage MessageType = "chat.message"
+	MessageChatTyping  MessageType = "chat.typing"
+
+	MessageRoomUsers MessageType = "room.users"
 
 	MessageUtilsGenerateRoomID MessageType = "utils.generateRoomID"
 )
 
 func (t MessageType) IsValid() bool {
 	switch t {
-	case MessageChatJoin, MessageChatLeave, MessageChatMessage, MessageUtilsGenerateRoomID:
+	case MessageChatJoin,
+		MessageChatLeave,
+		MessageChatMessage,
+		MessageChatTyping,
+		MessageRoomUsers,
+		MessageUtilsGenerateRoomID:
 		return true
 	default:
 		return false
@@ -30,4 +38,17 @@ type Message struct {
 
 type ChatPayload struct {
 	Message string `json:"message"`
+}
+
+type ChatTypingPayload struct {
+	Typing bool `json:"typing"`
+}
+
+type RoomUser struct {
+	UserID   string `json:"userID"`
+	Username string `json:"username"`
+}
+
+type RoomUsersPayload struct {
+	Users []RoomUser `json:"users"`
 }
