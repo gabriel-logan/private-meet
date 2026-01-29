@@ -59,11 +59,13 @@ func (h *Hub) Run() {
 			h.mu.Unlock()
 
 		case msg := <-h.broadcast:
+			payload := mustJSON(msg)
+
 			h.mu.RLock()
 			clients := h.rooms[msg.Room]
 			for c := range clients {
 				select {
-				case c.send <- mustJSON(msg):
+				case c.send <- payload:
 				default:
 				}
 			}
