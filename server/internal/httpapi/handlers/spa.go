@@ -9,38 +9,28 @@ import (
 )
 
 func ServeSPA(w http.ResponseWriter, r *http.Request) {
-	spaDir := "../web/dist"
+	distPath := "../web/dist"
 
-	absSpaDir, err := filepath.Abs(filepath.Clean(spaDir))
+	distAbs, err := filepath.Abs(distPath)
 	if err != nil {
-		log.Printf("Error resolving SPA directory: %v", err)
+		log.Printf("failed to get absolute path of dist directory: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	indexPath := filepath.Join(absSpaDir, "index.html")
+	reqPath := filepath.Clean(r.URL.Path)
 
-	relPath := filepath.Clean(r.URL.Path)
-	relPath = strings.TrimPrefix(relPath, "/")
+	absPath := filepath.Join(distAbs, reqPath)
 
-	requestedPath := filepath.Join(absSpaDir, relPath)
-	absRequestedPath, err := filepath.Abs(requestedPath)
-	if err != nil {
-		http.ServeFile(w, r, indexPath)
+	if !strings.HasPrefix(absPath, distAbs) {
+		http.Error(w, "invalid path", http.StatusBadRequest)
 		return
 	}
 
-	if absRequestedPath != absSpaDir &&
-		!strings.HasPrefix(absRequestedPath, absSpaDir+string(os.PathSeparator)) {
-		http.ServeFile(w, r, indexPath)
+	if info, err := os.Stat(absPath); err == nil && !info.IsDir() {
+		http.ServeFile(w, r, absPath)
 		return
 	}
 
-	info, err := os.Stat(absRequestedPath)
-	if err != nil || info.IsDir() {
-		http.ServeFile(w, r, indexPath)
-		return
-	}
-
-	http.ServeFile(w, r, absRequestedPath)
+	http.ServeFile(w, r, filepath.Join(distAbs, "index.html"))
 }
