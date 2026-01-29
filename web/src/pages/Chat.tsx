@@ -19,6 +19,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
+import { maxMessageChars } from "../constants";
 import { getWSInstance } from "../lib/wsInstance";
 import { makeWSMessage, parseIncomingWSMessage } from "../protocol/ws";
 import { useAuthStore } from "../stores/authStore";
@@ -108,8 +109,44 @@ export default function ChatPage() {
   const typingTimeoutRef = useRef<number | null>(null);
   const typingSentRef = useRef(false);
 
+  const messageCharCount = useMemo(() => Array.from(message).length, [message]);
+
   function trigger(ref: React.RefObject<HTMLInputElement | null>) {
     ref.current?.click();
+  }
+
+  async function handleCopyRoomId() {
+    if (!rawRoomId.trim()) {
+      return;
+    }
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(rawRoomId);
+      } else {
+        const el = document.createElement("textarea");
+
+        el.value = rawRoomId;
+
+        el.setAttribute("readonly", "true");
+
+        el.style.position = "fixed";
+        el.style.left = "-9999px";
+
+        document.body.appendChild(el);
+
+        el.select();
+
+        document.execCommand("copy");
+
+        document.body.removeChild(el);
+      }
+
+      toast.success("Room ID copied!");
+    } catch (error) {
+      console.error("Failed to copy room id:", error);
+      toast.error("Failed to copy room ID.");
+    }
   }
 
   function handleLeaveRoom() {
@@ -552,7 +589,20 @@ export default function ChatPage() {
 
                 <span className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-400">
                   Room:{" "}
-                  <span className="text-zinc-200">{rawRoomId || "—"}</span>
+                  <button
+                    type="button"
+                    onClick={handleCopyRoomId}
+                    disabled={!rawRoomId}
+                    className={
+                      rawRoomId
+                        ? "cursor-pointer text-zinc-200 underline decoration-zinc-700 decoration-dotted underline-offset-4 hover:text-white"
+                        : "cursor-not-allowed text-zinc-200"
+                    }
+                    title={rawRoomId ? "Click to copy" : "No room"}
+                    aria-label="Copy room id"
+                  >
+                    {rawRoomId || "—"}
+                  </button>
                 </span>
               </div>
 
@@ -655,7 +705,7 @@ export default function ChatPage() {
                           {m.timestamp}
                         </p>
                       </div>
-                      <p className="mt-1 text-sm break-words whitespace-pre-wrap text-zinc-100">
+                      <p className="mt-1 text-sm wrap-break-word whitespace-pre-wrap text-zinc-100">
                         {m.text}
                       </p>
                     </div>
@@ -777,7 +827,7 @@ export default function ChatPage() {
                         className="max-h-48 min-h-16 w-full resize-none overflow-auto rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm leading-relaxed wrap-break-word text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
                         id="message"
                         required
-                        maxLength={5000}
+                        maxLength={maxMessageChars}
                         value={message}
                         onChange={(e) => {
                           const next = e.target.value;
@@ -849,6 +899,10 @@ export default function ChatPage() {
                         placeholder="Write a message…"
                         rows={3}
                       />
+
+                      <div className="mt-1 flex items-center justify-end text-xs text-zinc-500">
+                        {messageCharCount}/{maxMessageChars}
+                      </div>
                     </div>
                   </div>
 
