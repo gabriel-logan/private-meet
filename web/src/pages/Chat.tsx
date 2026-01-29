@@ -21,7 +21,11 @@ import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
 import { maxMessageChars } from "../constants";
 import { getWSInstance } from "../lib/wsInstance";
-import { makeWSMessage, parseIncomingWSMessage } from "../protocol/ws";
+import {
+  makeWSMessage,
+  parseIncomingWSMessage,
+  type WSIncomingMessage,
+} from "../protocol/ws";
 import { useAuthStore } from "../stores/authStore";
 import { isString } from "../utils";
 
@@ -245,9 +249,12 @@ export default function ChatPage() {
     }
 
     const onMessage = (event: MessageEvent) => {
-      const parsed = parseIncomingWSMessage(String(event.data));
+      let parsed: WSIncomingMessage;
 
-      if (!parsed) {
+      try {
+        parsed = parseIncomingWSMessage(String(event.data));
+      } catch (error) {
+        console.error("Error parsing incoming WS message:", error);
         return;
       }
 

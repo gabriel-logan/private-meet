@@ -159,7 +159,7 @@ function JoinMeeting() {
 
     ws.onmessage = (event) => {
       try {
-        const message = parseIncomingWSMessage(event.data);
+        const message = parseIncomingWSMessage(String(event.data));
 
         const data = message.data;
 
