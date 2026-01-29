@@ -11,6 +11,7 @@ import (
 const EnvironmentPrefixMsg = "Environment variable "
 
 type Env struct {
+	GoEnv          string
 	ServerPort     string
 	JwtSecret      string
 	JwtExpiration  time.Duration
@@ -51,6 +52,7 @@ func InitEnv() *Env {
 	}
 
 	env = &Env{
+		GoEnv:          mustExistString("GO_ENV"),
 		ServerPort:     mustExistString("SERVER_PORT"),
 		JwtSecret:      mustExistString("JWT_SECRET"),
 		JwtExpiration:  mustExistDuration("JWT_EXPIRATION"),
