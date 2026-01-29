@@ -30,11 +30,6 @@ const (
 	maxRoomIDLength   = 128
 )
 
-var response struct {
-	Type MessageType `json:"type"`
-	Data any         `json:"data"`
-}
-
 func (c *Client) readPump() { // nosonar
 	defer func() {
 		c.hub.unregister <- c
@@ -65,7 +60,7 @@ func (c *Client) readPump() { // nosonar
 		}
 
 		if len([]rune(msg.Room)) > maxRoomIDLength {
-			response = struct {
+			response := struct {
 				Type MessageType `json:"type"`
 				Data any         `json:"data"`
 			}{
@@ -105,7 +100,7 @@ func (c *Client) readPump() { // nosonar
 
 			payload.Message = strings.TrimSpace(payload.Message)
 			if payload.Message == "" {
-				response = struct {
+				response := struct {
 					Type MessageType `json:"type"`
 					Data any         `json:"data"`
 				}{
@@ -119,7 +114,7 @@ func (c *Client) readPump() { // nosonar
 			}
 
 			if len([]rune(payload.Message)) > maxChatRunes {
-				response = struct {
+				response := struct {
 					Type MessageType `json:"type"`
 					Data any         `json:"data"`
 				}{
@@ -149,7 +144,7 @@ func (c *Client) readPump() { // nosonar
 		case MessageUtilsGenerateRoomID:
 			newRoomID := uuid.NewString()
 
-			response = struct {
+			response := struct {
 				Type MessageType `json:"type"`
 				Data any         `json:"data"`
 			}{
