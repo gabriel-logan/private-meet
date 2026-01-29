@@ -52,11 +52,11 @@ func (c *Client) readPump() { // nosonar
 		msg.From = c.UserID
 
 		if !msg.Type.IsValid() {
-			return
+			continue
 		}
 
 		if msg.Room == "" && msg.Type != MessageUtilsGenerateRoomID {
-			return
+			continue
 		}
 
 		if len([]rune(msg.Room)) > maxRoomIDLength {
@@ -70,7 +70,7 @@ func (c *Client) readPump() { // nosonar
 
 			c.send <- mustJSON(&response)
 
-			return
+			continue
 		}
 
 		switch msg.Type {
@@ -95,7 +95,7 @@ func (c *Client) readPump() { // nosonar
 		case MessageChatMessage:
 			var payload ChatPayload
 			if err := json.Unmarshal(msg.Data, &payload); err != nil {
-				return
+				continue
 			}
 
 			payload.Message = strings.TrimSpace(payload.Message)
@@ -110,7 +110,7 @@ func (c *Client) readPump() { // nosonar
 
 				c.send <- mustJSON(&response)
 
-				return
+				continue
 			}
 
 			if len([]rune(payload.Message)) > maxChatRunes {
@@ -124,7 +124,7 @@ func (c *Client) readPump() { // nosonar
 
 				c.send <- mustJSON(&response)
 
-				return
+				continue
 			}
 
 			msg.Data = mustJSON(payload)
@@ -134,7 +134,7 @@ func (c *Client) readPump() { // nosonar
 		case MessageChatTyping:
 			var payload ChatTypingPayload
 			if err := json.Unmarshal(msg.Data, &payload); err != nil {
-				return
+				continue
 			}
 
 			msg.Data = mustJSON(payload)
