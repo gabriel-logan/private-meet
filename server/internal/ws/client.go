@@ -28,6 +28,7 @@ const (
 	maxWSMessageBytes = 64 * 1024
 	maxChatRunes      = 5000
 	maxRoomIDLength   = 128
+	maxProtocolErrors = 10
 )
 
 func (c *Client) IsInRoom(room string) bool {
@@ -77,6 +78,18 @@ func (c *Client) readPump() { // nosonar
 		return nil
 	})
 
+	protocolErrors := 0
+
+	fail := func(message string) bool {
+		protocolErrors++
+
+		if protocolErrors >= maxProtocolErrors {
+			return false
+		}
+
+		return c.sendError(message)
+	}
+
 	for {
 		var msg Message
 		if err := c.conn.ReadJSON(&msg); err != nil {
@@ -99,7 +112,7 @@ func (c *Client) readPump() { // nosonar
 		}
 
 		if len([]rune(msg.Room)) > maxRoomIDLength {
-			if !c.sendError(fmt.Sprintf("Room ID too long (maximum is %d characters)", maxRoomIDLength)) {
+			if !fail(fmt.Sprintf("Room ID too long (maximum is %d characters)", maxRoomIDLength)) {
 				return
 			}
 
@@ -143,7 +156,7 @@ func (c *Client) readPump() { // nosonar
 
 			payload.Message = strings.TrimSpace(payload.Message)
 			if payload.Message == "" {
-				if !c.sendError("Message cannot be empty") {
+				if !fail("Message cannot be empty") {
 					return
 				}
 
@@ -151,7 +164,7 @@ func (c *Client) readPump() { // nosonar
 			}
 
 			if len([]rune(payload.Message)) > maxChatRunes {
-				if !c.sendError(fmt.Sprintf("Message too long (maximum is %d characters)", maxChatRunes)) {
+				if !fail(fmt.Sprintf("Message too long (maximum is %d characters)", maxChatRunes)) {
 					return
 				}
 
