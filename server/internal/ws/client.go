@@ -38,9 +38,19 @@ func (c *Client) IsInRoom(room string) bool {
 	return c.Rooms[room]
 }
 
+func (c *Client) safeSend(msg []byte) {
+	select {
+	case c.send <- msg:
+	default:
+	}
+}
+
 func (c *Client) readPump() { // nosonar
 	defer func() {
-		c.hub.unregister <- c
+		select {
+		case c.hub.unregister <- c:
+		default:
+		}
 		c.conn.Close()
 	}()
 
@@ -76,7 +86,7 @@ func (c *Client) readPump() { // nosonar
 				Data: map[string]string{"error": fmt.Sprintf("Room ID too long (maximum is %d characters)", maxRoomIDLength)},
 			}
 
-			c.send <- mustJSON(&response)
+			c.safeSend(mustJSON(&response))
 
 			continue
 		}
@@ -120,7 +130,7 @@ func (c *Client) readPump() { // nosonar
 					Data: map[string]string{"error": "Message cannot be empty"},
 				}
 
-				c.send <- mustJSON(&response)
+				c.safeSend(mustJSON(&response))
 
 				continue
 			}
@@ -134,7 +144,7 @@ func (c *Client) readPump() { // nosonar
 					Data: map[string]string{"error": fmt.Sprintf("Message too long (maximum is %d characters)", maxChatRunes)},
 				}
 
-				c.send <- mustJSON(&response)
+				c.safeSend(mustJSON(&response))
 
 				continue
 			}
@@ -168,7 +178,7 @@ func (c *Client) readPump() { // nosonar
 				Data: map[string]string{"roomID": newRoomID},
 			}
 
-			c.send <- mustJSON(&response)
+			c.safeSend(mustJSON(&response))
 		}
 	}
 }
