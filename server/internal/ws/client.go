@@ -27,6 +27,7 @@ const (
 	pingPeriod        = (pongWait * 9) / 10
 	maxWSMessageBytes = 64 * 1024
 	maxChatRunes      = 5000
+	maxRoomIDLength   = 128
 )
 
 var response struct {
@@ -60,6 +61,20 @@ func (c *Client) readPump() { // nosonar
 		}
 
 		if msg.Room == "" && msg.Type != MessageUtilsGenerateRoomID {
+			return
+		}
+
+		if len([]rune(msg.Room)) > maxRoomIDLength {
+			response = struct {
+				Type MessageType `json:"type"`
+				Data any         `json:"data"`
+			}{
+				Type: MessageError,
+				Data: map[string]string{"error": fmt.Sprintf("Room ID too long (maximum is %d characters)", maxRoomIDLength)},
+			}
+
+			c.send <- mustJSON(&response)
+
 			return
 		}
 
@@ -98,6 +113,8 @@ func (c *Client) readPump() { // nosonar
 					Data: map[string]string{"error": "Message cannot be empty"},
 				}
 
+				c.send <- mustJSON(&response)
+
 				return
 			}
 
@@ -109,6 +126,8 @@ func (c *Client) readPump() { // nosonar
 					Type: MessageError,
 					Data: map[string]string{"error": fmt.Sprintf("Message too long (maximum is %d characters)", maxChatRunes)},
 				}
+
+				c.send <- mustJSON(&response)
 
 				return
 			}
