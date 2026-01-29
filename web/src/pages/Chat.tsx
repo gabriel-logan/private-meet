@@ -353,6 +353,11 @@ export default function ChatPage() {
           },
         ]);
       }
+
+      if (parsed.type === "general.error") {
+        const errorMsg = parsed.data.error || "Unknown error from server.";
+        toast.error(`Error: ${errorMsg}`);
+      }
     };
 
     ws.addEventListener("message", onMessage);

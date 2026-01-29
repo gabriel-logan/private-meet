@@ -1,4 +1,5 @@
 export type WSType =
+  | "general.error"
   | "chat.join"
   | "chat.leave"
   | "chat.message"
@@ -14,6 +15,7 @@ export type WSOutgoingType =
   | "utils.generateRoomID";
 
 export type WSIncomingType =
+  | "general.error"
   | "chat.message"
   | "chat.typing"
   | "room.users"
@@ -34,6 +36,7 @@ export type WSOutgoingMessage =
 
 // Incoming (server -> web)
 export type WSIncomingMessage =
+  | { type: "general.error"; data: { error: string } }
   | {
       type: "chat.message";
       room: string;
@@ -121,6 +124,7 @@ export function parseIncomingWSMessage(raw: string): WSIncomingMessage | null {
   }
 
   switch (msg.type) {
+    case "general.error":
     case "chat.message":
     case "chat.typing":
     case "room.users":
