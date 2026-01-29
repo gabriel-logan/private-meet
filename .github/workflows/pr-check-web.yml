@@ -1,0 +1,54 @@
+name: Frontend PR Check
+
+on:
+  push:
+    paths:
+      - "web/**"
+      - ".github/workflows/pr-check-web.yml"
+  pull_request:
+    paths:
+      - "web/**"
+      - ".github/workflows/pr-check-web.yml"
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: web
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: "latest"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "latest"
+          cache: "pnpm"
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build
+
+      - name: Check dist exists
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "❌ dist folder not found"
+            exit 1
+          fi
