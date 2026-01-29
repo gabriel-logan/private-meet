@@ -53,7 +53,7 @@ func (h *Hub) Run() {
 			// We cannot send on h.broadcast here (it would deadlock because Run is the receiver),
 			// so we write directly to clients' send channels.
 			for _, room := range affectedRooms {
-				h.broadcastRoomUsersSnapshotLocked(room)
+				h.broadcastRoomUsersSnapshot(room)
 			}
 
 			close(c.send)
@@ -117,7 +117,7 @@ func (h *Hub) GetRoomUsers(room string) []RoomUser {
 	return users
 }
 
-func (h *Hub) broadcastRoomUsersSnapshotLocked(room string) {
+func (h *Hub) broadcastRoomUsersSnapshot(room string) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
