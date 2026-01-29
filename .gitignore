@@ -129,3 +129,5 @@ temp/
 *.sdb
 !dev-cert.pem
 !dev-key.pem
+
+temporario.*
