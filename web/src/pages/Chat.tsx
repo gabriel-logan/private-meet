@@ -20,6 +20,12 @@ import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
 import { maxMessageChars, roomIDPrefix } from "../constants";
+import {
+  decryptWireToText,
+  encryptTextToWire,
+  initE2EE,
+  isEncryptedWireMessage,
+} from "../lib/e2ee";
 import { getWSInstance } from "../lib/wsInstance";
 import {
   makeWSMessage,
@@ -119,6 +125,10 @@ export default function ChatPage() {
   const typingTimeoutRef = useRef<number | null>(null);
   const typingSentRef = useRef(false);
 
+  const e2eeKeyRef = useRef<CryptoKey | null>(null);
+
+  const [e2eeReady, setE2eeReady] = useState(false);
+
   const messageCharCount = useMemo(() => Array.from(message).length, [message]);
 
   function trigger(ref: React.RefObject<HTMLInputElement | null>) {
@@ -158,7 +168,7 @@ export default function ChatPage() {
     navigate("/");
   }
 
-  function handleSend() {
+  async function handleSend() {
     const text = message.trim();
 
     if (!text) {
@@ -168,6 +178,11 @@ export default function ChatPage() {
 
     if (!room) {
       toast.error("Missing room id.");
+      return;
+    }
+
+    if (!e2eeKeyRef.current) {
+      toast.error("Encryption not ready yet.");
       return;
     }
 
@@ -189,13 +204,19 @@ export default function ChatPage() {
 
       ws.send(makeWSMessage("chat.typing", { room, typing: false }));
 
-      ws.send(makeWSMessage("chat.message", { room, message: text }));
+      const encryptedWire = await encryptTextToWire(text, e2eeKeyRef.current, {
+        roomId: room,
+        userId: me.sub,
+        maxPlaintextChars: maxMessageChars,
+      });
+
+      ws.send(makeWSMessage("chat.message", { room, message: encryptedWire }));
 
       setMessage("");
       setEmojiOpen(false);
     } catch (error) {
       console.error("Error sending message:", error);
-      toast.error("WebSocket not ready.");
+      toast.error("Failed to send encrypted message.");
     }
   }
 
@@ -224,6 +245,42 @@ export default function ChatPage() {
   useEffect(() => {
     onlineUsersRef.current = onlineUsers;
   }, [onlineUsers]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!rawRoomId) {
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    (async () => {
+      try {
+        const key = await initE2EE(rawRoomId, rawRoomId);
+
+        if (cancelled) {
+          return;
+        }
+
+        e2eeKeyRef.current = key;
+
+        setE2eeReady(true);
+      } catch (error) {
+        console.error("Failed to initialize E2EE:", error);
+        if (!cancelled) {
+          toast.error("Failed to initialize E2EE.");
+          setE2eeReady(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      setE2eeReady(false);
+      e2eeKeyRef.current = null;
+    };
+  }, [rawRoomId]);
 
   useEffect(() => {
     if (!accessToken) {
@@ -341,9 +398,9 @@ export default function ChatPage() {
       }
 
       if (parsed.type === "chat.message" && parsed.room === room) {
-        const text = parsed.data.message;
+        const wireText = parsed.data.message;
 
-        if (!text) {
+        if (!wireText) {
           return;
         }
 
@@ -374,16 +431,50 @@ export default function ChatPage() {
           });
         }
 
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-            author,
-            text,
-            timestamp: getTimeLabel(),
-            isMe,
-          },
-        ]);
+        const append = (text: string) => {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+              author,
+              text,
+              timestamp: getTimeLabel(),
+              isMe,
+            },
+          ]);
+        };
+
+        const key = e2eeKeyRef.current;
+
+        if (!key) {
+          append(
+            isEncryptedWireMessage(wireText)
+              ? "[Protected message: E2EE not configured]"
+              : wireText,
+          );
+
+          return;
+        }
+
+        if (!isEncryptedWireMessage(wireText)) {
+          append(wireText);
+
+          return;
+        }
+
+        void decryptWireToText(wireText, key, {
+          roomId: room,
+          userId: from || undefined,
+        })
+          .then((plain) => {
+            append(plain ?? "[Protected message: failed to decrypt]");
+          })
+          .catch((error) => {
+            console.error("Failed to decrypt message:", error);
+            append("[Protected message: failed to decrypt]");
+          });
+
+        return;
       }
 
       if (parsed.type === "general.error") {
@@ -805,7 +896,8 @@ export default function ChatPage() {
 
                       <button
                         type="button"
-                        onClick={handleSend}
+                        onClick={() => void handleSend()}
+                        disabled={!e2eeReady}
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500"
                         aria-label="Send message"
                       >
@@ -824,6 +916,7 @@ export default function ChatPage() {
                         required
                         maxLength={maxMessageChars}
                         value={message}
+                        disabled={!e2eeReady}
                         onChange={(e) => {
                           const next = e.target.value;
 
@@ -888,10 +981,14 @@ export default function ChatPage() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
-                            handleSend();
+                            void handleSend();
                           }
                         }}
-                        placeholder="Write a message…"
+                        placeholder={
+                          e2eeReady
+                            ? "Write a message…"
+                            : "Initializing encryption…"
+                        }
                         rows={3}
                       />
 
@@ -902,7 +999,7 @@ export default function ChatPage() {
                   </div>
 
                   <p className="mt-2 text-xs text-zinc-500">
-                    Messages are sent via WebSocket.
+                    Messages are sent via WebSocket. End-to-end encrypted.
                   </p>
                 </div>
               </div>

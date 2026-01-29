@@ -1,3 +1,5 @@
+import { maxMessageChars } from "../constants";
+
 export type AesGcmAlg = "AES-GCM";
 
 export type E2EEEnvelopeV1 = {
@@ -15,36 +17,21 @@ export const E2EE_DEFAULTS = {
   // Salt derived from room id hash
   saltBytes: 16,
   // Keep aligned with UI/server limits (server currently limits chat message size)
-  maxPlaintextChars: 5000,
+  maxPlaintextChars: maxMessageChars,
   // Helps avoid sending messages that will exceed server limits after encoding.
   // (Rough guard; final size depends on base64 and envelope overhead.)
   maxWireChars: 5000,
 } as const;
-
-let cachedKey: CryptoKey | undefined;
 
 export async function initE2EE(
   passphrase: string,
   saltString: string,
 ): Promise<CryptoKey> {
   const salt = await saltFromRoom(saltString);
+
   const key = await deriveKey(passphrase, salt, E2EE_DEFAULTS.pbkdf2Iterations);
 
-  setCachedKey(key);
-
   return key;
-}
-
-export function clearCachedKey(): void {
-  cachedKey = undefined;
-}
-
-export function setCachedKey(key: CryptoKey): void {
-  cachedKey = key;
-}
-
-export function getCachedKey(): CryptoKey | undefined {
-  return cachedKey;
 }
 
 function toArrayBuffer(u8: Uint8Array): ArrayBuffer {
