@@ -238,14 +238,7 @@ export default function ChatPage() {
     return `${names[0]} and ${names.length - 1} others are typing…`;
   }, [typingUsers]);
 
-  useEffect(() => {
-    listEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length]);
-
-  useEffect(() => {
-    onlineUsersRef.current = onlineUsers;
-  }, [onlineUsers]);
-
+  // Initialize E2EE
   useEffect(() => {
     let cancelled = false;
 
@@ -283,6 +276,17 @@ export default function ChatPage() {
     };
   }, [rawRoomId]);
 
+  // Scroll to bottom on new message
+  useEffect(() => {
+    listEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages.length]);
+
+  // Keep online users ref updated
+  useEffect(() => {
+    onlineUsersRef.current = onlineUsers;
+  }, [onlineUsers]);
+
+  // WebSocket message handling
   useEffect(() => {
     if (!accessToken) {
       toast.error("Please create a user first.");
