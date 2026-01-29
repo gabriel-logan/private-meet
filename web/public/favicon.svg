@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="Private Meet">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#10b981"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="32" fill="#09090b"/>
+  <path d="M34 44c0-8.8 7.2-16 16-16h28c8.8 0 16 7.2 16 16v16c0 8.8-7.2 16-16 16H62l-16 13c-2.2 1.8-5.4 0.2-5.4-2.6V76c-4-3-6.6-7.8-6.6-13V44z" fill="#0a0a0a" stroke="#27272a" stroke-width="4"/>
+  <circle cx="54" cy="54" r="5" fill="#a1a1aa"/>
+  <circle cx="64" cy="54" r="5" fill="#a1a1aa"/>
+  <circle cx="74" cy="54" r="5" fill="#a1a1aa"/>
+  <rect x="50" y="78" width="28" height="18" rx="9" fill="url(#g)"/>
+</svg>

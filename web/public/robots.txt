@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://private-meet-76by.onrender.com/sitemap.xml
