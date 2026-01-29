@@ -19,7 +19,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
-import { maxMessageChars } from "../constants";
+import { maxMessageChars, roomIDPrefix } from "../constants";
 import { getWSInstance } from "../lib/wsInstance";
 import {
   makeWSMessage,
@@ -57,9 +57,15 @@ function base64UrlDecode(input: string) {
 }
 
 function parseJwt(token?: string): { sub?: string; username?: string } {
-  if (!token) return {};
+  if (!token) {
+    return {};
+  }
+
   const parts = token.split(".");
-  if (parts.length < 2) return {};
+
+  if (parts.length < 2) {
+    return {};
+  }
 
   try {
     const payload = JSON.parse(base64UrlDecode(parts[1])) as Record<
@@ -77,7 +83,7 @@ function parseJwt(token?: string): { sub?: string; username?: string } {
 }
 
 function normalizeRoomId(roomId: string) {
-  return `room:${roomId}`;
+  return `${roomIDPrefix}${roomId}`;
 }
 
 export default function ChatPage() {

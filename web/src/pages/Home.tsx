@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { motion } from "motion/react";
 
+import { maxRoomIDLength } from "../constants";
 import apiInstance from "../lib/apiInstance";
 import { getWSInstance } from "../lib/wsInstance";
 import { makeWSMessage, parseIncomingWSMessage } from "../protocol/ws";
@@ -140,12 +141,19 @@ function JoinMeeting() {
   const [roomId, setRoomId] = useState("");
 
   function handleJoinRoom() {
-    if (!roomId.trim()) {
+    const normalized = roomId.trim();
+
+    if (!normalized) {
       toast.error("Please enter a Room ID.");
       return;
     }
 
-    const normalized = roomId.trim();
+    if (normalized.length > maxRoomIDLength) {
+      toast.error(
+        `Room ID is too long (maximum is ${maxRoomIDLength} characters).`,
+      );
+      return;
+    }
 
     navigate(`/chat?room=${encodeURIComponent(normalized)}`);
   }
