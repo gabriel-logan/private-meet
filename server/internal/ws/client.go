@@ -38,11 +38,27 @@ func (c *Client) IsInRoom(room string) bool {
 	return c.Rooms[room]
 }
 
-func (c *Client) safeSend(msg []byte) {
+func (c *Client) safeSend(msg []byte) bool {
 	select {
 	case c.send <- msg:
+		return true
 	default:
+		return false
 	}
+}
+
+func (c *Client) sendError(message string) bool {
+	response := struct {
+		Type MessageType `json:"type"`
+		Data any         `json:"data"`
+	}{
+		Type: MessageError,
+		Data: map[string]string{
+			"error": message,
+		},
+	}
+
+	return c.safeSend(mustJSON(&response))
 }
 
 func (c *Client) readPump() { // nosonar
@@ -64,10 +80,15 @@ func (c *Client) readPump() { // nosonar
 	for {
 		var msg Message
 		if err := c.conn.ReadJSON(&msg); err != nil {
+			// Handle close errors gracefully
+			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
+				log.Println("WebSocket closed:", err)
+			} else {
+				log.Println("WebSocket read error:", err)
+			}
+
 			break
 		}
-
-		msg.From = c.UserID
 
 		if !msg.Type.IsValid() {
 			continue
@@ -78,23 +99,21 @@ func (c *Client) readPump() { // nosonar
 		}
 
 		if len([]rune(msg.Room)) > maxRoomIDLength {
-			response := struct {
-				Type MessageType `json:"type"`
-				Data any         `json:"data"`
-			}{
-				Type: MessageError,
-				Data: map[string]string{"error": fmt.Sprintf("Room ID too long (maximum is %d characters)", maxRoomIDLength)},
+			if !c.sendError(fmt.Sprintf("Room ID too long (maximum is %d characters)", maxRoomIDLength)) {
+				return
 			}
-
-			c.safeSend(mustJSON(&response))
 
 			continue
 		}
 
+		msg.From = c.UserID
+
 		switch msg.Type {
 		case MessageChatJoin:
 			c.hub.JoinRoom(msg.Room, c)
+
 			users := c.hub.GetRoomUsers(msg.Room)
+
 			c.hub.broadcast <- &Message{
 				Type: MessageRoomUsers,
 				Room: msg.Room,
@@ -103,7 +122,9 @@ func (c *Client) readPump() { // nosonar
 
 		case MessageChatLeave:
 			c.hub.LeaveRoom(msg.Room, c)
+
 			users := c.hub.GetRoomUsers(msg.Room)
+
 			c.hub.broadcast <- &Message{
 				Type: MessageRoomUsers,
 				Room: msg.Room,
@@ -122,29 +143,17 @@ func (c *Client) readPump() { // nosonar
 
 			payload.Message = strings.TrimSpace(payload.Message)
 			if payload.Message == "" {
-				response := struct {
-					Type MessageType `json:"type"`
-					Data any         `json:"data"`
-				}{
-					Type: MessageError,
-					Data: map[string]string{"error": "Message cannot be empty"},
+				if !c.sendError("Message cannot be empty") {
+					return
 				}
-
-				c.safeSend(mustJSON(&response))
 
 				continue
 			}
 
 			if len([]rune(payload.Message)) > maxChatRunes {
-				response := struct {
-					Type MessageType `json:"type"`
-					Data any         `json:"data"`
-				}{
-					Type: MessageError,
-					Data: map[string]string{"error": fmt.Sprintf("Message too long (maximum is %d characters)", maxChatRunes)},
+				if !c.sendError(fmt.Sprintf("Message too long (maximum is %d characters)", maxChatRunes)) {
+					return
 				}
-
-				c.safeSend(mustJSON(&response))
 
 				continue
 			}
