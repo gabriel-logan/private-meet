@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import { roomIDPrefix } from "./constants";
+
 export function isString(value: unknown): value is string {
   return typeof value === "string";
 }
@@ -23,4 +25,23 @@ export default function getAxiosErrorMessage(
   }
 
   return fallbackMessage;
+}
+
+export function base64UrlDecode(input: string): string {
+  const base64 = input.replaceAll("-", "+").replaceAll("_", "/");
+
+  const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+
+  return atob(padded);
+}
+
+export function normalizeRoomId(roomId: string) {
+  return `${roomIDPrefix}${roomId}`;
+}
+
+export function getTimeLabel() {
+  return new Date().toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }

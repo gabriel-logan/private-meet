@@ -19,13 +19,14 @@ import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
-import { maxMessageChars, roomIDPrefix } from "../constants";
+import { maxMessageChars } from "../constants";
 import {
   decryptWireToText,
   encryptTextToWire,
   initE2EE,
   isEncryptedWireMessage,
 } from "../lib/e2ee";
+import { parseJwt } from "../lib/jwt";
 import { getWSInstance } from "../lib/wsInstance";
 import {
   makeWSMessage,
@@ -33,7 +34,7 @@ import {
   type WSIncomingMessage,
 } from "../protocol/ws";
 import { useAuthStore } from "../stores/authStore";
-import { isString } from "../utils";
+import { getTimeLabel, isString, normalizeRoomId } from "../utils";
 
 type ChatMessage = {
   id: string;
@@ -49,51 +50,9 @@ type OnlineUser = {
   status: "online" | "idle";
 };
 
-function getTimeLabel() {
-  return new Date().toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function base64UrlDecode(input: string) {
-  const base64 = input.replaceAll("-", "+").replaceAll("_", "/");
-  const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
-  return atob(padded);
-}
-
-function parseJwt(token?: string): { sub?: string; username?: string } {
-  if (!token) {
-    return {};
-  }
-
-  const parts = token.split(".");
-
-  if (parts.length < 2) {
-    return {};
-  }
-
-  try {
-    const payload = JSON.parse(base64UrlDecode(parts[1])) as Record<
-      string,
-      unknown
-    >;
-    return {
-      sub: typeof payload.sub === "string" ? payload.sub : undefined,
-      username:
-        typeof payload.username === "string" ? payload.username : undefined,
-    };
-  } catch {
-    return {};
-  }
-}
-
-function normalizeRoomId(roomId: string) {
-  return `${roomIDPrefix}${roomId}`;
-}
-
 export default function ChatPage() {
   const navigate = useNavigate();
+
   const [searchParams] = useSearchParams();
   const accessToken = useAuthStore((s) => s.accessToken);
 
