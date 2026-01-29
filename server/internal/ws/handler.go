@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gabriel-logan/private-meet/server/internal/config"
@@ -50,6 +51,8 @@ func ServeWS(hub *Hub) http.HandlerFunc {
 
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
+			log.Printf("WebSocket upgrade error: %v", err)
+			http.Error(w, "Could not open WebSocket connection", http.StatusBadRequest)
 			return
 		}
 
