@@ -20,6 +20,7 @@ var upgrader = websocket.Upgrader{
 		}
 
 		origin := r.Header.Get("Origin")
+
 		allowedOrigin := env.AllowedOrigin
 
 		return origin == allowedOrigin
@@ -28,7 +29,6 @@ var upgrader = websocket.Upgrader{
 
 func ServeWS(hub *Hub) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		token := r.URL.Query().Get("token")
 
 		claims, err := security.ValidateJWT(token)

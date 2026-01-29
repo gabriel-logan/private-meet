@@ -56,7 +56,7 @@ func InitEnv() *Env {
 	env = &Env{
 		GoEnv:          mustExistString("GO_ENV"),
 		AppName:        mustExistString("APP_NAME"),
-		AllowedOrigin:  mustExistString("VITE_HTTP_API_URL"),
+		AllowedOrigin:  mustExistString("ALLOWED_ORIGIN"),
 		ServerPort:     mustExistString("SERVER_PORT"),
 		JwtSecret:      mustExistString("JWT_SECRET"),
 		JwtExpiration:  mustExistDuration("JWT_EXPIRATION"),
