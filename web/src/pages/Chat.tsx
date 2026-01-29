@@ -257,6 +257,7 @@ export default function ChatPage() {
 
     (async () => {
       try {
+        // I'm using roomId as secret here for simplicity. In real world use cases, use a proper secret exchange.
         const key = await initE2EE(rawRoomId, rawRoomId);
 
         if (cancelled) {
