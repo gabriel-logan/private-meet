@@ -64,22 +64,21 @@ func Logger() Middleware {
 
 			next.ServeHTTP(rw, r)
 
-			duration := time.Since(start)
-
-			ip := clientIP(r)
-			method := r.Method
-			path := r.URL.Path
-			status := rw.status
-			bytes := rw.bytes
 			ua := r.UserAgent()
+
+			if strings.Contains(ua, "Render/") {
+				return
+			}
+
+			duration := time.Since(start)
 
 			log.Printf(
 				"%s %s %s | %d | %dB | %s | %s",
-				ip,
-				method,
-				path,
-				status,
-				bytes,
+				clientIP(r),
+				r.Method,
+				r.URL.Path,
+				rw.status,
+				rw.bytes,
 				duration,
 				ua,
 			)
