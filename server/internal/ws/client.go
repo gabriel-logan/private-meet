@@ -104,10 +104,18 @@ func (c *Client) readPump() { // nosonar
 		}
 
 		if !msg.Type.IsValid() {
+			if !fail("Invalid message type") {
+				return
+			}
+
 			continue
 		}
 
 		if msg.Room == "" && msg.Type != MessageUtilsGenerateRoomID {
+			if !fail("Room ID is required") {
+				return
+			}
+
 			continue
 		}
 
@@ -146,11 +154,19 @@ func (c *Client) readPump() { // nosonar
 
 		case MessageChatMessage:
 			if !c.IsInRoom(msg.Room) {
+				if !fail("You are not in this room") {
+					return
+				}
+
 				continue
 			}
 
 			var payload ChatPayload
 			if err := json.Unmarshal(msg.Data, &payload); err != nil {
+				if !fail("Invalid chat message payload") {
+					return
+				}
+
 				continue
 			}
 
@@ -177,11 +193,19 @@ func (c *Client) readPump() { // nosonar
 
 		case MessageChatTyping:
 			if !c.IsInRoom(msg.Room) {
+				if !fail("You are not in this room") {
+					return
+				}
+
 				continue
 			}
 
 			var payload ChatTypingPayload
 			if err := json.Unmarshal(msg.Data, &payload); err != nil {
+				if !fail("Invalid typing payload") {
+					return
+				}
+
 				continue
 			}
 
@@ -200,7 +224,9 @@ func (c *Client) readPump() { // nosonar
 				Data: map[string]string{"roomID": newRoomID},
 			}
 
-			c.safeSend(mustJSON(&response))
+			if !c.safeSend(mustJSON(&response)) {
+				return
+			}
 		}
 	}
 }
