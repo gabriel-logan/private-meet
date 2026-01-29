@@ -18,8 +18,8 @@ func NewRouter(hub *ws.Hub) http.Handler {
 	mux.HandleFunc("GET /", handlers.ServeSPA)
 
 	if config.GetEnv().GoEnv == "development" {
-		return middleware.Apply(mux, middleware.CORS())
+		return middleware.Apply(mux, middleware.Logger(), middleware.CORS())
 	} else {
-		return mux
+		return middleware.Apply(mux, middleware.Logger())
 	}
 }

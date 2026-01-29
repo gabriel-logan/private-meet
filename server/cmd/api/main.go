@@ -25,5 +25,6 @@ func main() {
 	}
 
 	log.Println("Starting server on http://localhost:" + serverPort)
+	log.Println("Running in " + env.GoEnv + " mode")
 	log.Fatal(server.ListenAndServe())
 }
