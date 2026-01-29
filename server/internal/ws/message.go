@@ -5,6 +5,8 @@ import "encoding/json"
 type MessageType string
 
 const (
+	MessageError MessageType = "general.error"
+
 	MessageChatJoin    MessageType = "chat.join"
 	MessageChatLeave   MessageType = "chat.leave"
 	MessageChatMessage MessageType = "chat.message"
