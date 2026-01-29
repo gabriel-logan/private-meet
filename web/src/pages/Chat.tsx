@@ -255,6 +255,7 @@ export default function ChatPage() {
         parsed = parseIncomingWSMessage(String(event.data));
       } catch (error) {
         console.error("Error parsing incoming WS message:", error);
+        toast.error("Error processing server message.");
         return;
       }
 

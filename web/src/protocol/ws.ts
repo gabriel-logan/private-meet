@@ -27,7 +27,7 @@ export type WSIncomingMessage =
       data: { typing: boolean };
     }
   | { type: "room.users"; room: string; data: { users: RoomUser[] } }
-  | { type: "utils.generateRoomID"; data: { roomID?: string } };
+  | { type: "utils.generateRoomID"; data: { roomID: string } };
 
 type WSOutgoingArgsByType = {
   "chat.join": { room: string };

@@ -19,7 +19,8 @@ function handleGenerateRoomIdClick() {
     }
 
     ws.send(makeWSMessage("utils.generateRoomID"));
-  } catch {
+  } catch (error) {
+    console.error("Error generating Room ID:", error);
     toast.error("Not connected yet. Try again in a second.");
   }
 }
@@ -159,11 +160,9 @@ function JoinMeeting() {
 
     ws.onmessage = (event) => {
       try {
-        const message = parseIncomingWSMessage(String(event.data));
+        const { type, data } = parseIncomingWSMessage(String(event.data));
 
-        const data = message.data;
-
-        if (message.type === "utils.generateRoomID") {
+        if (type === "utils.generateRoomID") {
           setRoomId(data.roomID);
           toast.success("Generated a new Room ID!");
         }
