@@ -4,12 +4,20 @@ export type RoomUser = {
 };
 
 // Outgoing (web -> server)
-export type WSOutgoingMessage =
-  | { type: "chat.join"; room: string; data: Record<string, never> }
-  | { type: "chat.leave"; room: string; data: Record<string, never> }
-  | { type: "chat.message"; room: string; data: { message: string } }
-  | { type: "chat.typing"; room: string; data: { typing: boolean } }
-  | { type: "utils.generateRoomID"; data: Record<string, never> };
+export type WSOutgoingMessage = {
+  [K in keyof WSOutgoingArgsByType]: WSOutgoingArgsByType[K] extends undefined
+    ? {
+        type: K;
+        data: Record<string, never>;
+      }
+    : WSOutgoingArgsByType[K] extends { room: string }
+      ? {
+          type: K;
+          room: WSOutgoingArgsByType[K]["room"];
+          data: Omit<WSOutgoingArgsByType[K], "room">;
+        }
+      : never;
+}[keyof WSOutgoingArgsByType];
 
 // Incoming (server -> web)
 export type WSIncomingMessage =
@@ -83,7 +91,7 @@ export function parseIncomingWSMessage(raw: string): WSIncomingMessage {
   let parsed: unknown;
 
   try {
-    parsed = JSON.parse(raw) as unknown;
+    parsed = JSON.parse(raw);
   } catch {
     throw new Error("Failed to parse incoming WS message as JSON.");
   }
