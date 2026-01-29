@@ -4,27 +4,13 @@ import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { motion } from "motion/react";
 
+import handleGenerateRoomIdClick from "../actions/handleGenerateRoomIdClick";
 import { maxRoomIDLength } from "../constants";
 import apiInstance from "../lib/apiInstance";
 import { getWSInstance } from "../lib/wsInstance";
-import { makeWSMessage, parseIncomingWSMessage } from "../protocol/ws";
+import { parseIncomingWSMessage } from "../protocol/ws";
 import { useAuthStore } from "../stores/authStore";
 import getAxiosErrorMessage from "../utils";
-
-function handleGenerateRoomIdClick() {
-  try {
-    const ws = getWSInstance();
-
-    if (ws.readyState !== WebSocket.OPEN) {
-      throw new Error("WebSocket is not connected.");
-    }
-
-    ws.send(makeWSMessage("utils.generateRoomID"));
-  } catch (error) {
-    console.error("Error generating Room ID:", error);
-    toast.error("Not connected yet. Try again in a second.");
-  }
-}
 
 export default function HomePage() {
   const { accessToken } = useAuthStore();
