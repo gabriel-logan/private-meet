@@ -75,7 +75,9 @@ function CreateUser() {
     event.preventDefault();
 
     try {
-      const response = await apiInstance.post("/auth/sign-in");
+      const response = await apiInstance.post("/auth/sign-in", {
+        username: username.trim(),
+      });
 
       const accessToken = response.data.accessToken;
 

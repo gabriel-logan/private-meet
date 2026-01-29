@@ -2,15 +2,37 @@ package handlers
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
+	"strings"
 
 	"github.com/gabriel-logan/private-meet/server/internal/security"
 	"github.com/google/uuid"
 )
 
+var SignInBody struct {
+	Username string `json:"username"`
+}
+
 func SignIn(w http.ResponseWriter, r *http.Request) {
 	userID := uuid.NewString()
 	username := "Guest"
+
+	if r.Body != nil {
+		if err := json.NewDecoder(r.Body).Decode(&SignInBody); err != nil && err != io.EOF {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+	}
+
+	if name := strings.TrimSpace(SignInBody.Username); name != "" {
+		if len([]rune(name)) > 32 {
+			http.Error(w, "Username too long", http.StatusBadRequest)
+			return
+		}
+
+		username = name
+	}
 
 	accessToken, err := security.GenerateJWT(userID, username)
 	if err != nil {
