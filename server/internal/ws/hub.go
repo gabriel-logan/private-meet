@@ -119,17 +119,26 @@ func (h *Hub) GetRoomUsers(room string) []RoomUser {
 
 func (h *Hub) broadcastRoomUsersSnapshot(room string) {
 	h.mu.RLock()
-	defer h.mu.RUnlock()
 
-	clients := h.rooms[room]
-	if clients == nil {
+	clientsMap := h.rooms[room]
+
+	if clientsMap == nil {
+		h.mu.RUnlock()
 		return
 	}
 
-	users := make([]RoomUser, 0, len(clients))
-	for c := range clients {
-		users = append(users, RoomUser{UserID: c.UserID, Username: c.Username})
+	clients := make([]*Client, 0, len(clientsMap))
+	users := make([]RoomUser, 0, len(clientsMap))
+
+	for c := range clientsMap {
+		clients = append(clients, c)
+		users = append(users, RoomUser{
+			UserID:   c.UserID,
+			Username: c.Username,
+		})
 	}
+
+	h.mu.RUnlock()
 
 	payload := mustJSON(&Message{
 		Type: MessageRoomUsers,
@@ -137,7 +146,7 @@ func (h *Hub) broadcastRoomUsersSnapshot(room string) {
 		Data: mustJSON(RoomUsersPayload{Users: users}),
 	})
 
-	for c := range clients {
+	for _, c := range clients {
 		select {
 		case c.send <- payload:
 		default:
