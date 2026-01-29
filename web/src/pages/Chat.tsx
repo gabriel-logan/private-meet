@@ -129,16 +129,21 @@ export default function ChatPage() {
             }),
           );
         }
-      } catch {
-        // no-op
+      } catch (error) {
+        console.error("Error leaving room:", error);
       }
     }
+
     navigate("/");
   }
 
   function handleSend() {
     const text = message.trim();
-    if (!text) return;
+
+    if (!text) {
+      toast.error("Please enter a message.");
+      return;
+    }
 
     if (!room) {
       toast.error("Missing room id.");
@@ -147,6 +152,7 @@ export default function ChatPage() {
 
     try {
       const ws = getWSInstance();
+
       if (ws.readyState !== WebSocket.OPEN) {
         toast.error("Not connected yet.");
         return;
@@ -159,9 +165,11 @@ export default function ChatPage() {
           data: { message: text },
         }),
       );
+
       setMessage("");
       setEmojiOpen(false);
-    } catch {
+    } catch (error) {
+      console.error("Error sending message:", error);
       toast.error("WebSocket not ready.");
     }
   }
@@ -207,18 +215,26 @@ export default function ChatPage() {
       let parsed: WSMessage;
       try {
         parsed = JSON.parse(String(event.data)) as WSMessage;
-      } catch {
+      } catch (error) {
+        console.error("Error handling WebSocket message:", error);
+        toast.error("Error processing server message.");
         return;
       }
 
       if (parsed.type === "chat.message" && parsed.room === room) {
         const payload = parsed.data as { message?: unknown } | undefined;
+
         const text =
           typeof payload?.message === "string" ? payload.message : "";
-        if (!text) return;
+
+        if (!text) {
+          return;
+        }
 
         const from = typeof parsed.from === "string" ? parsed.from : "";
+
         const isMe = Boolean(me.sub && from && from === me.sub);
+
         let author = "Unknown";
         if (isMe) {
           author = me.username || "You";
@@ -252,8 +268,8 @@ export default function ChatPage() {
             }),
           );
         }
-      } catch {
-        // no-op
+      } catch (error) {
+        console.error("Error leaving room:", error);
       }
 
       ws.removeEventListener("message", onMessage);
