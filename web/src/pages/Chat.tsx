@@ -238,7 +238,7 @@ export default function ChatPage() {
     return `${names[0]} and ${names.length - 1} others are typing…`;
   }, [typingUsers]);
 
-  // Initialize E2EE
+  // Initialize E2EE - Should be the first useEffect
   useEffect(() => {
     let cancelled = false;
 
