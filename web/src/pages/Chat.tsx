@@ -22,6 +22,7 @@ import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 import { getWSInstance } from "../lib/wsInstance";
 import { makeWSMessage, parseIncomingWSMessage } from "../protocol/ws";
 import { useAuthStore } from "../stores/authStore";
+import { isString } from "../utils";
 
 type ChatMessage = {
   id: string;
@@ -100,17 +101,12 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const listEndRef = useRef<HTMLDivElement | null>(null);
 
-  const onlineUsers: OnlineUser[] = [
-    { id: "u1", name: "You", status: "online" },
-    { id: "u2", name: "Aline", status: "online" },
-    { id: "u3", name: "Bruno", status: "online" },
-    { id: "u4", name: "Camila", status: "idle" },
-    { id: "u5", name: "Diego", status: "online" },
-  ];
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
+  const onlineUsersRef = useRef<OnlineUser[]>([]);
 
-  useEffect(() => {
-    listEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length]);
+  const [typingUsers, setTypingUsers] = useState<Record<string, string>>({});
+  const typingTimeoutRef = useRef<number | null>(null);
+  const typingSentRef = useRef(false);
 
   function trigger(ref: React.RefObject<HTMLInputElement | null>) {
     ref.current?.click();
@@ -122,6 +118,8 @@ export default function ChatPage() {
         const ws = getWSInstance();
 
         if (ws.readyState === WebSocket.OPEN) {
+          // stop typing before leaving
+          ws.send(makeWSMessage("chat.typing", { room, typing: false }));
           ws.send(makeWSMessage("chat.leave", { room }));
         }
       } catch (error) {
@@ -153,6 +151,16 @@ export default function ChatPage() {
         return;
       }
 
+      // clear typing when sending
+      if (typingTimeoutRef.current) {
+        globalThis.clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
+      }
+
+      typingSentRef.current = false;
+
+      ws.send(makeWSMessage("chat.typing", { room, typing: false }));
+
       ws.send(makeWSMessage("chat.message", { room, message: text }));
 
       setMessage("");
@@ -162,6 +170,32 @@ export default function ChatPage() {
       toast.error("WebSocket not ready.");
     }
   }
+
+  const typingLabel = useMemo(() => {
+    const names = Object.values(typingUsers);
+
+    if (names.length === 0) {
+      return "";
+    }
+
+    if (names.length === 1) {
+      return `${names[0]} is typing…`;
+    }
+
+    if (names.length === 2) {
+      return `${names[0]} and ${names[1]} are typing…`;
+    }
+
+    return `${names[0]} and ${names.length - 1} others are typing…`;
+  }, [typingUsers]);
+
+  useEffect(() => {
+    listEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages.length]);
+
+  useEffect(() => {
+    onlineUsersRef.current = onlineUsers;
+  }, [onlineUsers]);
 
   useEffect(() => {
     if (!accessToken) {
@@ -192,12 +226,85 @@ export default function ChatPage() {
       return;
     }
 
-    ws.send(makeWSMessage("chat.join", { room }));
-
     const onMessage = (event: MessageEvent) => {
       const parsed = parseIncomingWSMessage(String(event.data));
 
       if (!parsed) {
+        return;
+      }
+
+      if (parsed.type === "room.users" && parsed.room === room) {
+        const mapped = parsed.data.users
+          .map((u) => {
+            const id = u.userID;
+            const username = u.username;
+
+            const isMe = Boolean(me.sub && id === me.sub);
+
+            return {
+              id,
+              name: isMe ? me.username || username || "You" : username,
+              status: "online",
+            } satisfies OnlineUser;
+          })
+          .filter((u) => isString(u.id) && isString(u.name));
+
+        const unique = new Map<string, OnlineUser>();
+
+        for (const u of mapped) {
+          unique.set(u.id, u);
+        }
+
+        const users = Array.from(unique.values());
+
+        users.sort((a, b) => {
+          const aIsMe = Boolean(me.sub && a.id === me.sub);
+          const bIsMe = Boolean(me.sub && b.id === me.sub);
+
+          if (aIsMe && !bIsMe) {
+            return -1;
+          }
+
+          if (!aIsMe && bIsMe) {
+            return 1;
+          }
+
+          return a.name.localeCompare(b.name);
+        });
+
+        setOnlineUsers(users);
+        return;
+      }
+
+      if (parsed.type === "chat.typing" && parsed.room === room) {
+        const from = typeof parsed.from === "string" ? parsed.from : "";
+
+        if (!from) {
+          return;
+        }
+
+        if (me.sub && from === me.sub) {
+          return;
+        }
+
+        setTypingUsers((prev) => {
+          const next = { ...prev };
+
+          if (!parsed.data.typing) {
+            delete next[from];
+
+            return next;
+          }
+
+          const knownName = onlineUsersRef.current.find(
+            (u) => u.id === from,
+          )?.name;
+
+          next[from] = knownName || from.slice(0, 8);
+
+          return next;
+        });
+
         return;
       }
 
@@ -216,7 +323,23 @@ export default function ChatPage() {
         if (isMe) {
           author = me.username || "You";
         } else if (from) {
-          author = from.slice(0, 8);
+          author =
+            onlineUsersRef.current.find((u) => u.id === from)?.name ||
+            from.slice(0, 8);
+        }
+
+        if (from) {
+          setTypingUsers((prev) => {
+            if (!(from in prev)) {
+              return prev;
+            }
+
+            const next = { ...prev };
+
+            delete next[from];
+
+            return next;
+          });
         }
 
         setMessages((prev) => [
@@ -234,9 +357,13 @@ export default function ChatPage() {
 
     ws.addEventListener("message", onMessage);
 
+    // Join only after listener is attached so we don't miss the initial room.users.
+    ws.send(makeWSMessage("chat.join", { room }));
+
     return () => {
       try {
         if (ws.readyState === WebSocket.OPEN) {
+          ws.send(makeWSMessage("chat.typing", { room, typing: false }));
           ws.send(makeWSMessage("chat.leave", { room }));
         }
       } catch (error) {
@@ -531,6 +658,12 @@ export default function ChatPage() {
               </div>
 
               <div className="shrink-0 border-t border-zinc-800 p-3">
+                {typingLabel ? (
+                  <div className="mb-2 rounded-md border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-xs text-zinc-300">
+                    {typingLabel}
+                  </div>
+                ) : null}
+
                 <input ref={fileInputRef} type="file" className="hidden" />
                 <input
                   ref={imageInputRef}
@@ -635,8 +768,70 @@ export default function ChatPage() {
                       </label>
                       <textarea
                         id="message"
+                        required
+                        maxLength={5000}
                         value={message}
-                        onChange={(e) => setMessage(e.target.value)}
+                        onChange={(e) => {
+                          const next = e.target.value;
+
+                          setMessage(next);
+
+                          if (!room) {
+                            return;
+                          }
+
+                          try {
+                            const ws = getWSInstance();
+
+                            if (ws.readyState !== WebSocket.OPEN) {
+                              return;
+                            }
+
+                            if (!typingSentRef.current && next.trim() !== "") {
+                              typingSentRef.current = true;
+
+                              ws.send(
+                                makeWSMessage("chat.typing", {
+                                  room,
+                                  typing: true,
+                                }),
+                              );
+                            }
+
+                            if (typingTimeoutRef.current) {
+                              globalThis.clearTimeout(typingTimeoutRef.current);
+                            }
+
+                            typingTimeoutRef.current = globalThis.setTimeout(
+                              () => {
+                                try {
+                                  const ws2 = getWSInstance();
+
+                                  if (ws2.readyState !== WebSocket.OPEN) {
+                                    return;
+                                  }
+
+                                  typingSentRef.current = false;
+
+                                  ws2.send(
+                                    makeWSMessage("chat.typing", {
+                                      room,
+                                      typing: false,
+                                    }),
+                                  );
+                                } catch (error) {
+                                  console.error(
+                                    "Error sending typing stop:",
+                                    error,
+                                  );
+                                }
+                              },
+                              900,
+                            );
+                          } catch (error) {
+                            console.error("Error sending typing start:", error);
+                          }
+                        }}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
