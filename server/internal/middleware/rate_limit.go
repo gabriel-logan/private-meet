@@ -3,9 +3,11 @@ package middleware
 import (
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/gorilla/websocket"
 	"golang.org/x/time/rate"
 )
 
@@ -34,7 +36,51 @@ type clientState struct {
 var (
 	mu      sync.Mutex
 	clients = map[string]*clientState{}
+	once    sync.Once
 )
+
+func clientIPForRateLimit(r *http.Request) string {
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		parts := strings.Split(xff, ",")
+		return strings.TrimSpace(parts[0])
+	}
+
+	if rip := r.Header.Get("X-Real-IP"); rip != "" {
+		return strings.TrimSpace(rip)
+	}
+
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+
+	return host
+}
+
+func shouldSkipRateLimit(r *http.Request) bool {
+	if r.Method == http.MethodOptions {
+		return true
+	}
+
+	if websocket.IsWebSocketUpgrade(r) {
+		return true
+	}
+
+	path := r.URL.Path
+	if path == "/ws" {
+		return true
+	}
+
+	if strings.HasPrefix(path, "/assets/") ||
+		path == "/favicon.ico" ||
+		path == "/robots.txt" ||
+		path == "/logo.svg" ||
+		path == "/favicon.svg" {
+		return true
+	}
+
+	return false
+}
 
 func getClient(ip string) *clientState {
 	mu.Lock()
@@ -82,38 +128,55 @@ func cleanupOldClients() {
 	}
 }
 
-func RateLimit(next http.Handler) http.Handler {
-	go cleanupOldClients()
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ip, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			http.Error(w, "Invalid IP address", http.StatusBadRequest)
-			return
-		}
-
-		method := r.Method
-		cfg, exists := RateLimits[method]
-		if !exists {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
-
-		client := getClient(ip)
-
-		if isBanned(client) {
-			http.Error(w, "Too Many Requests (temp ban)", http.StatusTooManyRequests)
-			return
-		}
-
-		limiter := client.Limiters[method]
-
-		if !limiter.Allow() {
-			banClient(client, cfg.BanTime)
-			http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
-			return
-		}
-
-		next.ServeHTTP(w, r)
+func RateLimit() Middleware {
+	once.Do(func() {
+		go cleanupOldClients()
 	})
+
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if shouldSkipRateLimit(r) {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			cfg, exists := RateLimits[r.Method]
+			if !exists {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			ip := clientIPForRateLimit(r)
+			client := getClient(ip)
+
+			mu.Lock()
+			banned := isBanned(client)
+			mu.Unlock()
+			if banned {
+				w.Header().Set("Retry-After", "1")
+				http.Error(w, "Too Many Requests (temp ban)", http.StatusTooManyRequests)
+				return
+			}
+
+			limiter := client.Limiters[r.Method]
+			if limiter == nil {
+				// Defensive: should always exist if RateLimits has this method.
+				limiter = rate.NewLimiter(cfg.Limiter.Limit(), cfg.Limiter.Burst())
+				mu.Lock()
+				client.Limiters[r.Method] = limiter
+				mu.Unlock()
+			}
+
+			if !limiter.Allow() {
+				mu.Lock()
+				banClient(client, cfg.BanTime)
+				mu.Unlock()
+				w.Header().Set("Retry-After", "1")
+				http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
 }
