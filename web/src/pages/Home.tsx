@@ -154,13 +154,18 @@ function JoinMeeting() {
     const ws = getWSInstance();
 
     ws.onmessage = (event) => {
-      const message: WSMessage = JSON.parse(event.data);
+      try {
+        const message: WSMessage = JSON.parse(event.data);
 
-      const data = message.data as { roomId: string };
+        const data = message.data as { roomId: string };
 
-      if (message.type === "utils.generateRoomID") {
-        setRoomId(data.roomId);
-        toast.success("Generated a new Room ID!");
+        if (message.type === "utils.generateRoomID") {
+          setRoomId(data.roomId);
+          toast.success("Generated a new Room ID!");
+        }
+      } catch (error) {
+        console.error("Error handling WebSocket message:", error);
+        toast.error("Error processing server message.");
       }
     };
 
