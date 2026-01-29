@@ -650,7 +650,9 @@ export default function ChatPage() {
                           {m.timestamp}
                         </p>
                       </div>
-                      <p className="mt-1 text-sm text-zinc-100">{m.text}</p>
+                      <p className="mt-1 text-sm break-words whitespace-pre-wrap text-zinc-100">
+                        {m.text}
+                      </p>
                     </div>
                   ))}
                   <div ref={listEndRef} />
@@ -767,6 +769,7 @@ export default function ChatPage() {
                         Message
                       </label>
                       <textarea
+                        className="max-h-48 min-h-16 w-full resize-none overflow-auto rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm leading-relaxed wrap-break-word text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
                         id="message"
                         required
                         maxLength={5000}
@@ -840,7 +843,6 @@ export default function ChatPage() {
                         }}
                         placeholder="Write a message…"
                         rows={3}
-                        className="max-h-48 min-h-16 w-full resize-none overflow-auto rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm leading-relaxed text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
                       />
                     </div>
                   </div>
