@@ -3,13 +3,23 @@ package ws
 import (
 	"net/http"
 
+	"github.com/gabriel-logan/private-meet/server/internal/config"
 	"github.com/gabriel-logan/private-meet/server/internal/security"
 	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		return true
+		env := config.GetEnv()
+
+		if env.GoEnv == "production" {
+			return true
+		}
+
+		origin := r.Header.Get("Origin")
+		allowedOrigin := env.AllowedOrigin
+
+		return origin == allowedOrigin
 	},
 }
 

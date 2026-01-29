@@ -86,10 +86,12 @@ func (c *Client) writePump() {
 		select {
 		case msg, ok := <-c.send:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+
 			if !ok {
 				c.conn.WriteMessage(websocket.CloseMessage, nil)
 				return
 			}
+
 			c.conn.WriteMessage(websocket.TextMessage, msg)
 
 		case <-ticker.C:
