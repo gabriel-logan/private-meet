@@ -20,8 +20,8 @@ import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
 import { getWSInstance } from "../lib/wsInstance";
+import { makeWSMessage, parseIncomingWSMessage } from "../protocol/ws";
 import { useAuthStore } from "../stores/authStore";
-import type { WSMessage } from "../types";
 
 type ChatMessage = {
   id: string;
@@ -120,14 +120,9 @@ export default function ChatPage() {
     if (room) {
       try {
         const ws = getWSInstance();
+
         if (ws.readyState === WebSocket.OPEN) {
-          ws.send(
-            JSON.stringify({
-              type: "chat.leave",
-              room,
-              data: {},
-            }),
-          );
+          ws.send(makeWSMessage("chat.leave", { room }));
         }
       } catch (error) {
         console.error("Error leaving room:", error);
@@ -158,13 +153,7 @@ export default function ChatPage() {
         return;
       }
 
-      ws.send(
-        JSON.stringify({
-          type: "chat.message",
-          room,
-          data: { message: text },
-        }),
-      );
+      ws.send(makeWSMessage("chat.message", { room, message: text }));
 
       setMessage("");
       setEmojiOpen(false);
@@ -203,29 +192,17 @@ export default function ChatPage() {
       return;
     }
 
-    ws.send(
-      JSON.stringify({
-        type: "chat.join",
-        room,
-        data: {},
-      }),
-    );
+    ws.send(makeWSMessage("chat.join", { room }));
 
     const onMessage = (event: MessageEvent) => {
-      let parsed: WSMessage;
-      try {
-        parsed = JSON.parse(String(event.data)) as WSMessage;
-      } catch (error) {
-        console.error("Error handling WebSocket message:", error);
-        toast.error("Error processing server message.");
+      const parsed = parseIncomingWSMessage(String(event.data));
+
+      if (!parsed) {
         return;
       }
 
       if (parsed.type === "chat.message" && parsed.room === room) {
-        const payload = parsed.data as { message?: unknown } | undefined;
-
-        const text =
-          typeof payload?.message === "string" ? payload.message : "";
+        const text = parsed.data.message;
 
         if (!text) {
           return;
@@ -260,13 +237,7 @@ export default function ChatPage() {
     return () => {
       try {
         if (ws.readyState === WebSocket.OPEN) {
-          ws.send(
-            JSON.stringify({
-              type: "chat.leave",
-              room,
-              data: {},
-            }),
-          );
+          ws.send(makeWSMessage("chat.leave", { room }));
         }
       } catch (error) {
         console.error("Error leaving room:", error);

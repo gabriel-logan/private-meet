@@ -6,6 +6,7 @@ import { motion } from "motion/react";
 
 import apiInstance from "../lib/apiInstance";
 import { getWSInstance } from "../lib/wsInstance";
+import { makeWSMessage } from "../protocol/ws";
 import { useAuthStore } from "../stores/authStore";
 import type { WSMessage } from "../types";
 
@@ -17,11 +18,7 @@ function handleGenerateRoomIdClick() {
       throw new Error("WebSocket is not connected.");
     }
 
-    ws.send(
-      JSON.stringify({
-        type: "utils.generateRoomID",
-      }),
-    );
+    ws.send(makeWSMessage("utils.generateRoomID"));
   } catch {
     toast.error("Not connected yet. Try again in a second.");
   }

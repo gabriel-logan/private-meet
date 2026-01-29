@@ -1,14 +1,10 @@
 export type locale = "en";
 
-export type WSMessageType =
-  | "chat.message"
-  | "chat.join"
-  | "chat.leave"
-  | "utils.generateRoomID";
+export type {
+  RoomUser,
+  WSIncomingMessage,
+  WSMessage,
+  WSOutgoingMessage,
+} from "./protocol/ws";
 
-export type WSMessage = {
-  type: WSMessageType;
-  room?: string;
-  data: unknown;
-  from?: string;
-};
+export type { WSType as WSMessageType } from "./protocol/ws";
