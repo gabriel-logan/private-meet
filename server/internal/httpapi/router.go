@@ -20,17 +20,17 @@ func NewRouter(hub *ws.Hub) http.Handler {
 	if config.GetEnv().GoEnv == "development" {
 		return middleware.Apply(
 			mux,
-			middleware.CORS(),
-			middleware.Logger(),
 			middleware.Recover(),
+			middleware.CORS(),
 			middleware.RateLimit(),
+			middleware.Logger(),
 		)
 	} else {
 		return middleware.Apply(
 			mux,
-			middleware.Logger(),
 			middleware.Recover(),
 			middleware.RateLimit(),
+			middleware.Logger(),
 		)
 	}
 }
