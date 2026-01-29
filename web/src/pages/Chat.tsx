@@ -772,7 +772,6 @@ export default function ChatPage() {
                           height="100%"
                           onEmojiClick={(emojiData: EmojiClickData) => {
                             setMessage((m) => `${m}${emojiData.emoji}`);
-                            setEmojiOpen(false);
                           }}
                         />
                       </div>
