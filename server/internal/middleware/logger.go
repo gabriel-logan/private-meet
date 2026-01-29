@@ -67,6 +67,14 @@ func Logger() Middleware {
 			ua := r.UserAgent()
 			path := r.URL.Path
 
+			if strings.HasPrefix(path, "/assets/") ||
+				path == "/favicon.ico" ||
+				path == "/robots.txt" ||
+				path == "/logo.svg" ||
+				path == "/favicon.svg" {
+				return
+			}
+
 			if strings.Contains(ua, "Render/") && path == "/health" {
 				return
 			}
