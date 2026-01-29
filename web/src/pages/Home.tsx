@@ -157,10 +157,12 @@ function JoinMeeting() {
       try {
         const message: WSMessage = JSON.parse(event.data);
 
-        const data = message.data as { roomId: string };
+        const data = message.data as { roomID: string };
+
+        console.log("Received WebSocket message:", message);
 
         if (message.type === "utils.generateRoomID") {
-          setRoomId(data.roomId);
+          setRoomId(data.roomID);
           toast.success("Generated a new Room ID!");
         }
       } catch (error) {
