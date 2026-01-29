@@ -111,6 +111,8 @@ func (c *Client) readPump() { // nosonar
 			continue
 		}
 
+		msg.Room = strings.TrimSpace(msg.Room)
+
 		if msg.Room == "" && msg.Type != MessageUtilsGenerateRoomID {
 			if !fail("Room ID is required") {
 				return
