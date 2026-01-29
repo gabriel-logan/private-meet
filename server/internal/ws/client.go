@@ -205,6 +205,7 @@ func (c *Client) writePump() {
 			err := c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err != nil {
 				log.Println("WebSocket set write deadline error:", err)
+				return
 			}
 
 			if !ok {
@@ -217,16 +218,19 @@ func (c *Client) writePump() {
 
 			if err = c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
 				log.Println("WebSocket write message error:", err)
+				return
 			}
 
 		case <-ticker.C:
 			err := c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err != nil {
 				log.Println("WebSocket set write deadline error:", err)
+				return
 			}
 
 			if err = c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				log.Println("WebSocket write ping error:", err)
+				return
 			}
 		}
 	}
