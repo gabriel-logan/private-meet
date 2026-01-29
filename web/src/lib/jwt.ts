@@ -16,10 +16,12 @@ export function parseJwt(token?: string): { sub?: string; username?: string } {
       string,
       unknown
     >;
+
+    const { sub, username } = payload;
+
     return {
-      sub: typeof payload.sub === "string" ? payload.sub : undefined,
-      username:
-        typeof payload.username === "string" ? payload.username : undefined,
+      sub: typeof sub === "string" ? sub : undefined,
+      username: typeof username === "string" ? username : undefined,
     };
   } catch {
     return {};

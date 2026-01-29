@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && pnpm run generate-404byindex",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write **/*.{js,ts,tsx,json,css,md,html}",
     "format:check": "prettier --check **/*.{js,ts,tsx,json,css,md,html}",
+    "generate-404byindex": "cp ./dist/index.html ./dist/404.html",
     "preview": "vite preview"
   },
   "dependencies": {
