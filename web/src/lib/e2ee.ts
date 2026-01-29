@@ -21,6 +21,8 @@ export const E2EE_DEFAULTS = {
   // Helps avoid sending messages that will exceed server limits after encoding.
   // (Rough guard; final size depends on base64 and envelope overhead.)
   maxWireChars: 5000,
+
+  WIRE_PREFIX: "pm:e2ee:",
 } as const;
 
 export async function initE2EE(
@@ -121,21 +123,19 @@ export async function decryptString(
   return new TextDecoder().decode(plain);
 }
 
-const WIRE_PREFIX = "pm:e2ee:";
-
 export function isEncryptedWireMessage(text: string): boolean {
-  return text.startsWith(WIRE_PREFIX);
+  return text.startsWith(E2EE_DEFAULTS.WIRE_PREFIX);
 }
 
 export function packEnvelope(envelope: E2EEEnvelopeV1): string {
-  return `${WIRE_PREFIX}${JSON.stringify(envelope)}`;
+  return `${E2EE_DEFAULTS.WIRE_PREFIX}${JSON.stringify(envelope)}`;
 }
 
 export function unpackEnvelope(text: string): E2EEEnvelopeV1 | null {
   if (!isEncryptedWireMessage(text)) return null;
 
   try {
-    const json = text.slice(WIRE_PREFIX.length);
+    const json = text.slice(E2EE_DEFAULTS.WIRE_PREFIX.length);
     const parsed = JSON.parse(json) as Partial<E2EEEnvelopeV1>;
 
     if (parsed.v !== 1) return null;
