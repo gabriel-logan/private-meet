@@ -65,8 +65,9 @@ func Logger() Middleware {
 			next.ServeHTTP(rw, r)
 
 			ua := r.UserAgent()
+			path := r.URL.Path
 
-			if strings.Contains(ua, "Render/") {
+			if strings.Contains(ua, "Render/") && path == "/health" {
 				return
 			}
 
@@ -76,7 +77,7 @@ func Logger() Middleware {
 				"%s %s %s | %d | %dB | %s | %s",
 				clientIP(r),
 				r.Method,
-				r.URL.Path,
+				path,
 				rw.status,
 				rw.bytes,
 				duration,
