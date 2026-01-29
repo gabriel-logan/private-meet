@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -13,6 +14,8 @@ import (
 var SignInBody struct {
 	Username string `json:"username"`
 }
+
+const maxUsernameLength = 32
 
 func SignIn(w http.ResponseWriter, r *http.Request) {
 	userID := uuid.NewString()
@@ -26,8 +29,8 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if name := strings.TrimSpace(SignInBody.Username); name != "" {
-		if len([]rune(name)) > 32 {
-			http.Error(w, "Username too long", http.StatusBadRequest)
+		if len([]rune(name)) > maxUsernameLength {
+			http.Error(w, fmt.Sprintf("Username too long (maximum is %d characters)", maxUsernameLength), http.StatusBadRequest)
 			return
 		}
 

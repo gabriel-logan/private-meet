@@ -9,6 +9,7 @@ import { getWSInstance } from "../lib/wsInstance";
 import { makeWSMessage } from "../protocol/ws";
 import { useAuthStore } from "../stores/authStore";
 import type { WSMessage } from "../types";
+import getAxiosErrorMessage from "../utils";
 
 function handleGenerateRoomIdClick() {
   try {
@@ -87,8 +88,13 @@ function CreateUser() {
 
       toast.success("User created successfully!");
     } catch (error) {
+      const errorMessage = getAxiosErrorMessage(
+        error,
+        "Failed to create user.",
+      );
+
       console.error("Error creating user:", error);
-      toast.error("Failed to create user.");
+      toast.error(errorMessage);
     }
   }
 
