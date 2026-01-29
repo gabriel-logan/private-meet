@@ -93,6 +93,10 @@ func (c *Client) readPump() { // nosonar
 			}
 
 		case MessageChatMessage:
+			if !c.Rooms[msg.Room] {
+				continue
+			}
+
 			var payload ChatPayload
 			if err := json.Unmarshal(msg.Data, &payload); err != nil {
 				continue
@@ -132,6 +136,10 @@ func (c *Client) readPump() { // nosonar
 			c.hub.broadcast <- &msg
 
 		case MessageChatTyping:
+			if !c.Rooms[msg.Room] {
+				continue
+			}
+
 			var payload ChatTypingPayload
 			if err := json.Unmarshal(msg.Data, &payload); err != nil {
 				continue
