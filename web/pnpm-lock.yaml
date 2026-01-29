@@ -12,8 +12,8 @@ importers:
         specifier: ^1.13.4
         version: 1.13.4
       emoji-picker-react:
-        specifier: ^4.17.1
-        version: 4.17.1(react@19.2.4)
+        specifier: ^4.17.2
+        version: 4.17.2(react@19.2.4)
       motion:
         specifier: ^12.29.2
         version: 12.29.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -767,8 +767,8 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  baseline-browser-mapping@2.9.18:
-    resolution: {integrity: sha512-e23vBV1ZLfjb9apvfPk4rHVu2ry6RIr2Wfs+O324okSidrX7pTAnEJPCh/O5BtRlr7QtZI7ktOP3vsqr7Z5XoA==}
+  baseline-browser-mapping@2.9.19:
+    resolution: {integrity: sha512-ipDqC8FrAl/76p2SSWKSI+H9tFwm7vYqXQrItCuiVPt26Km0jS+NzSsBWAaBusvSbQcfJG+JitdMm+wZAgTYqg==}
     hasBin: true
 
   brace-expansion@1.1.12:
@@ -856,8 +856,8 @@ packages:
   electron-to-chromium@1.5.279:
     resolution: {integrity: sha512-0bblUU5UNdOt5G7XqGiJtpZMONma6WAfq9vsFmtn9x1+joAObr6x1chfqyxFSDCAFwFhCQDrqeAr6MYdpwJ9Hg==}
 
-  emoji-picker-react@4.17.1:
-    resolution: {integrity: sha512-DxGGPxHRcH/PnGFZEVkWSNZoFg8UO2/kikZrp/OZ8CBz5F/mKJbKLcd1anxeV8Hu1ZzY8MBuNnFG2wSJYkf1Ug==}
+  emoji-picker-react@4.17.2:
+    resolution: {integrity: sha512-d70sXdqaorBsvYwNAjRUkV8VQUQTafN/XTjucl6lH2O/B+aFUiIZy5hpRJ0FxuzgVnkeJaydnRCrYpuGd0zhgQ==}
     engines: {node: '>=10'}
     peerDependencies:
       react: '>=16'
@@ -2213,7 +2213,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  baseline-browser-mapping@2.9.18: {}
+  baseline-browser-mapping@2.9.19: {}
 
   brace-expansion@1.1.12:
     dependencies:
@@ -2226,7 +2226,7 @@ snapshots:
 
   browserslist@4.28.1:
     dependencies:
-      baseline-browser-mapping: 2.9.18
+      baseline-browser-mapping: 2.9.19
       caniuse-lite: 1.0.30001766
       electron-to-chromium: 1.5.279
       node-releases: 2.0.27
@@ -2290,7 +2290,7 @@ snapshots:
 
   electron-to-chromium@1.5.279: {}
 
-  emoji-picker-react@4.17.1(react@19.2.4):
+  emoji-picker-react@4.17.2(react@19.2.4):
     dependencies:
       flairup: 1.0.0
       react: 19.2.4
