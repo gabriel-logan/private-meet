@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FiLogIn, FiShuffle, FiTrash2, FiUser } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
@@ -7,37 +7,24 @@ import { motion } from "motion/react";
 import apiInstance from "../lib/apiInstance";
 import { getWSInstance } from "../lib/wsInstance";
 import { useAuthStore } from "../stores/authStore";
-
-function requestGenerateRoomId() {
-  const ws = getWSInstance();
-
-  if (ws.readyState !== WebSocket.OPEN) {
-    throw new Error("WebSocket is not connected.");
-  }
-
-  ws.send(
-    JSON.stringify({
-      type: "utils.generateRoomID",
-    }),
-  );
-}
+import type { WSMessage } from "../types";
 
 function handleGenerateRoomIdClick() {
   try {
-    requestGenerateRoomId();
+    const ws = getWSInstance();
+
+    if (ws.readyState !== WebSocket.OPEN) {
+      throw new Error("WebSocket is not connected.");
+    }
+
+    ws.send(
+      JSON.stringify({
+        type: "utils.generateRoomID",
+      }),
+    );
   } catch {
     toast.error("Not connected yet. Try again in a second.");
   }
-}
-
-function joinRoom(roomId: string, navigate: (to: string) => void) {
-  if (!roomId.trim()) {
-    toast.error("Please enter a Room ID.");
-    return;
-  }
-
-  const normalized = roomId.trim();
-  navigate(`/chat?room=${encodeURIComponent(normalized)}`);
 }
 
 export default function HomePage() {
@@ -142,13 +129,21 @@ function CreateUser() {
 
 function JoinMeeting() {
   const navigate = useNavigate();
+
   const { revokeAccessToken } = useAuthStore();
 
   const [roomId, setRoomId] = useState("");
 
-  const handleJoinRoom = useCallback(() => {
-    joinRoom(roomId, navigate);
-  }, [navigate, roomId]);
+  function handleJoinRoom() {
+    if (!roomId.trim()) {
+      toast.error("Please enter a Room ID.");
+      return;
+    }
+
+    const normalized = roomId.trim();
+
+    navigate(`/chat?room=${encodeURIComponent(normalized)}`);
+  }
 
   function handleDeleteUser() {
     revokeAccessToken();
@@ -159,10 +154,13 @@ function JoinMeeting() {
     const ws = getWSInstance();
 
     ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
+      const message: WSMessage = JSON.parse(event.data);
+
+      const data = message.data as { roomId: string };
 
       if (message.type === "utils.generateRoomID") {
-        setRoomId(message.data.roomID);
+        setRoomId(data.roomId);
+        toast.success("Generated a new Room ID!");
       }
     };
 
