@@ -20,10 +20,10 @@ import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
 import { maxMessageChars } from "../constants";
+import useInitE2ee from "../hooks/useInitE2ee";
 import {
   decryptWireToText,
   encryptTextToWire,
-  initE2EE,
   isEncryptedWireMessage,
 } from "../lib/e2ee";
 import { parseJwt } from "../lib/jwt";
@@ -198,42 +198,7 @@ export default function ChatPage() {
   }, [typingUsers]);
 
   // Initialize E2EE - Should be the first useEffect
-  useEffect(() => {
-    let cancelled = false;
-
-    if (!rawRoomId) {
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    (async () => {
-      try {
-        // I'm using roomId as secret here for simplicity. In real world use cases, use a proper secret exchange.
-        const key = await initE2EE(rawRoomId, rawRoomId);
-
-        if (cancelled) {
-          return;
-        }
-
-        e2eeKeyRef.current = key;
-
-        setE2eeReady(true);
-      } catch (error) {
-        console.error("Failed to initialize E2EE:", error);
-        if (!cancelled) {
-          toast.error("Failed to initialize E2EE.");
-          setE2eeReady(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-      setE2eeReady(false);
-      e2eeKeyRef.current = null;
-    };
-  }, [rawRoomId]);
+  useInitE2ee({ rawRoomId, e2eeKeyRef, setE2eeReady });
 
   // Scroll to bottom on new message
   useEffect(() => {
