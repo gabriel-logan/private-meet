@@ -30,6 +30,14 @@ const (
 	maxRoomIDLength   = 128
 )
 
+func (c *Client) IsInRoom(room string) bool {
+	c.hub.mu.RLock()
+
+	defer c.hub.mu.RUnlock()
+
+	return c.Rooms[room]
+}
+
 func (c *Client) readPump() { // nosonar
 	defer func() {
 		c.hub.unregister <- c
@@ -93,7 +101,7 @@ func (c *Client) readPump() { // nosonar
 			}
 
 		case MessageChatMessage:
-			if !c.Rooms[msg.Room] {
+			if !c.IsInRoom(msg.Room) {
 				continue
 			}
 
@@ -136,7 +144,7 @@ func (c *Client) readPump() { // nosonar
 			c.hub.broadcast <- &msg
 
 		case MessageChatTyping:
-			if !c.Rooms[msg.Room] {
+			if !c.IsInRoom(msg.Room) {
 				continue
 			}
 
