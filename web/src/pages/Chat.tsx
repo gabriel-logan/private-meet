@@ -121,26 +121,7 @@ export default function ChatPage() {
     }
 
     try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(rawRoomId);
-      } else {
-        const el = document.createElement("textarea");
-
-        el.value = rawRoomId;
-
-        el.setAttribute("readonly", "true");
-
-        el.style.position = "fixed";
-        el.style.left = "-9999px";
-
-        document.body.appendChild(el);
-
-        el.select();
-
-        document.execCommand("copy");
-
-        document.body.removeChild(el);
-      }
+      await navigator.clipboard.writeText(rawRoomId);
 
       toast.success("Room ID copied!");
     } catch (error) {
@@ -587,18 +568,18 @@ export default function ChatPage() {
                   Stage
                 </div>
 
-                <span className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-400">
-                  Room:{" "}
+                <span className="flex max-w-[60%] items-center gap-1 rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-400">
+                  Room:
                   <button
                     type="button"
                     onClick={handleCopyRoomId}
                     disabled={!rawRoomId}
-                    className={
+                    className={`min-w-0 truncate ${
                       rawRoomId
                         ? "cursor-pointer text-zinc-200 underline decoration-zinc-700 decoration-dotted underline-offset-4 hover:text-white"
                         : "cursor-not-allowed text-zinc-200"
-                    }
-                    title={rawRoomId ? "Click to copy" : "No room"}
+                    }`}
+                    title={rawRoomId || "No room"}
                     aria-label="Copy room id"
                   >
                     {rawRoomId || "—"}
