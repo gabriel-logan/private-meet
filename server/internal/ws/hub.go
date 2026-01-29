@@ -93,6 +93,10 @@ func (h *Hub) LeaveRoom(room string, c *Client) {
 
 	delete(h.rooms[room], c)
 	delete(c.Rooms, room)
+
+	if len(h.rooms[room]) == 0 {
+		delete(h.rooms, room)
+	}
 }
 
 func (h *Hub) GetRoomUsers(room string) []RoomUser {
