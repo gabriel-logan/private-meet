@@ -1,26 +1,3 @@
-export type WSType =
-  | "general.error"
-  | "chat.join"
-  | "chat.leave"
-  | "chat.message"
-  | "chat.typing"
-  | "room.users"
-  | "utils.generateRoomID";
-
-export type WSOutgoingType =
-  | "chat.join"
-  | "chat.leave"
-  | "chat.message"
-  | "chat.typing"
-  | "utils.generateRoomID";
-
-export type WSIncomingType =
-  | "general.error"
-  | "chat.message"
-  | "chat.typing"
-  | "room.users"
-  | "utils.generateRoomID";
-
 export type RoomUser = {
   userID: string;
   username: string;
@@ -52,8 +29,6 @@ export type WSIncomingMessage =
   | { type: "room.users"; room: string; data: { users: RoomUser[] } }
   | { type: "utils.generateRoomID"; data: { roomID?: string } };
 
-export type WSMessage = WSIncomingMessage | WSOutgoingMessage;
-
 type WSOutgoingArgsByType = {
   "chat.join": { room: string };
   "chat.leave": { room: string };
@@ -62,7 +37,7 @@ type WSOutgoingArgsByType = {
   "utils.generateRoomID": undefined;
 };
 
-export function makeWSMessage<T extends WSOutgoingType>(
+export function makeWSMessage<T extends WSOutgoingMessage["type"]>(
   type: T,
   ...args: WSOutgoingArgsByType[T] extends undefined
     ? []
@@ -104,23 +79,23 @@ export function makeWSMessage<T extends WSOutgoingType>(
   }
 }
 
-export function parseIncomingWSMessage(raw: string): WSIncomingMessage | null {
+export function parseIncomingWSMessage(raw: string): WSIncomingMessage {
   let parsed: unknown;
 
   try {
     parsed = JSON.parse(raw) as unknown;
   } catch {
-    return null;
+    throw new Error("Failed to parse incoming WS message as JSON.");
   }
 
   if (!parsed || typeof parsed !== "object") {
-    return null;
+    throw new Error("Parsed WS message is not an object.");
   }
 
   const msg = parsed as { type?: unknown };
 
   if (typeof msg.type !== "string") {
-    return null;
+    throw new TypeError("WS message type is not a string.");
   }
 
   switch (msg.type) {
@@ -131,6 +106,6 @@ export function parseIncomingWSMessage(raw: string): WSIncomingMessage | null {
     case "utils.generateRoomID":
       return parsed as WSIncomingMessage;
     default:
-      return null;
+      throw new Error(`Unsupported WS message type: ${String(msg.type)}`);
   }
 }

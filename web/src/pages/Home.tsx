@@ -6,9 +6,8 @@ import { motion } from "motion/react";
 
 import apiInstance from "../lib/apiInstance";
 import { getWSInstance } from "../lib/wsInstance";
-import { makeWSMessage } from "../protocol/ws";
+import { makeWSMessage, parseIncomingWSMessage } from "../protocol/ws";
 import { useAuthStore } from "../stores/authStore";
-import type { WSMessage } from "../types";
 import getAxiosErrorMessage from "../utils";
 
 function handleGenerateRoomIdClick() {
@@ -160,9 +159,9 @@ function JoinMeeting() {
 
     ws.onmessage = (event) => {
       try {
-        const message: WSMessage = JSON.parse(event.data);
+        const message = parseIncomingWSMessage(event.data);
 
-        const data = message.data as { roomID: string };
+        const data = message.data;
 
         if (message.type === "utils.generateRoomID") {
           setRoomId(data.roomID);
