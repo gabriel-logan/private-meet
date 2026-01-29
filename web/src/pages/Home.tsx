@@ -159,8 +159,6 @@ function JoinMeeting() {
 
         const data = message.data as { roomID: string };
 
-        console.log("Received WebSocket message:", message);
-
         if (message.type === "utils.generateRoomID") {
           setRoomId(data.roomID);
           toast.success("Generated a new Room ID!");
