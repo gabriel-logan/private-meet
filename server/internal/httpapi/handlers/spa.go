@@ -5,27 +5,42 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func ServeSPA(w http.ResponseWriter, r *http.Request) {
 	spaDir := "../web/dist"
-	indexPath := filepath.Join(spaDir, "index.html")
 
-	// Get the absolute path of the requested file
-	requestedPath := filepath.Join(spaDir, r.URL.Path)
-
-	// Check if the requested file exists
-	if _, err := os.Stat(requestedPath); os.IsNotExist(err) {
-		// If not, serve the index.html file
-		http.ServeFile(w, r, indexPath)
-		return
-	} else if err != nil {
-		// If there's an error other than non-existence, log it and return a 500
-		log.Printf("Error checking file %s: %v", requestedPath, err)
+	absSpaDir, err := filepath.Abs(filepath.Clean(spaDir))
+	if err != nil {
+		log.Printf("Error resolving SPA directory: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	// If the file exists, serve it
-	http.ServeFile(w, r, requestedPath)
+	indexPath := filepath.Join(absSpaDir, "index.html")
+
+	relPath := filepath.Clean(r.URL.Path)
+	relPath = strings.TrimPrefix(relPath, "/")
+
+	requestedPath := filepath.Join(absSpaDir, relPath)
+	absRequestedPath, err := filepath.Abs(requestedPath)
+	if err != nil {
+		http.ServeFile(w, r, indexPath)
+		return
+	}
+
+	if absRequestedPath != absSpaDir &&
+		!strings.HasPrefix(absRequestedPath, absSpaDir+string(os.PathSeparator)) {
+		http.ServeFile(w, r, indexPath)
+		return
+	}
+
+	info, err := os.Stat(absRequestedPath)
+	if err != nil || info.IsDir() {
+		http.ServeFile(w, r, indexPath)
+		return
+	}
+
+	http.ServeFile(w, r, absRequestedPath)
 }
