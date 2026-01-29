@@ -47,6 +47,7 @@ func (h *Hub) Run() {
 				affectedRooms = append(affectedRooms, room)
 				delete(h.rooms[room], c)
 			}
+			h.mu.Unlock()
 
 			// Broadcast updated presence snapshots for rooms the client was in.
 			// We cannot send on h.broadcast here (it would deadlock because Run is the receiver),
@@ -57,19 +58,19 @@ func (h *Hub) Run() {
 
 			close(c.send)
 
-			h.mu.Unlock()
-
 		case msg := <-h.broadcast:
 			payload := mustJSON(msg)
 
 			h.mu.RLock()
 			clients := h.rooms[msg.Room]
+
 			for c := range clients {
 				select {
 				case c.send <- payload:
 				default:
 				}
 			}
+
 			h.mu.RUnlock()
 		}
 	}
@@ -117,6 +118,9 @@ func (h *Hub) GetRoomUsers(room string) []RoomUser {
 }
 
 func (h *Hub) broadcastRoomUsersSnapshotLocked(room string) {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+
 	clients := h.rooms[room]
 	if clients == nil {
 		return
@@ -132,6 +136,7 @@ func (h *Hub) broadcastRoomUsersSnapshotLocked(room string) {
 		Room: room,
 		Data: mustJSON(RoomUsersPayload{Users: users}),
 	})
+
 	for c := range clients {
 		select {
 		case c.send <- payload:
