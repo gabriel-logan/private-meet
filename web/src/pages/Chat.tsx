@@ -19,8 +19,9 @@ import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
-import { getWSInstance, type WSMessage } from "../lib/wsInstance";
+import { getWSInstance } from "../lib/wsInstance";
 import { useAuthStore } from "../stores/authStore";
+import type { WSMessage } from "../types";
 
 type ChatMessage = {
   id: string;

@@ -1,16 +1,3 @@
-export type WSMessageType =
-  | "chat.message"
-  | "chat.join"
-  | "chat.leave"
-  | "utils.generateRoomID";
-
-export type WSMessage = {
-  type: WSMessageType;
-  room?: string;
-  data: unknown;
-  from?: string;
-};
-
 let ws: WebSocket | null = null;
 let connectionVersion = 0;
 
