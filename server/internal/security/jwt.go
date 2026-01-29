@@ -13,11 +13,17 @@ type CustomClaims struct {
 }
 
 func (c *CustomClaims) GetUsername() (string, error) {
+	if c.Username == "" {
+		return "", jwt.ErrTokenInvalidClaims
+	}
+
 	return c.Username, nil
 }
 
 func ValidateJWT(token string) (*CustomClaims, error) {
-	secretKey := config.GetEnv().JwtSecret
+	env := config.GetEnv()
+
+	secretKey := env.JwtSecret
 
 	claims := &CustomClaims{}
 
@@ -46,20 +52,28 @@ func ValidateJWT(token string) (*CustomClaims, error) {
 	}
 
 	if claims.IssuedAt == nil || claims.IssuedAt.Time.After(time.Now()) {
-		return nil, jwt.ErrTokenInvalidClaims
+		return nil, jwt.ErrTokenNotValidYet
+	}
+
+	if claims.Issuer != env.AppName {
+		return nil, jwt.ErrTokenInvalidIssuer
 	}
 
 	return claims, nil
 }
 
 func GenerateJWT(userID, username string) (string, error) {
-	secretKey := config.GetEnv().JwtSecret
-	expiration := config.GetEnv().JwtExpiration
+	env := config.GetEnv()
+
+	secretKey := env.JwtSecret
+	expiration := env.JwtExpiration
+	appName := env.AppName
 
 	claims := &CustomClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(GenerateJwtExpirationTime(expiration)),
+			Issuer:    appName,
 			Subject:   userID,
 		},
 		Username: username,

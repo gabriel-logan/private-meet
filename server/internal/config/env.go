@@ -12,6 +12,7 @@ const EnvironmentPrefixMsg = "Environment variable "
 
 type Env struct {
 	GoEnv          string
+	AppName        string
 	AllowedOrigin  string
 	ServerPort     string
 	JwtSecret      string
@@ -54,6 +55,7 @@ func InitEnv() *Env {
 
 	env = &Env{
 		GoEnv:          mustExistString("GO_ENV"),
+		AppName:        mustExistString("APP_NAME"),
 		AllowedOrigin:  mustExistString("VITE_HTTP_API_URL"),
 		ServerPort:     mustExistString("SERVER_PORT"),
 		JwtSecret:      mustExistString("JWT_SECRET"),
