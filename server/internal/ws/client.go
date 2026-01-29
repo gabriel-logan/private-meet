@@ -3,6 +3,7 @@ package ws
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -152,18 +153,32 @@ func (c *Client) writePump() {
 	for {
 		select {
 		case msg, ok := <-c.send:
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			err := c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err != nil {
+				log.Println("WebSocket set write deadline error:", err)
+			}
 
 			if !ok {
-				c.conn.WriteMessage(websocket.CloseMessage, nil)
+				if err = c.conn.WriteMessage(websocket.CloseMessage, nil); err != nil {
+					log.Println("WebSocket write close error:", err)
+				}
+
 				return
 			}
 
-			c.conn.WriteMessage(websocket.TextMessage, msg)
+			if err = c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+				log.Println("WebSocket write message error:", err)
+			}
 
 		case <-ticker.C:
-			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			c.conn.WriteMessage(websocket.PingMessage, nil)
+			err := c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err != nil {
+				log.Println("WebSocket set write deadline error:", err)
+			}
+
+			if err = c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				log.Println("WebSocket write ping error:", err)
+			}
 		}
 	}
 }
