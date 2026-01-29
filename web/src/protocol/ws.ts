@@ -6,6 +6,19 @@ export type WSType =
   | "room.users"
   | "utils.generateRoomID";
 
+export type WSOutgoingType =
+  | "chat.join"
+  | "chat.leave"
+  | "chat.message"
+  | "chat.typing"
+  | "utils.generateRoomID";
+
+export type WSIncomingType =
+  | "chat.message"
+  | "chat.typing"
+  | "room.users"
+  | "utils.generateRoomID";
+
 export type RoomUser = {
   userID: string;
   username: string;
@@ -38,30 +51,28 @@ export type WSIncomingMessage =
 
 export type WSMessage = WSIncomingMessage | WSOutgoingMessage;
 
-export function makeWSMessage(
-  type: "chat.join",
-  args: { room: string },
-): string;
-export function makeWSMessage(
-  type: "chat.leave",
-  args: { room: string },
-): string;
-export function makeWSMessage(
-  type: "chat.message",
-  args: { room: string; message: string },
-): string;
-export function makeWSMessage(
-  type: "chat.typing",
-  args: { room: string; typing: boolean },
-): string;
-export function makeWSMessage(type: "utils.generateRoomID"): string;
-export function makeWSMessage(type: WSType, args?: unknown): string {
+type WSOutgoingArgsByType = {
+  "chat.join": { room: string };
+  "chat.leave": { room: string };
+  "chat.message": { room: string; message: string };
+  "chat.typing": { room: string; typing: boolean };
+  "utils.generateRoomID": undefined;
+};
+
+export function makeWSMessage<T extends WSOutgoingType>(
+  type: T,
+  ...args: WSOutgoingArgsByType[T] extends undefined
+    ? []
+    : [args: WSOutgoingArgsByType[T]]
+): string {
+  const arg = args[0];
+
   switch (type) {
     case "chat.join":
     case "chat.leave": {
       return JSON.stringify({
         type,
-        room: (args as { room: string }).room,
+        room: (arg as { room: string }).room,
         data: {},
       } satisfies WSOutgoingMessage);
     }
@@ -69,15 +80,17 @@ export function makeWSMessage(type: WSType, args?: unknown): string {
     case "chat.message":
       return JSON.stringify({
         type,
-        room: (args as { room: string; message: string }).room,
-        data: { message: (args as { room: string; message: string }).message },
+        room: (arg as { room: string; message: string }).room,
+        data: {
+          message: (arg as { room: string; message: string }).message,
+        },
       } satisfies WSOutgoingMessage);
 
     case "chat.typing":
       return JSON.stringify({
         type,
-        room: (args as { room: string; typing: boolean }).room,
-        data: { typing: (args as { room: string; typing: boolean }).typing },
+        room: (arg as { room: string; typing: boolean }).room,
+        data: { typing: (arg as { room: string; typing: boolean }).typing },
       } satisfies WSOutgoingMessage);
 
     case "utils.generateRoomID":
