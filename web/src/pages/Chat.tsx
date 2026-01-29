@@ -34,13 +34,13 @@ type ChatMessage = {
   author: string;
   text: string;
   timestamp: string;
-  isMe?: boolean;
+  isMe: boolean;
 };
 
 type OnlineUser = {
   id: string;
   name: string;
-  status?: "online" | "idle";
+  status: "online" | "idle";
 };
 
 function getTimeLabel() {
