@@ -1,4 +1,4 @@
-name: Frontend PR Check
+name: Web PR Check
 
 permissions:
   contents: read
