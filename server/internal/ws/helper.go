@@ -17,12 +17,17 @@ func mustMarshalJSON(v any) []byte {
 }
 
 func newMessage(msgType MessageType, room string, data any, from string) []byte {
-	return mustMarshalJSON(&Message{
+	msg := &Message{
 		Type: msgType,
-		Room: room,
 		Data: mustMarshalJSON(data),
 		From: from,
-	})
+	}
+
+	if room != "" {
+		msg.Room = room
+	}
+
+	return mustMarshalJSON(msg)
 }
 
 func newErrorMessage(message string) []byte {
