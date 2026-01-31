@@ -10,21 +10,25 @@ import (
 )
 
 func main() {
+	// Initialize logger - uses log package internally
+	config.InitLogger()
+
+	// Load environment variables
 	env := config.InitEnv()
 
+	// Initialize WebSocket hub
 	hub := ws.NewHub()
-	go hub.Run()
+	go hub.Run() // Start the hub in a separate goroutine
 
+	// Initialize HTTP router
 	r := httpapi.NewRouter(hub)
 
-	serverPort := env.ServerPort
-
 	server := &http.Server{
-		Addr:    ":" + serverPort,
+		Addr:    ":" + env.ServerPort,
 		Handler: r,
 	}
 
-	log.Println("Starting server on http://localhost:" + serverPort)
+	log.Println("Starting server on http://localhost:" + env.ServerPort)
 	log.Println("Running in " + env.GoEnv + " mode")
 	log.Fatal(server.ListenAndServe())
 }
