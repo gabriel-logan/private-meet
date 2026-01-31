@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func mustJSON(v any) []byte {
+func mustMarshalJSON(v any) []byte {
 	b, err := json.Marshal(v)
 
 	if err != nil {
@@ -14,4 +14,22 @@ func mustJSON(v any) []byte {
 	}
 
 	return b
+}
+
+func newMessage(msgType MessageType, room string, data any, from string) []byte {
+	return mustMarshalJSON(&Message{
+		Type: msgType,
+		Room: room,
+		Data: mustMarshalJSON(data),
+		From: from,
+	})
+}
+
+func newErrorMessage(message string) []byte {
+	return newMessage(
+		MessageError,
+		"",
+		map[string]string{"error": message},
+		"system",
+	)
 }

@@ -57,6 +57,9 @@ func (h *Hub) Run() {
 }
 
 func (h *Hub) handleInbound(c *Client, msg *Message) {
+	// Ensure From is always server-controlled.
+	msg.From = c.UserID
+
 	switch msg.Type {
 	case MessageChatJoin:
 		h.clientJoinRoom(msg.Room, c)
@@ -89,7 +92,7 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 			return
 		}
 
-		msg.Data = mustJSON(payload)
+		msg.Data = mustMarshalJSON(payload)
 
 		h.clientBroadcastToRoom(msg.Room, msg)
 
@@ -105,22 +108,21 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 			return
 		}
 
-		msg.Data = mustJSON(payload)
+		msg.Data = mustMarshalJSON(payload)
 
 		h.clientBroadcastToRoom(msg.Room, msg)
 
 	case MessageUtilsGenerateRoomID:
 		newRoomID := uuid.NewString()
 
-		response := struct {
-			Type MessageType `json:"type"`
-			Data any         `json:"data"`
-		}{
-			Type: MessageUtilsGenerateRoomID,
-			Data: map[string]string{"roomID": newRoomID},
-		}
-
-		c.safeSend(mustJSON(&response))
+		c.safeSend(
+			newMessage(
+				MessageUtilsGenerateRoomID,
+				"",
+				map[string]string{"roomID": newRoomID},
+				"system",
+			),
+		)
 
 	default:
 		c.sendError("Invalid message type")
@@ -180,7 +182,8 @@ func (h *Hub) clientBroadcastToRoom(room string, msg *Message) {
 		return
 	}
 
-	payload := mustJSON(msg)
+	payload := newMessage(msg.Type, msg.Room, msg.Data, msg.From)
+
 	for c := range clients {
 		select {
 		case c.send <- payload:
@@ -216,11 +219,12 @@ func (h *Hub) clientBroadcastRoomUsersSnapshot(room string) {
 		})
 	}
 
-	payload := mustJSON(&Message{
-		Type: MessageRoomUsers,
-		Room: room,
-		Data: mustJSON(RoomUsersPayload{Users: users}),
-	})
+	payload := newMessage(
+		MessageRoomUsers,
+		room,
+		RoomUsersPayload{Users: users},
+		"system",
+	)
 
 	for _, c := range clients {
 		select {

@@ -41,17 +41,7 @@ func (c *Client) safeSend(msg []byte) bool {
 }
 
 func (c *Client) sendError(message string) bool {
-	response := struct {
-		Type MessageType `json:"type"`
-		Data any         `json:"data"`
-	}{
-		Type: MessageError,
-		Data: map[string]string{
-			"error": message,
-		},
-	}
-
-	return c.safeSend(mustJSON(&response))
+	return c.safeSend(newErrorMessage(message))
 }
 
 func (c *Client) readPump() { // nosonar
