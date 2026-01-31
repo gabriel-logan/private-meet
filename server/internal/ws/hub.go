@@ -3,8 +3,15 @@ package ws
 import (
 	"encoding/json"
 	"log"
-	"sync"
+	"strings"
+
+	"github.com/google/uuid"
 )
+
+type inboundMessage struct {
+	client *Client
+	msg    Message
+}
 
 type Hub struct {
 	clients map[*Client]bool
@@ -12,9 +19,7 @@ type Hub struct {
 
 	register   chan *Client
 	unregister chan *Client
-	broadcast  chan *Message
-
-	mu sync.RWMutex
+	inbound    chan *inboundMessage
 }
 
 func NewHub() *Hub {
@@ -23,7 +28,7 @@ func NewHub() *Hub {
 		rooms:      make(map[string]map[*Client]bool),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		broadcast:  make(chan *Message, 256),
+		inbound:    make(chan *inboundMessage, 256),
 	}
 }
 
@@ -32,54 +37,40 @@ func (h *Hub) Run() {
 		select {
 
 		case c := <-h.register:
-			h.mu.Lock()
 			h.clients[c] = true
-			h.mu.Unlock()
 
-			h.JoinRoom("user:"+c.UserID, c)
+			if c.Rooms == nil {
+				c.Rooms = make(map[string]bool)
+			}
+
+			h.joinRoom("user:"+c.UserID, c)
 
 		case c := <-h.unregister:
-			h.mu.Lock()
 			delete(h.clients, c)
 
 			affectedRooms := make([]string, 0, len(c.Rooms))
 			for room := range c.Rooms {
 				affectedRooms = append(affectedRooms, room)
-				delete(h.rooms[room], c)
+				h.removeClientFromRoom(room, c)
 			}
-			h.mu.Unlock()
 
-			// Broadcast updated presence snapshots for rooms the client was in.
-			// We cannot send on h.broadcast here (it would deadlock because Run is the receiver),
-			// so we write directly to clients' send channels.
 			for _, room := range affectedRooms {
 				h.broadcastRoomUsersSnapshot(room)
 			}
 
 			close(c.send)
 
-		case msg := <-h.broadcast:
-			payload := mustJSON(msg)
-
-			h.mu.RLock()
-			clients := h.rooms[msg.Room]
-
-			for c := range clients {
-				select {
-				case c.send <- payload:
-				default:
-				}
-			}
-
-			h.mu.RUnlock()
+		case in := <-h.inbound:
+			h.handleInbound(in.client, in.msg)
 		}
 	}
 }
 
-func (h *Hub) JoinRoom(room string, c *Client) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+func (h *Hub) isClientInRoom(room string, c *Client) bool {
+	return c.Rooms != nil && c.Rooms[room]
+}
 
+func (h *Hub) joinRoom(room string, c *Client) {
 	if h.rooms[room] == nil {
 		h.rooms[room] = make(map[*Client]bool)
 	}
@@ -88,42 +79,109 @@ func (h *Hub) JoinRoom(room string, c *Client) {
 	c.Rooms[room] = true
 }
 
-func (h *Hub) LeaveRoom(room string, c *Client) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+func (h *Hub) removeClientFromRoom(room string, c *Client) {
+	if h.rooms[room] != nil {
+		delete(h.rooms[room], c)
+		if len(h.rooms[room]) == 0 {
+			delete(h.rooms, room)
+		}
+	}
 
-	delete(h.rooms[room], c)
-	delete(c.Rooms, room)
-
-	if len(h.rooms[room]) == 0 {
-		delete(h.rooms, room)
+	if c.Rooms != nil {
+		delete(c.Rooms, room)
 	}
 }
 
-func (h *Hub) GetRoomUsers(room string) []RoomUser {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
+func (h *Hub) handleInbound(c *Client, msg Message) {
+	switch msg.Type {
+	case MessageChatJoin:
+		h.joinRoom(msg.Room, c)
+		h.broadcastRoomUsersSnapshot(msg.Room)
 
+	case MessageChatLeave:
+		h.removeClientFromRoom(msg.Room, c)
+		h.broadcastRoomUsersSnapshot(msg.Room)
+
+	case MessageChatMessage:
+		if !h.isClientInRoom(msg.Room, c) {
+			c.sendError("You are not in this room")
+			return
+		}
+
+		var payload ChatPayload
+		if err := json.Unmarshal(msg.Data, &payload); err != nil {
+			c.sendError("Invalid chat message payload")
+			return
+		}
+
+		payload.Message = strings.TrimSpace(payload.Message)
+		if payload.Message == "" {
+			c.sendError("Message cannot be empty")
+			return
+		}
+
+		if len([]rune(payload.Message)) > maxChatRunes {
+			c.sendError("Message too long")
+			return
+		}
+
+		msg.Data = mustJSON(payload)
+
+		h.broadcastToRoom(msg.Room, &msg)
+
+	case MessageChatTyping:
+		if !h.isClientInRoom(msg.Room, c) {
+			c.sendError("You are not in this room")
+			return
+		}
+
+		var payload ChatTypingPayload
+		if err := json.Unmarshal(msg.Data, &payload); err != nil {
+			c.sendError("Invalid typing payload")
+			return
+		}
+
+		msg.Data = mustJSON(payload)
+
+		h.broadcastToRoom(msg.Room, &msg)
+
+	case MessageUtilsGenerateRoomID:
+		newRoomID := uuid.NewString()
+
+		response := struct {
+			Type MessageType `json:"type"`
+			Data any         `json:"data"`
+		}{
+			Type: MessageUtilsGenerateRoomID,
+			Data: map[string]string{"roomID": newRoomID},
+		}
+
+		c.safeSend(mustJSON(&response))
+
+	default:
+		c.sendError("Invalid message type")
+	}
+}
+
+func (h *Hub) broadcastToRoom(room string, msg *Message) {
 	clients := h.rooms[room]
 	if clients == nil {
-		return nil
+		return
 	}
 
-	users := make([]RoomUser, 0, len(clients))
+	payload := mustJSON(msg)
 	for c := range clients {
-		users = append(users, RoomUser{UserID: c.UserID, Username: c.Username})
+		select {
+		case c.send <- payload:
+		default:
+		}
 	}
-
-	return users
 }
 
 func (h *Hub) broadcastRoomUsersSnapshot(room string) {
-	h.mu.RLock()
-
 	clientsMap := h.rooms[room]
 
 	if clientsMap == nil {
-		h.mu.RUnlock()
 		return
 	}
 
@@ -137,8 +195,6 @@ func (h *Hub) broadcastRoomUsersSnapshot(room string) {
 			Username: c.Username,
 		})
 	}
-
-	h.mu.RUnlock()
 
 	payload := mustJSON(&Message{
 		Type: MessageRoomUsers,

@@ -1,13 +1,11 @@
 package ws
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -26,18 +24,10 @@ const (
 	pongWait          = 60 * time.Second
 	pingPeriod        = (pongWait * 9) / 10
 	maxWSMessageBytes = 64 * 1024
-	maxChatRunes      = 5000
+	maxChatRunes      = 30000
 	maxRoomIDLength   = 128
 	maxProtocolErrors = 10
 )
-
-func (c *Client) IsInRoom(room string) bool {
-	c.hub.mu.RLock()
-
-	defer c.hub.mu.RUnlock()
-
-	return c.Rooms[room]
-}
 
 func (c *Client) safeSend(msg []byte) bool {
 	select {
@@ -63,6 +53,7 @@ func (c *Client) sendError(message string) bool {
 }
 
 func (c *Client) readPump() { // nosonar
+	// Don't need to register because client is already registered in ServeWS
 	defer func() {
 		select {
 		case c.hub.unregister <- c:
@@ -93,7 +84,6 @@ func (c *Client) readPump() { // nosonar
 	for {
 		var msg Message
 		if err := c.conn.ReadJSON(&msg); err != nil {
-			// Handle close errors gracefully
 			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
 				log.Println("WebSocket closed:", err)
 			} else {
@@ -131,102 +121,14 @@ func (c *Client) readPump() { // nosonar
 
 		msg.From = c.UserID
 
-		switch msg.Type {
-		case MessageChatJoin:
-			c.hub.JoinRoom(msg.Room, c)
-
-			users := c.hub.GetRoomUsers(msg.Room)
-
-			c.hub.broadcast <- &Message{
-				Type: MessageRoomUsers,
-				Room: msg.Room,
-				Data: mustJSON(RoomUsersPayload{Users: users}),
-			}
-
-		case MessageChatLeave:
-			c.hub.LeaveRoom(msg.Room, c)
-
-			users := c.hub.GetRoomUsers(msg.Room)
-
-			c.hub.broadcast <- &Message{
-				Type: MessageRoomUsers,
-				Room: msg.Room,
-				Data: mustJSON(RoomUsersPayload{Users: users}),
-			}
-
-		case MessageChatMessage:
-			if !c.IsInRoom(msg.Room) {
-				if !fail("You are not in this room") {
-					return
-				}
-
-				continue
-			}
-
-			var payload ChatPayload
-			if err := json.Unmarshal(msg.Data, &payload); err != nil {
-				if !fail("Invalid chat message payload") {
-					return
-				}
-
-				continue
-			}
-
-			payload.Message = strings.TrimSpace(payload.Message)
-			if payload.Message == "" {
-				if !fail("Message cannot be empty") {
-					return
-				}
-
-				continue
-			}
-
-			if len([]rune(payload.Message)) > maxChatRunes {
-				if !fail(fmt.Sprintf("Message too long (maximum is %d characters)", maxChatRunes)) {
-					return
-				}
-
-				continue
-			}
-
-			msg.Data = mustJSON(payload)
-
-			c.hub.broadcast <- &msg
-
-		case MessageChatTyping:
-			if !c.IsInRoom(msg.Room) {
-				if !fail("You are not in this room") {
-					return
-				}
-
-				continue
-			}
-
-			var payload ChatTypingPayload
-			if err := json.Unmarshal(msg.Data, &payload); err != nil {
-				if !fail("Invalid typing payload") {
-					return
-				}
-
-				continue
-			}
-
-			msg.Data = mustJSON(payload)
-
-			c.hub.broadcast <- &msg
-
-		case MessageUtilsGenerateRoomID:
-			newRoomID := uuid.NewString()
-
-			response := struct {
-				Type MessageType `json:"type"`
-				Data any         `json:"data"`
-			}{
-				Type: MessageUtilsGenerateRoomID,
-				Data: map[string]string{"roomID": newRoomID},
-			}
-
-			if !c.safeSend(mustJSON(&response)) {
+		// From here on, the hub is the single writer/owner of room state.
+		// We only validate basic protocol shape here.
+		select {
+		case c.hub.inbound <- &inboundMessage{client: c, msg: msg}:
+		default:
+			// Backpressure: if the hub is overloaded, drop the message.
+			// This keeps the connection responsive under load.
+			if !fail("Server busy") {
 				return
 			}
 		}
