@@ -57,53 +57,6 @@ func (h *Hub) Run() {
 	}
 }
 
-func (h *Hub) isClientInRoom(room string, c *Client) bool {
-	clients := h.rooms[room]
-
-	if clients == nil {
-		return false
-	}
-
-	return clients[c]
-}
-
-func (h *Hub) joinRoom(room string, c *Client) {
-	if h.rooms[room] == nil {
-		h.rooms[room] = make(map[*Client]bool)
-	}
-
-	h.rooms[room][c] = true
-}
-
-func (h *Hub) leaveRoom(room string, c *Client) {
-	if h.rooms[room] != nil {
-		delete(h.rooms[room], c)
-		if len(h.rooms[room]) == 0 {
-			delete(h.rooms, room)
-		}
-	}
-}
-
-func (h *Hub) leaveAllRooms(c *Client) []string {
-	affected := make([]string, 0)
-
-	for room, members := range h.rooms {
-		if !members[c] {
-			continue
-		}
-
-		delete(members, c)
-
-		affected = append(affected, room)
-
-		if len(members) == 0 {
-			delete(h.rooms, room)
-		}
-	}
-
-	return affected
-}
-
 func (h *Hub) handleInbound(c *Client, msg *Message) {
 	switch msg.Type {
 	case MessageChatJoin:
@@ -173,6 +126,53 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 	default:
 		c.sendError("Invalid message type")
 	}
+}
+
+func (h *Hub) isClientInRoom(room string, c *Client) bool {
+	clients := h.rooms[room]
+
+	if clients == nil {
+		return false
+	}
+
+	return clients[c]
+}
+
+func (h *Hub) joinRoom(room string, c *Client) {
+	if h.rooms[room] == nil {
+		h.rooms[room] = make(map[*Client]bool)
+	}
+
+	h.rooms[room][c] = true
+}
+
+func (h *Hub) leaveRoom(room string, c *Client) {
+	if h.rooms[room] != nil {
+		delete(h.rooms[room], c)
+		if len(h.rooms[room]) == 0 {
+			delete(h.rooms, room)
+		}
+	}
+}
+
+func (h *Hub) leaveAllRooms(c *Client) []string {
+	affected := make([]string, 0)
+
+	for room, members := range h.rooms {
+		if !members[c] {
+			continue
+		}
+
+		delete(members, c)
+
+		affected = append(affected, room)
+
+		if len(members) == 0 {
+			delete(h.rooms, room)
+		}
+	}
+
+	return affected
 }
 
 func (h *Hub) broadcastToRoom(room string, msg *Message) {
