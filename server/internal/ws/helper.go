@@ -6,6 +6,10 @@ import (
 )
 
 func newMessage(msgType MessageType, room string, data json.RawMessage, from string) []byte {
+	if data == nil {
+		data = json.RawMessage(`null`)
+	}
+
 	if !json.Valid(data) {
 		log.Println("invalid json data for message")
 		return []byte(`{"type":"general.error","data":{"error":"internal error"},"from":"system"}`)
@@ -31,10 +35,16 @@ func newMessage(msgType MessageType, room string, data json.RawMessage, from str
 }
 
 func newErrorMessage(message string) []byte {
+	payload, err := json.Marshal(map[string]string{"error": message})
+	if err != nil {
+		log.Println("json marshal error:", err)
+		return []byte(`{"type":"general.error","data":{"error":"internal error"},"from":"system"}`)
+	}
+
 	return newMessage(
 		MessageError,
 		"",
-		[]byte(`{"error":"`+message+`"}`),
+		payload,
 		"system",
 	)
 }
