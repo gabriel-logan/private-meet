@@ -111,8 +111,6 @@ func (c *Client) readPump() { // nosonar
 			continue
 		}
 
-		msg.From = c.UserID
-
 		// From here on, the hub is the single writer/owner of room state.
 		// We only validate basic protocol shape here.
 		select {
