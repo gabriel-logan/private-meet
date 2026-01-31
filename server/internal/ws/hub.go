@@ -92,8 +92,6 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 			return
 		}
 
-		msg.Data = mustMarshalJSON(payload)
-
 		h.clientBroadcastToRoom(msg.Room, msg)
 
 	case MessageChatTyping:
@@ -107,8 +105,6 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 			c.sendError("Invalid typing payload")
 			return
 		}
-
-		msg.Data = mustMarshalJSON(payload)
 
 		h.clientBroadcastToRoom(msg.Room, msg)
 
@@ -219,17 +215,23 @@ func (h *Hub) clientBroadcastRoomUsersSnapshot(room string) {
 		})
 	}
 
+	data, err := json.Marshal(RoomUsersPayload{Users: users})
+	if err != nil {
+		for _, c := range clients {
+			c.safeSend(newErrorMessage("internal error"))
+		}
+
+		return
+	}
+
 	payload := newMessage(
 		MessageRoomUsers,
 		room,
-		mustMarshalJSON(RoomUsersPayload{Users: users}),
+		data,
 		"system",
 	)
 
 	for _, c := range clients {
-		select {
-		case c.send <- payload:
-		default:
-		}
+		c.safeSend(payload)
 	}
 }

@@ -5,17 +5,6 @@ import (
 	"log"
 )
 
-func mustMarshalJSON(v any) []byte {
-	b, err := json.Marshal(v)
-
-	if err != nil {
-		log.Println("json marshal error:", err)
-		return []byte(`{"type":"general.error","data":{"error":"internal error"}}`)
-	}
-
-	return b
-}
-
 func newMessage(msgType MessageType, room string, data json.RawMessage, from string) []byte {
 	msg := &Message{
 		Type: msgType,
@@ -27,7 +16,13 @@ func newMessage(msgType MessageType, room string, data json.RawMessage, from str
 		msg.Room = room
 	}
 
-	return mustMarshalJSON(msg)
+	v, err := json.Marshal(msg)
+	if err != nil {
+		log.Println("json marshal error:", err)
+		return []byte(`{"type":"general.error","data":{"error":"internal error"},"from":"system"}`)
+	}
+
+	return v
 }
 
 func newErrorMessage(message string) []byte {
