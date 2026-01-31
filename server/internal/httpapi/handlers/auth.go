@@ -55,11 +55,18 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := map[string]string{
-		"accessToken": accessToken,
-		"tokenType":   "Bearer",
-		"userId":      userID,
-		"username":    username,
+	type AuthResponse struct {
+		AccessToken string `json:"accessToken"`
+		TokenType   string `json:"tokenType"`
+		UserID      string `json:"userId"`
+		Username    string `json:"username"`
+	}
+
+	response := &AuthResponse{
+		AccessToken: accessToken,
+		TokenType:   "Bearer",
+		UserID:      userID,
+		Username:    username,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
