@@ -16,10 +16,10 @@ func mustMarshalJSON(v any) []byte {
 	return b
 }
 
-func newMessage(msgType MessageType, room string, data any, from string) []byte {
+func newMessage(msgType MessageType, room string, data json.RawMessage, from string) []byte {
 	msg := &Message{
 		Type: msgType,
-		Data: mustMarshalJSON(data),
+		Data: data,
 		From: from,
 	}
 
@@ -34,7 +34,7 @@ func newErrorMessage(message string) []byte {
 	return newMessage(
 		MessageError,
 		"",
-		map[string]string{"error": message},
+		[]byte(`{"error":"`+message+`"}`),
 		"system",
 	)
 }

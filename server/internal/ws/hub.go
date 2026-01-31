@@ -119,7 +119,7 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 			newMessage(
 				MessageUtilsGenerateRoomID,
 				"",
-				map[string]string{"roomID": newRoomID},
+				[]byte(`{"roomID":"`+newRoomID+`"}`),
 				"system",
 			),
 		)
@@ -222,7 +222,7 @@ func (h *Hub) clientBroadcastRoomUsersSnapshot(room string) {
 	payload := newMessage(
 		MessageRoomUsers,
 		room,
-		RoomUsersPayload{Users: users},
+		mustMarshalJSON(RoomUsersPayload{Users: users}),
 		"system",
 	)
 
