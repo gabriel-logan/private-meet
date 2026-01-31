@@ -2,7 +2,6 @@ package ws
 
 import (
 	"encoding/json"
-	"log"
 	"strings"
 
 	"github.com/google/uuid"
@@ -38,15 +37,15 @@ func (h *Hub) Run() {
 		case c := <-h.register:
 			h.clients[c] = true
 
-			h.joinRoom("user:"+c.UserID, c)
+			h.clientJoinRoom("user:"+c.UserID, c)
 
 		case c := <-h.unregister:
 			delete(h.clients, c)
 
-			affectedRooms := h.leaveAllRooms(c)
+			affectedRooms := h.clientLeaveAllRooms(c)
 
 			for _, room := range affectedRooms {
-				h.broadcastRoomUsersSnapshot(room)
+				h.clientBroadcastRoomUsersSnapshot(room)
 			}
 
 			close(c.send)
@@ -60,12 +59,12 @@ func (h *Hub) Run() {
 func (h *Hub) handleInbound(c *Client, msg *Message) {
 	switch msg.Type {
 	case MessageChatJoin:
-		h.joinRoom(msg.Room, c)
-		h.broadcastRoomUsersSnapshot(msg.Room)
+		h.clientJoinRoom(msg.Room, c)
+		h.clientBroadcastRoomUsersSnapshot(msg.Room)
 
 	case MessageChatLeave:
-		h.leaveRoom(msg.Room, c)
-		h.broadcastRoomUsersSnapshot(msg.Room)
+		h.clientLeaveRoom(msg.Room, c)
+		h.clientBroadcastRoomUsersSnapshot(msg.Room)
 
 	case MessageChatMessage:
 		if !h.isClientInRoom(msg.Room, c) {
@@ -92,7 +91,7 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 
 		msg.Data = mustJSON(payload)
 
-		h.broadcastToRoom(msg.Room, msg)
+		h.clientBroadcastToRoom(msg.Room, msg)
 
 	case MessageChatTyping:
 		if !h.isClientInRoom(msg.Room, c) {
@@ -108,7 +107,7 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 
 		msg.Data = mustJSON(payload)
 
-		h.broadcastToRoom(msg.Room, msg)
+		h.clientBroadcastToRoom(msg.Room, msg)
 
 	case MessageUtilsGenerateRoomID:
 		newRoomID := uuid.NewString()
@@ -138,7 +137,7 @@ func (h *Hub) isClientInRoom(room string, c *Client) bool {
 	return clients[c]
 }
 
-func (h *Hub) joinRoom(room string, c *Client) {
+func (h *Hub) clientJoinRoom(room string, c *Client) {
 	if h.rooms[room] == nil {
 		h.rooms[room] = make(map[*Client]bool)
 	}
@@ -146,7 +145,7 @@ func (h *Hub) joinRoom(room string, c *Client) {
 	h.rooms[room][c] = true
 }
 
-func (h *Hub) leaveRoom(room string, c *Client) {
+func (h *Hub) clientLeaveRoom(room string, c *Client) {
 	if h.rooms[room] != nil {
 		delete(h.rooms[room], c)
 		if len(h.rooms[room]) == 0 {
@@ -155,7 +154,7 @@ func (h *Hub) leaveRoom(room string, c *Client) {
 	}
 }
 
-func (h *Hub) leaveAllRooms(c *Client) []string {
+func (h *Hub) clientLeaveAllRooms(c *Client) []string {
 	affected := make([]string, 0)
 
 	for room, members := range h.rooms {
@@ -175,7 +174,7 @@ func (h *Hub) leaveAllRooms(c *Client) []string {
 	return affected
 }
 
-func (h *Hub) broadcastToRoom(room string, msg *Message) {
+func (h *Hub) clientBroadcastToRoom(room string, msg *Message) {
 	clients := h.rooms[room]
 	if clients == nil {
 		return
@@ -190,7 +189,7 @@ func (h *Hub) broadcastToRoom(room string, msg *Message) {
 	}
 }
 
-func (h *Hub) broadcastRoomUsersSnapshot(room string) {
+func (h *Hub) clientBroadcastRoomUsersSnapshot(room string) {
 	clientsMap := h.rooms[room]
 
 	if clientsMap == nil {
@@ -220,15 +219,4 @@ func (h *Hub) broadcastRoomUsersSnapshot(room string) {
 		default:
 		}
 	}
-}
-
-func mustJSON(v any) []byte {
-	b, err := json.Marshal(v)
-
-	if err != nil {
-		log.Println("json marshal error:", err)
-		return []byte(`{"type":"general.error","data":{"error":"internal error"}}`)
-	}
-
-	return b
 }
