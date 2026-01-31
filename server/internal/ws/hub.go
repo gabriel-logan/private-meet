@@ -50,7 +50,7 @@ func (h *Hub) Run() {
 			affectedRooms := make([]string, 0, len(c.Rooms))
 			for room := range c.Rooms {
 				affectedRooms = append(affectedRooms, room)
-				h.removeClientFromRoom(room, c)
+				h.leaveRoom(room, c)
 			}
 
 			for _, room := range affectedRooms {
@@ -78,7 +78,7 @@ func (h *Hub) joinRoom(room string, c *Client) {
 	c.Rooms[room] = true
 }
 
-func (h *Hub) removeClientFromRoom(room string, c *Client) {
+func (h *Hub) leaveRoom(room string, c *Client) {
 	if h.rooms[room] != nil {
 		delete(h.rooms[room], c)
 		if len(h.rooms[room]) == 0 {
@@ -98,7 +98,7 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 		h.broadcastRoomUsersSnapshot(msg.Room)
 
 	case MessageChatLeave:
-		h.removeClientFromRoom(msg.Room, c)
+		h.leaveRoom(msg.Room, c)
 		h.broadcastRoomUsersSnapshot(msg.Room)
 
 	case MessageChatMessage:
