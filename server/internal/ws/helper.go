@@ -5,6 +5,8 @@ import (
 	"log"
 )
 
+var internalErrorMessage = []byte(`{"type":"general.error","data":{"error":"internal error"},"from":"system"}`)
+
 func newMessage(msgType MessageType, room string, data json.RawMessage, from string) []byte {
 	if data == nil {
 		data = json.RawMessage(`null`)
@@ -12,23 +14,26 @@ func newMessage(msgType MessageType, room string, data json.RawMessage, from str
 
 	if !json.Valid(data) {
 		log.Println("invalid json data for message")
-		return []byte(`{"type":"general.error","data":{"error":"internal error"},"from":"system"}`)
+		return internalErrorMessage
 	}
 
 	msg := &Message{
 		Type: msgType,
 		Data: data,
-		From: from,
 	}
 
 	if room != "" {
 		msg.Room = room
 	}
 
+	if from != "" {
+		msg.From = from
+	}
+
 	v, err := json.Marshal(msg)
 	if err != nil {
 		log.Println("json marshal error:", err)
-		return []byte(`{"type":"general.error","data":{"error":"internal error"},"from":"system"}`)
+		return internalErrorMessage
 	}
 
 	return v
@@ -38,7 +43,7 @@ func newErrorMessage(message string) []byte {
 	payload, err := json.Marshal(map[string]string{"error": message})
 	if err != nil {
 		log.Println("json marshal error:", err)
-		return []byte(`{"type":"general.error","data":{"error":"internal error"},"from":"system"}`)
+		return internalErrorMessage
 	}
 
 	return newMessage(
