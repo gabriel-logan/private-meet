@@ -3,6 +3,7 @@ package ws
 import (
 	"encoding/json"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 )
@@ -87,8 +88,8 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 			return
 		}
 
-		if len([]rune(payload.Message)) > maxChatRunes {
-			c.sendError("Message too long")
+		if utf8.RuneCountInString(payload.Message) > maxChatRunes {
+			c.sendError("Message is too long")
 			return
 		}
 
