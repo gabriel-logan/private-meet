@@ -16,7 +16,6 @@ type Client struct {
 
 	UserID   string
 	Username string
-	Rooms    map[string]bool
 }
 
 const (

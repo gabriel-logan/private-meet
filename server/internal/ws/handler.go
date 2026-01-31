@@ -62,7 +62,6 @@ func ServeWS(hub *Hub) http.HandlerFunc {
 			send:     make(chan []byte, 256),
 			UserID:   userID,
 			Username: username,
-			Rooms:    make(map[string]bool),
 		}
 
 		hub.register <- client

@@ -38,20 +38,12 @@ func (h *Hub) Run() {
 		case c := <-h.register:
 			h.clients[c] = true
 
-			if c.Rooms == nil {
-				c.Rooms = make(map[string]bool)
-			}
-
 			h.joinRoom("user:"+c.UserID, c)
 
 		case c := <-h.unregister:
 			delete(h.clients, c)
 
-			affectedRooms := make([]string, 0, len(c.Rooms))
-			for room := range c.Rooms {
-				affectedRooms = append(affectedRooms, room)
-				h.leaveRoom(room, c)
-			}
+			affectedRooms := h.leaveAllRooms(c)
 
 			for _, room := range affectedRooms {
 				h.broadcastRoomUsersSnapshot(room)
@@ -66,7 +58,13 @@ func (h *Hub) Run() {
 }
 
 func (h *Hub) isClientInRoom(room string, c *Client) bool {
-	return c.Rooms != nil && c.Rooms[room]
+	clients := h.rooms[room]
+
+	if clients == nil {
+		return false
+	}
+
+	return clients[c]
 }
 
 func (h *Hub) joinRoom(room string, c *Client) {
@@ -75,7 +73,6 @@ func (h *Hub) joinRoom(room string, c *Client) {
 	}
 
 	h.rooms[room][c] = true
-	c.Rooms[room] = true
 }
 
 func (h *Hub) leaveRoom(room string, c *Client) {
@@ -85,10 +82,26 @@ func (h *Hub) leaveRoom(room string, c *Client) {
 			delete(h.rooms, room)
 		}
 	}
+}
 
-	if c.Rooms != nil {
-		delete(c.Rooms, room)
+func (h *Hub) leaveAllRooms(c *Client) []string {
+	affected := make([]string, 0)
+
+	for room, members := range h.rooms {
+		if !members[c] {
+			continue
+		}
+
+		delete(members, c)
+
+		affected = append(affected, room)
+
+		if len(members) == 0 {
+			delete(h.rooms, room)
+		}
 	}
+
+	return affected
 }
 
 func (h *Hub) handleInbound(c *Client, msg *Message) {
