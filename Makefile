@@ -1,8 +1,11 @@
 # Makefile for Go project
 
-.PHONY: run build test tidy clean
+.PHONY: run_server run_web build test tidy clean
 
-run:
+run_web:
+	cd web && pnpm dev
+
+run_server:
 	cd server && go run ./cmd/api/main.go
 
 build:
