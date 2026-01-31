@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -27,15 +28,17 @@ var RateLimits = map[string]MethodLimit{
 	},
 }
 
+const retryAfterHeader = "Retry-After"
+
 type clientState struct {
-	Limiters    map[string]*rate.Limiter
-	BannedUntil time.Time
-	LastSeen    time.Time
+	Limiters map[string]*rate.Limiter
+
+	BannedUntilUnixNano atomic.Int64
+	LastSeenUnixNano    atomic.Int64
 }
 
 var (
-	mu      sync.Mutex
-	clients = map[string]*clientState{}
+	clients sync.Map
 	once    sync.Once
 )
 
@@ -82,49 +85,64 @@ func shouldSkipRateLimit(r *http.Request) bool {
 	return false
 }
 
-func getClient(ip string) *clientState {
-	mu.Lock()
-	defer mu.Unlock()
-
-	c, exists := clients[ip]
-	if !exists {
-		limiters := map[string]*rate.Limiter{}
-		for method, cfg := range RateLimits {
-			limiters[method] = rate.NewLimiter(cfg.Limiter.Limit(), cfg.Limiter.Burst())
-		}
-
-		c = &clientState{
-			Limiters:    limiters,
-			BannedUntil: time.Time{},
-			LastSeen:    time.Now(),
-		}
-
-		clients[ip] = c
+func newClientState(now time.Time) *clientState {
+	limiters := make(map[string]*rate.Limiter, len(RateLimits))
+	for method, cfg := range RateLimits {
+		limiters[method] = rate.NewLimiter(cfg.Limiter.Limit(), cfg.Limiter.Burst())
 	}
 
-	c.LastSeen = time.Now()
+	c := &clientState{Limiters: limiters}
+	c.LastSeenUnixNano.Store(now.UnixNano())
+	c.BannedUntilUnixNano.Store(0)
+	return c
+}
+
+func getClient(ip string) *clientState {
+	now := time.Now()
+
+	if v, ok := clients.Load(ip); ok {
+		c := v.(*clientState)
+		c.LastSeenUnixNano.Store(now.UnixNano())
+		return c
+	}
+
+	c := newClientState(now)
+	actual, loaded := clients.LoadOrStore(ip, c)
+	if loaded {
+		c = actual.(*clientState)
+		c.LastSeenUnixNano.Store(now.UnixNano())
+	}
 	return c
 }
 
 func isBanned(c *clientState) bool {
-	return time.Now().Before(c.BannedUntil)
+	until := c.BannedUntilUnixNano.Load()
+	if until == 0 {
+		return false
+	}
+	return time.Now().UnixNano() < until
 }
 
 func banClient(c *clientState, seconds int) {
-	c.BannedUntil = time.Now().Add(time.Duration(seconds) * time.Second)
+	until := time.Now().Add(time.Duration(seconds) * time.Second).UnixNano()
+	c.BannedUntilUnixNano.Store(until)
 }
 
 func cleanupOldClients() {
 	for {
 		time.Sleep(1 * time.Minute)
 
-		mu.Lock()
-		for ip, c := range clients {
-			if time.Since(c.LastSeen) > 5*time.Minute {
-				delete(clients, ip)
+		now := time.Now().UnixNano()
+		cutoff := int64(5 * time.Minute)
+		clients.Range(func(key, value any) bool {
+			ip := key.(string)
+			c := value.(*clientState)
+			last := c.LastSeenUnixNano.Load()
+			if last != 0 && now-last > cutoff {
+				clients.Delete(ip)
 			}
-		}
-		mu.Unlock()
+			return true
+		})
 	}
 }
 
@@ -148,30 +166,22 @@ func RateLimit() Middleware {
 
 			ip := clientIPForRateLimit(r)
 			client := getClient(ip)
-
-			mu.Lock()
-			banned := isBanned(client)
-			mu.Unlock()
-			if banned {
-				w.Header().Set("Retry-After", "1")
+			if isBanned(client) {
+				w.Header().Set(retryAfterHeader, "1")
 				http.Error(w, "Too Many Requests (temp ban)", http.StatusTooManyRequests)
 				return
 			}
 
 			limiter := client.Limiters[r.Method]
 			if limiter == nil {
-				// Defensive: should always exist if RateLimits has this method.
-				limiter = rate.NewLimiter(cfg.Limiter.Limit(), cfg.Limiter.Burst())
-				mu.Lock()
-				client.Limiters[r.Method] = limiter
-				mu.Unlock()
+				w.Header().Set(retryAfterHeader, "1")
+				http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
+				return
 			}
 
 			if !limiter.Allow() {
-				mu.Lock()
 				banClient(client, cfg.BanTime)
-				mu.Unlock()
-				w.Header().Set("Retry-After", "1")
+				w.Header().Set(retryAfterHeader, "1")
 				http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
 				return
 			}
