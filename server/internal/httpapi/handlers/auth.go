@@ -15,6 +15,13 @@ import (
 
 const maxUsernameLength = 32
 
+type AuthResponse struct {
+	AccessToken string `json:"accessToken"`
+	TokenType   string `json:"tokenType"`
+	UserID      string `json:"userId"`
+	Username    string `json:"username"`
+}
+
 func SignIn(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), config.GetEnv().ContextTimeout)
 	defer cancel()
@@ -55,14 +62,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type AuthResponse struct {
-		AccessToken string `json:"accessToken"`
-		TokenType   string `json:"tokenType"`
-		UserID      string `json:"userId"`
-		Username    string `json:"username"`
-	}
-
-	response := &AuthResponse{
+	response := AuthResponse{
 		AccessToken: accessToken,
 		TokenType:   "Bearer",
 		UserID:      userID,
