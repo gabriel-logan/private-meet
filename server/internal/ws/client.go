@@ -16,16 +16,19 @@ type Client struct {
 
 	UserID   string
 	Username string
+
+	droppedMessages int
 }
 
 const (
-	writeWait         = 10 * time.Second
-	pongWait          = 60 * time.Second
-	pingPeriod        = (pongWait * 9) / 10
-	maxWSMessageBytes = 64 * 1024
-	maxChatRunes      = 5000
-	maxRoomIDLength   = 128
-	maxProtocolErrors = 10
+	writeWait          = 10 * time.Second
+	pongWait           = 60 * time.Second
+	pingPeriod         = (pongWait * 9) / 10
+	maxWSMessageBytes  = 64 * 1024
+	maxChatRunes       = 5000
+	maxRoomIDLength    = 128
+	maxProtocolErrors  = 10
+	maxDroppedMessages = 5
 )
 
 func (c *Client) safeSend(msg []byte) bool {

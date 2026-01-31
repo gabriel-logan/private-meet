@@ -184,7 +184,16 @@ func (h *Hub) clientBroadcastToRoom(room string, msg *Message) {
 	for c := range clients {
 		select {
 		case c.send <- payload:
+			c.droppedMessages = 0
 		default:
+			c.droppedMessages++
+
+			if c.droppedMessages >= maxDroppedMessages {
+				select {
+				case h.unregister <- c:
+				default:
+				}
+			}
 		}
 	}
 }
