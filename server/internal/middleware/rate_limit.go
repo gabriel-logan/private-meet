@@ -3,6 +3,7 @@ package middleware
 import (
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -98,9 +99,7 @@ func newClientState(now time.Time) *clientState {
 	return c
 }
 
-func getClient(ip string) *clientState {
-	now := time.Now()
-
+func getClient(ip string, now time.Time) *clientState {
 	if v, ok := clients.Load(ip); ok {
 		c := v.(*clientState)
 		c.LastSeenUnixNano.Store(now.UnixNano())
@@ -119,14 +118,10 @@ func getClient(ip string) *clientState {
 	return c
 }
 
-func isBanned(c *clientState) bool {
+func isBanned(c *clientState, now time.Time) bool {
 	until := c.BannedUntilUnixNano.Load()
 
-	if until == 0 {
-		return false
-	}
-
-	return time.Now().UnixNano() < until
+	return until != 0 && now.UnixNano() < until
 }
 
 func banClient(c *clientState, seconds int) {
@@ -154,6 +149,18 @@ func cleanupOldClients() {
 	}
 }
 
+func writeRetryAfter(w http.ResponseWriter, c *clientState) {
+	now := time.Now().UnixNano()
+	until := c.BannedUntilUnixNano.Load()
+
+	retry := (until - now) / int64(time.Second)
+	if retry < 1 {
+		retry = 1
+	}
+
+	w.Header().Set(retryAfterHeader, strconv.FormatInt(retry, 10))
+}
+
 func RateLimit() Middleware {
 	once.Do(func() {
 		go cleanupOldClients()
@@ -172,24 +179,25 @@ func RateLimit() Middleware {
 				return
 			}
 
+			now := time.Now()
 			ip := clientIPForRateLimit(r)
-			client := getClient(ip)
-			if isBanned(client) {
-				w.Header().Set(retryAfterHeader, "1")
+			client := getClient(ip, now)
+			if isBanned(client, now) {
+				writeRetryAfter(w, client)
 				http.Error(w, "Too Many Requests (temp ban)", http.StatusTooManyRequests)
 				return
 			}
 
 			limiter := client.Limiters[r.Method]
 			if limiter == nil {
-				w.Header().Set(retryAfterHeader, "1")
+				writeRetryAfter(w, client)
 				http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
 				return
 			}
 
 			if !limiter.Allow() {
 				banClient(client, cfg.BanTime)
-				w.Header().Set(retryAfterHeader, "1")
+				writeRetryAfter(w, client)
 				http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
 				return
 			}
