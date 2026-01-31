@@ -23,7 +23,7 @@ const (
 	pongWait          = 60 * time.Second
 	pingPeriod        = (pongWait * 9) / 10
 	maxWSMessageBytes = 64 * 1024
-	maxChatRunes      = 30000
+	maxChatRunes      = 5000
 	maxRoomIDLength   = 128
 	maxProtocolErrors = 10
 )
