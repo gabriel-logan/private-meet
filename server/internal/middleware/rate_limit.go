@@ -124,8 +124,8 @@ func isBanned(c *clientState, now time.Time) bool {
 	return until != 0 && now.UnixNano() < until
 }
 
-func banClient(c *clientState, seconds int) {
-	until := time.Now().Add(time.Duration(seconds) * time.Second).UnixNano()
+func banClient(c *clientState, now time.Time, seconds int) {
+	until := now.Add(time.Duration(seconds) * time.Second).UnixNano()
 
 	c.BannedUntilUnixNano.Store(until)
 }
@@ -149,11 +149,10 @@ func cleanupOldClients() {
 	}
 }
 
-func writeRetryAfter(w http.ResponseWriter, c *clientState) {
-	now := time.Now().UnixNano()
+func writeRetryAfter(w http.ResponseWriter, c *clientState, now time.Time) {
 	until := c.BannedUntilUnixNano.Load()
 
-	retry := (until - now) / int64(time.Second)
+	retry := (until - now.UnixNano()) / int64(time.Second)
 	if retry < 1 {
 		retry = 1
 	}
@@ -183,21 +182,21 @@ func RateLimit() Middleware {
 			ip := clientIPForRateLimit(r)
 			client := getClient(ip, now)
 			if isBanned(client, now) {
-				writeRetryAfter(w, client)
+				writeRetryAfter(w, client, now)
 				http.Error(w, "Too Many Requests (temp ban)", http.StatusTooManyRequests)
 				return
 			}
 
 			limiter := client.Limiters[r.Method]
 			if limiter == nil {
-				writeRetryAfter(w, client)
+				writeRetryAfter(w, client, now)
 				http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
 				return
 			}
 
 			if !limiter.Allow() {
-				banClient(client, cfg.BanTime)
-				writeRetryAfter(w, client)
+				banClient(client, now, cfg.BanTime)
+				writeRetryAfter(w, client, now)
 				http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
 				return
 			}
