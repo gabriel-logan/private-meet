@@ -128,6 +128,11 @@ export default function ChatPage() {
   }
 
   async function handleSend() {
+    if (onlineUsers.length <= 1) {
+      toast.error("No one else is in the room to receive your message.");
+      return;
+    }
+
     const text = message.trim();
 
     if (!text) {
