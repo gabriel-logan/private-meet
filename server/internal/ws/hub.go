@@ -19,7 +19,7 @@ type Hub struct {
 
 	register   chan *Client
 	unregister chan *Client
-	inbound    chan *inboundMessage
+	inbound    chan inboundMessage
 }
 
 func NewHub() *Hub {
@@ -28,14 +28,13 @@ func NewHub() *Hub {
 		rooms:      make(map[string]map[*Client]bool),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		inbound:    make(chan *inboundMessage, 256),
+		inbound:    make(chan inboundMessage, 256),
 	}
 }
 
 func (h *Hub) Run() {
 	for {
 		select {
-
 		case c := <-h.register:
 			h.clients[c] = true
 
@@ -61,7 +60,7 @@ func (h *Hub) Run() {
 			close(c.send)
 
 		case in := <-h.inbound:
-			h.handleInbound(in.client, in.msg)
+			h.handleInbound(in.client, &in.msg)
 		}
 	}
 }
@@ -92,7 +91,7 @@ func (h *Hub) removeClientFromRoom(room string, c *Client) {
 	}
 }
 
-func (h *Hub) handleInbound(c *Client, msg Message) {
+func (h *Hub) handleInbound(c *Client, msg *Message) {
 	switch msg.Type {
 	case MessageChatJoin:
 		h.joinRoom(msg.Room, c)
@@ -127,7 +126,7 @@ func (h *Hub) handleInbound(c *Client, msg Message) {
 
 		msg.Data = mustJSON(payload)
 
-		h.broadcastToRoom(msg.Room, &msg)
+		h.broadcastToRoom(msg.Room, msg)
 
 	case MessageChatTyping:
 		if !h.isClientInRoom(msg.Room, c) {
@@ -143,7 +142,7 @@ func (h *Hub) handleInbound(c *Client, msg Message) {
 
 		msg.Data = mustJSON(payload)
 
-		h.broadcastToRoom(msg.Room, &msg)
+		h.broadcastToRoom(msg.Room, msg)
 
 	case MessageUtilsGenerateRoomID:
 		newRoomID := uuid.NewString()

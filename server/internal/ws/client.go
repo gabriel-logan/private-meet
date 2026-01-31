@@ -124,7 +124,7 @@ func (c *Client) readPump() { // nosonar
 		// From here on, the hub is the single writer/owner of room state.
 		// We only validate basic protocol shape here.
 		select {
-		case c.hub.inbound <- &inboundMessage{client: c, msg: msg}:
+		case c.hub.inbound <- inboundMessage{client: c, msg: msg}:
 		default:
 			// Backpressure: if the hub is overloaded, drop the message.
 			// This keeps the connection responsive under load.
