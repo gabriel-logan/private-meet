@@ -94,6 +94,7 @@ func newClientState(now time.Time) *clientState {
 	c := &clientState{Limiters: limiters}
 	c.LastSeenUnixNano.Store(now.UnixNano())
 	c.BannedUntilUnixNano.Store(0)
+
 	return c
 }
 
@@ -107,39 +108,46 @@ func getClient(ip string) *clientState {
 	}
 
 	c := newClientState(now)
+
 	actual, loaded := clients.LoadOrStore(ip, c)
+
 	if loaded {
 		c = actual.(*clientState)
 		c.LastSeenUnixNano.Store(now.UnixNano())
 	}
+
 	return c
 }
 
 func isBanned(c *clientState) bool {
 	until := c.BannedUntilUnixNano.Load()
+
 	if until == 0 {
 		return false
 	}
+
 	return time.Now().UnixNano() < until
 }
 
 func banClient(c *clientState, seconds int) {
 	until := time.Now().Add(time.Duration(seconds) * time.Second).UnixNano()
+
 	c.BannedUntilUnixNano.Store(until)
 }
 
 func cleanupOldClients() {
-	for {
-		time.Sleep(1 * time.Minute)
+	ticker := time.NewTicker(5 * time.Minute)
+	defer ticker.Stop()
 
-		now := time.Now().UnixNano()
-		cutoff := int64(5 * time.Minute)
+	for range ticker.C {
+		now := time.Now()
+		cutoff := now.Add(-10 * time.Minute).UnixNano()
+
 		clients.Range(func(key, value any) bool {
-			ip := key.(string)
 			c := value.(*clientState)
-			last := c.LastSeenUnixNano.Load()
-			if last != 0 && now-last > cutoff {
-				clients.Delete(ip)
+			lastSeen := c.LastSeenUnixNano.Load()
+			if lastSeen < cutoff {
+				clients.Delete(key)
 			}
 			return true
 		})
