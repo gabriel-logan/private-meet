@@ -73,7 +73,7 @@ function CreateUser() {
 
       setUsername("");
 
-      toast.success("User created successfully!");
+      toast.success("User created successfully!", { autoClose: 1500 });
     } catch (error) {
       const errorMessage = getAxiosErrorMessage(
         error,
@@ -158,7 +158,7 @@ function JoinMeeting() {
 
         if (type === "utils.generateRoomID") {
           setRoomId(data.roomID);
-          toast.success("Generated a new Room ID!");
+          toast.success("Generated a new Room ID!", { autoClose: 1500 });
         }
       } catch (error) {
         console.error("Error handling WebSocket message:", error);
