@@ -127,6 +127,36 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 			return
 		}
 
+		switch msg.Type {
+		case MessageWebRTCJoin:
+			var payload WebRTCJoinPayload
+			if err := json.Unmarshal(msg.Data, &payload); err != nil {
+				c.sendError("Invalid WebRTC join payload")
+				return
+			}
+
+		case MessageWebRTCOffer:
+			var payload WebRTCOfferPayload
+			if err := json.Unmarshal(msg.Data, &payload); err != nil {
+				c.sendError("Invalid WebRTC offer payload")
+				return
+			}
+
+		case MessageWebRTCAnswer:
+			var payload WebRTCAnswerPayload
+			if err := json.Unmarshal(msg.Data, &payload); err != nil {
+				c.sendError("Invalid WebRTC answer payload")
+				return
+			}
+
+		case MessageWebRTCIceCandidate:
+			var payload WebRTCIceCandidatePayload
+			if err := json.Unmarshal(msg.Data, &payload); err != nil {
+				c.sendError("Invalid WebRTC ICE candidate payload")
+				return
+			}
+		}
+
 		h.clientBroadcastToRoom(msg.Room, msg)
 
 	default:
