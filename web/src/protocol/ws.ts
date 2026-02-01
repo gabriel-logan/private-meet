@@ -3,6 +3,9 @@ export type RoomUser = {
   username: string;
 };
 
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
 // Outgoing (web -> server)
 export type WSOutgoingMessage = {
   [K in keyof WSOutgoingArgsByType]: WSOutgoingArgsByType[K] extends undefined
@@ -53,39 +56,45 @@ export function makeWSMessage<T extends WSOutgoingMessage["type"]>(
 ): Uint8Array {
   const arg = args[0];
 
-  const encoder = new TextEncoder();
-
   switch (type) {
     case "chat.join":
     case "chat.leave": {
+      const room = (arg as { room: string }).room;
+
       return encoder.encode(
         JSON.stringify({
           type,
-          room: (arg as { room: string }).room,
+          room,
           data: {},
         } satisfies WSOutgoingMessage),
       );
     }
 
-    case "chat.message":
+    case "chat.message": {
+      const { room, message } = arg as { room: string; message: string };
+
       return encoder.encode(
         JSON.stringify({
           type,
-          room: (arg as { room: string; message: string }).room,
+          room,
           data: {
-            message: (arg as { room: string; message: string }).message,
+            message,
           },
         } satisfies WSOutgoingMessage),
       );
+    }
 
-    case "chat.typing":
+    case "chat.typing": {
+      const { room, typing } = arg as { room: string; typing: boolean };
+
       return encoder.encode(
         JSON.stringify({
           type,
-          room: (arg as { room: string; typing: boolean }).room,
-          data: { typing: (arg as { room: string; typing: boolean }).typing },
+          room,
+          data: { typing },
         } satisfies WSOutgoingMessage),
       );
+    }
     case "utils.generateRoomID":
       return encoder.encode(
         JSON.stringify({ type, data: {} } satisfies WSOutgoingMessage),
@@ -101,14 +110,12 @@ export async function parseIncomingWSMessage(
 ): Promise<WSIncomingMessage> {
   let jsonString: string;
 
-  const decoder = new TextDecoder();
-
   if (raw instanceof ArrayBuffer) {
-    jsonString = decoder.decode(new Uint8Array(raw));
+    jsonString = decoder.decode(raw);
   } else if (raw instanceof Blob) {
     const arrayBuffer = await raw.arrayBuffer();
 
-    jsonString = decoder.decode(new Uint8Array(arrayBuffer));
+    jsonString = decoder.decode(arrayBuffer);
   } else if (typeof raw === "string") {
     jsonString = raw;
   } else {
