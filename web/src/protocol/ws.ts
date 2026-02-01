@@ -53,10 +53,12 @@ export function makeWSMessage<T extends WSOutgoingMessage["type"]>(
 ): Uint8Array {
   const arg = args[0];
 
+  const encoder = new TextEncoder();
+
   switch (type) {
     case "chat.join":
     case "chat.leave": {
-      return new TextEncoder().encode(
+      return encoder.encode(
         JSON.stringify({
           type,
           room: (arg as { room: string }).room,
@@ -66,7 +68,7 @@ export function makeWSMessage<T extends WSOutgoingMessage["type"]>(
     }
 
     case "chat.message":
-      return new TextEncoder().encode(
+      return encoder.encode(
         JSON.stringify({
           type,
           room: (arg as { room: string; message: string }).room,
@@ -77,7 +79,7 @@ export function makeWSMessage<T extends WSOutgoingMessage["type"]>(
       );
 
     case "chat.typing":
-      return new TextEncoder().encode(
+      return encoder.encode(
         JSON.stringify({
           type,
           room: (arg as { room: string; typing: boolean }).room,
@@ -85,7 +87,7 @@ export function makeWSMessage<T extends WSOutgoingMessage["type"]>(
         } satisfies WSOutgoingMessage),
       );
     case "utils.generateRoomID":
-      return new TextEncoder().encode(
+      return encoder.encode(
         JSON.stringify({ type, data: {} } satisfies WSOutgoingMessage),
       );
 
@@ -99,12 +101,14 @@ export async function parseIncomingWSMessage(
 ): Promise<WSIncomingMessage> {
   let jsonString: string;
 
+  const decoder = new TextDecoder();
+
   if (raw instanceof ArrayBuffer) {
-    jsonString = new TextDecoder().decode(new Uint8Array(raw));
+    jsonString = decoder.decode(new Uint8Array(raw));
   } else if (raw instanceof Blob) {
     const arrayBuffer = await raw.arrayBuffer();
 
-    jsonString = new TextDecoder().decode(new Uint8Array(arrayBuffer));
+    jsonString = decoder.decode(new Uint8Array(arrayBuffer));
   } else if (typeof raw === "string") {
     jsonString = raw;
   } else {
