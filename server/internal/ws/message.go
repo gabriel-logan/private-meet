@@ -50,11 +50,11 @@ type Message struct {
 	From string          `json:"from,omitempty"`
 }
 
-type ChatPayload struct {
+type ChatData struct {
 	Message string `json:"message"`
 }
 
-type ChatTypingPayload struct {
+type ChatTypingData struct {
 	Typing bool `json:"typing"`
 }
 
@@ -63,31 +63,31 @@ type RoomUser struct {
 	Username string `json:"username"`
 }
 
-type RoomUsersPayload struct {
+type RoomUsersData struct {
 	Users []RoomUser `json:"users"`
 }
 
-type WebRTCJoinPayload struct {
+type WebRTCJoinData struct {
 	UserID string `json:"userID"`
 }
 
-type WebRTCLeavePayload struct {
+type WebRTCLeaveData struct {
 	UserID string `json:"userID"`
 }
 
-type WebRTCOfferPayload struct {
+type WebRTCOfferData struct {
 	SDP  string `json:"sdp"`
 	From string `json:"from"`
 	To   string `json:"to"`
 }
 
-type WebRTCAnswerPayload struct {
+type WebRTCAnswerData struct {
 	SDP  string `json:"sdp"`
 	From string `json:"from"`
 	To   string `json:"to"`
 }
 
-type WebRTCIceCandidatePayload struct {
+type WebRTCIceCandidateData struct {
 	Candidate string `json:"candidate"`
 	From      string `json:"from"`
 	To        string `json:"to"`

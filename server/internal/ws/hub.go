@@ -76,7 +76,7 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 			return
 		}
 
-		var payload ChatPayload
+		var payload ChatData
 		if err := json.Unmarshal(msg.Data, &payload); err != nil {
 			c.sendError("Invalid chat message payload")
 			return
@@ -101,7 +101,7 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 			return
 		}
 
-		var payload ChatTypingPayload
+		var payload ChatTypingData
 		if err := json.Unmarshal(msg.Data, &payload); err != nil {
 			c.sendError("Invalid typing payload")
 			return
@@ -129,28 +129,28 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 
 		switch msg.Type {
 		case MessageWebRTCJoin:
-			var payload WebRTCJoinPayload
+			var payload WebRTCJoinData
 			if err := json.Unmarshal(msg.Data, &payload); err != nil {
 				c.sendError("Invalid WebRTC join payload")
 				return
 			}
 
 		case MessageWebRTCOffer:
-			var payload WebRTCOfferPayload
+			var payload WebRTCOfferData
 			if err := json.Unmarshal(msg.Data, &payload); err != nil {
 				c.sendError("Invalid WebRTC offer payload")
 				return
 			}
 
 		case MessageWebRTCAnswer:
-			var payload WebRTCAnswerPayload
+			var payload WebRTCAnswerData
 			if err := json.Unmarshal(msg.Data, &payload); err != nil {
 				c.sendError("Invalid WebRTC answer payload")
 				return
 			}
 
 		case MessageWebRTCIceCandidate:
-			var payload WebRTCIceCandidatePayload
+			var payload WebRTCIceCandidateData
 			if err := json.Unmarshal(msg.Data, &payload); err != nil {
 				c.sendError("Invalid WebRTC ICE candidate payload")
 				return
@@ -254,7 +254,7 @@ func (h *Hub) clientBroadcastRoomUsersSnapshot(room string) {
 		})
 	}
 
-	data, err := json.Marshal(RoomUsersPayload{Users: users})
+	data, err := json.Marshal(RoomUsersData{Users: users})
 	if err != nil {
 		for _, c := range clients {
 			c.safeSend(newErrorMessage("internal error"))
