@@ -121,6 +121,14 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 			),
 		)
 
+	case MessageWebRTCJoin, MessageWebRTCOffer, MessageWebRTCAnswer, MessageWebRTCIceCandidate:
+		if !h.isClientInRoom(msg.Room, c) {
+			c.sendError("You are not in this room")
+			return
+		}
+
+		h.clientBroadcastToRoom(msg.Room, msg)
+
 	default:
 		c.sendError("Invalid message type")
 	}

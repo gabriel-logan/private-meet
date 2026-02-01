@@ -15,6 +15,11 @@ const (
 	MessageRoomUsers MessageType = "room.users"
 
 	MessageUtilsGenerateRoomID MessageType = "utils.generateRoomID"
+
+	MessageWebRTCJoin         MessageType = "webrtc.join"
+	MessageWebRTCOffer        MessageType = "webrtc.offer"
+	MessageWebRTCAnswer       MessageType = "webrtc.answer"
+	MessageWebRTCIceCandidate MessageType = "webrtc.iceCandidate"
 )
 
 func (t MessageType) IsValid() bool {
@@ -25,7 +30,11 @@ func (t MessageType) IsValid() bool {
 		MessageChatMessage,
 		MessageChatTyping,
 		MessageRoomUsers,
-		MessageUtilsGenerateRoomID:
+		MessageUtilsGenerateRoomID,
+		MessageWebRTCJoin,
+		MessageWebRTCOffer,
+		MessageWebRTCAnswer,
+		MessageWebRTCIceCandidate:
 		return true
 	default:
 		return false
@@ -54,4 +63,26 @@ type RoomUser struct {
 
 type RoomUsersPayload struct {
 	Users []RoomUser `json:"users"`
+}
+
+type WebRTCJoinPayload struct {
+	UserID string `json:"userID"`
+}
+
+type WebRTCOfferPayload struct {
+	SDP  string `json:"sdp"`
+	From string `json:"from"`
+	To   string `json:"to"`
+}
+
+type WebRTCAnswerPayload struct {
+	SDP  string `json:"sdp"`
+	From string `json:"from"`
+	To   string `json:"to"`
+}
+
+type WebRTCIceCandidatePayload struct {
+	Candidate string `json:"candidate"`
+	From      string `json:"from"`
+	To        string `json:"to"`
 }
