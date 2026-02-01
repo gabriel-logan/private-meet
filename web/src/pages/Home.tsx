@@ -13,7 +13,7 @@ import { useAuthStore } from "../stores/authStore";
 import getAxiosErrorMessage from "../utils";
 
 export default function HomePage() {
-  const { accessToken } = useAuthStore();
+  const accessToken = useAuthStore((s) => s.accessToken);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 px-4 text-zinc-100">
@@ -55,7 +55,7 @@ export default function HomePage() {
 }
 
 function CreateUser() {
-  const { setAccessToken } = useAuthStore();
+  const setAccessToken = useAuthStore((s) => s.setAccessToken);
 
   const [username, setUsername] = useState("");
 
@@ -122,7 +122,7 @@ function CreateUser() {
 function JoinMeeting() {
   const navigate = useNavigate();
 
-  const { revokeAccessToken } = useAuthStore();
+  const revokeAccessToken = useAuthStore((s) => s.revokeAccessToken);
 
   const [roomId, setRoomId] = useState("");
 
