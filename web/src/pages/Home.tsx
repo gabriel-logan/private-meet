@@ -152,9 +152,9 @@ function JoinMeeting() {
   useEffect(() => {
     const ws = getWSInstance();
 
-    ws.onmessage = (event) => {
+    ws.onmessage = async (event) => {
       try {
-        const { type, data } = parseIncomingWSMessage(String(event.data));
+        const { type, data } = await parseIncomingWSMessage(event.data);
 
         if (type === "utils.generateRoomID") {
           setRoomId(data.roomID);

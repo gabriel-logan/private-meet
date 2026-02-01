@@ -50,48 +50,71 @@ export function makeWSMessage<T extends WSOutgoingMessage["type"]>(
   ...args: WSOutgoingArgsByType[T] extends undefined
     ? []
     : [args: WSOutgoingArgsByType[T]]
-): string {
+): Uint8Array {
   const arg = args[0];
 
   switch (type) {
     case "chat.join":
     case "chat.leave": {
-      return JSON.stringify({
-        type,
-        room: (arg as { room: string }).room,
-        data: {},
-      } satisfies WSOutgoingMessage);
+      return new TextEncoder().encode(
+        JSON.stringify({
+          type,
+          room: (arg as { room: string }).room,
+          data: {},
+        } satisfies WSOutgoingMessage),
+      );
     }
 
     case "chat.message":
-      return JSON.stringify({
-        type,
-        room: (arg as { room: string; message: string }).room,
-        data: {
-          message: (arg as { room: string; message: string }).message,
-        },
-      } satisfies WSOutgoingMessage);
+      return new TextEncoder().encode(
+        JSON.stringify({
+          type,
+          room: (arg as { room: string; message: string }).room,
+          data: {
+            message: (arg as { room: string; message: string }).message,
+          },
+        } satisfies WSOutgoingMessage),
+      );
 
     case "chat.typing":
-      return JSON.stringify({
-        type,
-        room: (arg as { room: string; typing: boolean }).room,
-        data: { typing: (arg as { room: string; typing: boolean }).typing },
-      } satisfies WSOutgoingMessage);
-
+      return new TextEncoder().encode(
+        JSON.stringify({
+          type,
+          room: (arg as { room: string; typing: boolean }).room,
+          data: { typing: (arg as { room: string; typing: boolean }).typing },
+        } satisfies WSOutgoingMessage),
+      );
     case "utils.generateRoomID":
-      return JSON.stringify({ type, data: {} } satisfies WSOutgoingMessage);
+      return new TextEncoder().encode(
+        JSON.stringify({ type, data: {} } satisfies WSOutgoingMessage),
+      );
 
     default:
       throw new Error(`Unsupported WS message type: ${String(type)}`);
   }
 }
 
-export function parseIncomingWSMessage(raw: string): WSIncomingMessage {
+export async function parseIncomingWSMessage(
+  raw: ArrayBuffer | Blob | string,
+): Promise<WSIncomingMessage> {
+  let jsonString: string;
+
+  if (raw instanceof ArrayBuffer) {
+    jsonString = new TextDecoder().decode(new Uint8Array(raw));
+  } else if (raw instanceof Blob) {
+    const arrayBuffer = await raw.arrayBuffer();
+
+    jsonString = new TextDecoder().decode(new Uint8Array(arrayBuffer));
+  } else if (typeof raw === "string") {
+    jsonString = raw;
+  } else {
+    throw new TypeError("Unsupported WS message format");
+  }
+
   let parsed: unknown;
 
   try {
-    parsed = JSON.parse(raw);
+    parsed = JSON.parse(jsonString);
   } catch {
     throw new Error("Failed to parse incoming WS message as JSON.");
   }

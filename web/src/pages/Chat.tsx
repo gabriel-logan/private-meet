@@ -245,11 +245,11 @@ export default function ChatPage() {
       return;
     }
 
-    const onMessage = (event: MessageEvent) => {
+    const onMessage = async (event: MessageEvent) => {
       let parsed: WSIncomingMessage;
 
       try {
-        parsed = parseIncomingWSMessage(String(event.data));
+        parsed = await parseIncomingWSMessage(event.data);
       } catch (error) {
         console.error("Error parsing incoming WS message:", error);
         toast.error("Error processing server message.");

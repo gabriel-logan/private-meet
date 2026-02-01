@@ -149,7 +149,7 @@ func (c *Client) writePump() {
 				return
 			}
 
-			if err = c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+			if err = c.conn.WriteMessage(websocket.BinaryMessage, msg); err != nil {
 				log.Println("WebSocket write message error:", err)
 				return
 			}
