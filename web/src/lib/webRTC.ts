@@ -4,17 +4,18 @@ const turnServerURL = import.meta.env.VITE_TURN_SERVER_URL;
 const turnServerUsername = import.meta.env.VITE_TURN_SERVER_USERNAME;
 const turnServerCredential = import.meta.env.VITE_TURN_SERVER_CREDENTIAL;
 
+const iceServers: RTCIceServer[] = [{ urls: "stun:stun.l.google.com:19302" }];
+
+if (isTurnServerEnabled) {
+  iceServers.push({
+    urls: turnServerURL,
+    username: turnServerUsername,
+    credential: turnServerCredential,
+  });
+}
+
 export const webRTCConfig: RTCConfiguration = {
-  iceServers: isTurnServerEnabled
-    ? [
-        { urls: "stun:stun.l.google.com:19302" },
-        {
-          urls: turnServerURL,
-          username: turnServerUsername,
-          credential: turnServerCredential,
-        },
-      ]
-    : [{ urls: "stun:stun.l.google.com:19302" }],
+  iceServers,
 };
 
 export type OnTrackCallback = (stream: MediaStream) => void;
