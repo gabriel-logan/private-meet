@@ -782,7 +782,7 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-4 max-sm:grid-rows-[minmax(0,1.35fr)_minmax(0,0.85fr)] md:grid-cols-2 md:grid-rows-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[280px_minmax(0,2fr)_420px] lg:grid-rows-1 xl:grid-cols-[320px_minmax(0,3fr)_460px]">
+        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-4 max-sm:grid-rows-none md:grid-cols-2 md:grid-rows-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[280px_minmax(0,2fr)_420px] lg:grid-rows-1 xl:grid-cols-[320px_minmax(0,3fr)_460px]">
           <aside className="order-3 hidden min-h-0 md:order-0 md:col-start-2 md:row-start-2 md:block lg:order-1 lg:col-start-auto lg:row-start-auto">
             <section className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
@@ -830,7 +830,7 @@ export default function ChatPage() {
             </section>
           </aside>
 
-          <section className="order-1 row-start-1 min-h-0 max-sm:min-h-[48vh] md:order-0 md:row-span-2 lg:order-2 lg:row-span-1">
+          <section className="order-1 row-start-1 min-h-0 max-sm:min-h-[30vh] md:order-0 md:row-span-2 lg:order-2 lg:row-span-1">
             <div className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
@@ -1005,7 +1005,7 @@ export default function ChatPage() {
             </div>
           </section>
 
-          <aside className="order-2 row-start-2 min-h-0 max-sm:min-h-[36vh] md:order-0 md:col-start-2 md:row-start-1 lg:order-3 lg:col-start-auto lg:row-start-auto">
+          <aside className="order-2 row-start-2 min-h-0 max-sm:min-h-[65vh] md:order-0 md:col-start-2 md:row-start-1 lg:order-3 lg:col-start-auto lg:row-start-auto">
             <section className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
