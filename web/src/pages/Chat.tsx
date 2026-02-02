@@ -40,13 +40,25 @@ import {
 import { useAuthStore } from "../stores/authStore";
 import { getTimeLabel, isString, normalizeRoomId } from "../utils";
 
-type ChatMessage = {
-  id: string;
-  author: string;
-  text: string;
-  timestamp: string;
-  isMe: boolean;
-};
+type ChatMessage =
+  | {
+      id: string;
+      author: string;
+      timestamp: string;
+      isMe: boolean;
+      kind: "text";
+      text: string;
+    }
+  | {
+      id: string;
+      author: string;
+      timestamp: string;
+      isMe: boolean;
+      kind: "image";
+      url: string;
+      name: string;
+      mime: string;
+    };
 
 type OnlineUser = {
   id: string;
@@ -202,6 +214,52 @@ export default function ChatPage() {
 
   const [speakerMuted, setSpeakerMuted] = useState(true);
 
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
+  const onlineUsersRef = useRef<OnlineUser[]>([]);
+
+  const objectUrlsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    return () => {
+      for (const url of objectUrlsRef.current) {
+        try {
+          URL.revokeObjectURL(url);
+        } catch (error) {
+          console.error("Failed to revoke object URL:", error);
+        }
+      }
+      objectUrlsRef.current = [];
+    };
+  }, []);
+
+  const handleIncomingImage = (payload: {
+    peerID: string;
+    url: string;
+    mime: string;
+    name: string;
+    size: number;
+  }) => {
+    objectUrlsRef.current.push(payload.url);
+
+    const author =
+      onlineUsersRef.current.find((u) => u.id === payload.peerID)?.name ||
+      payload.peerID.slice(0, 8);
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        author,
+        timestamp: getTimeLabel(),
+        isMe: false,
+        kind: "image",
+        url: payload.url,
+        name: payload.name,
+        mime: payload.mime,
+      },
+    ]);
+  };
+
   const {
     localCameraStream,
     localScreenStream,
@@ -216,7 +274,15 @@ export default function ChatPage() {
     stopScreenShare,
     handleSignal,
     syncPeersFromRoomUsers,
-  } = useWebRTCMesh({ room, myID: me.sub || "" });
+    canSendImages,
+    expectedPeersCount,
+    connectedPeersCount,
+    sendImage,
+  } = useWebRTCMesh({
+    room,
+    myID: me.sub || "",
+    onImageReceived: handleIncomingImage,
+  });
 
   const syncPeersRef = useRef(syncPeersFromRoomUsers);
   useEffect(() => {
@@ -230,9 +296,6 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const listEndRef = useRef<HTMLDivElement | null>(null);
 
-  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
-  const onlineUsersRef = useRef<OnlineUser[]>([]);
-
   const [typingUsers, setTypingUsers] = useState<Record<string, string>>({});
   const typingTimeoutRef = useRef<number | null>(null);
   const typingSentRef = useRef(false);
@@ -242,6 +305,8 @@ export default function ChatPage() {
   const [e2eeReady, setE2eeReady] = useState(false);
 
   const messageCharCount = Array.from(message).length;
+
+  const canSendImagesToRoom = expectedPeersCount > 0 && canSendImages;
 
   const tiles = (() => {
     const all: Array<{ key: string; stream: MediaStream; label: string }> = [];
@@ -417,6 +482,64 @@ export default function ChatPage() {
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("Failed to send encrypted message.");
+    }
+  }
+
+  async function handleSendImage(file: File) {
+    if (onlineUsers.length <= 1) {
+      toast.error("No one else is in the room to receive your image.");
+      return;
+    }
+
+    if (!canSendImagesToRoom) {
+      toast.error(
+        "Image sending is only available after WebRTC is connected with everyone in the room.",
+      );
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only images are supported for now.");
+      return;
+    }
+
+    const maxBytes = 8 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      toast.error("Image too large (max 8MB for now).");
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    objectUrlsRef.current.push(url);
+
+    const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id,
+        author: me.username || "You",
+        timestamp: getTimeLabel(),
+        isMe: true,
+        kind: "image",
+        url,
+        name: file.name,
+        mime: file.type,
+      },
+    ]);
+
+    try {
+      await sendImage(file);
+    } catch (error) {
+      console.error("Failed to send image over WebRTC:", error);
+      toast.error("Failed to send image over WebRTC.");
+
+      setMessages((prev) => prev.filter((m) => m.id !== id));
+      try {
+        URL.revokeObjectURL(url);
+      } catch {
+        // ignore
+      }
     }
   }
 
@@ -620,6 +743,7 @@ export default function ChatPage() {
             {
               id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
               author,
+              kind: "text",
               text,
               timestamp: getTimeLabel(),
               isMe,
@@ -1009,9 +1133,31 @@ export default function ChatPage() {
                           {m.timestamp}
                         </p>
                       </div>
-                      <p className="mt-1 text-sm wrap-break-word whitespace-pre-wrap text-zinc-100">
-                        {m.text}
-                      </p>
+                      {m.kind === "text" ? (
+                        <p className="mt-1 text-sm wrap-break-word whitespace-pre-wrap text-zinc-100">
+                          {m.text}
+                        </p>
+                      ) : (
+                        <div className="mt-2">
+                          <a
+                            href={m.url}
+                            download={m.name}
+                            className="block"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <img
+                              src={m.url}
+                              alt={m.name}
+                              className="max-h-80 w-full rounded-lg border border-zinc-800 object-contain"
+                              loading="lazy"
+                            />
+                          </a>
+                          <p className="mt-1 text-[11px] text-zinc-400">
+                            {m.name}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   ))}
                   <div ref={listEndRef} />
@@ -1031,6 +1177,17 @@ export default function ChatPage() {
                   type="file"
                   accept="image/*"
                   className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+
+                    e.target.value = "";
+
+                    if (!file) {
+                      return;
+                    }
+
+                    void handleSendImage(file);
+                  }}
                 />
                 <input
                   ref={videoInputRef}
@@ -1093,9 +1250,18 @@ export default function ChatPage() {
                         <button
                           type="button"
                           onClick={() => trigger(imageInputRef)}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
+                          disabled={!canSendImagesToRoom}
+                          className={
+                            canSendImagesToRoom
+                              ? "inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
+                              : "inline-flex h-10 w-10 cursor-not-allowed items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/40 text-zinc-500"
+                          }
                           aria-label="Attach image"
-                          title="Attach image"
+                          title={
+                            canSendImagesToRoom
+                              ? "Attach image"
+                              : `Waiting for WebRTC connections (${connectedPeersCount}/${expectedPeersCount})`
+                          }
                         >
                           <FiImage />
                         </button>

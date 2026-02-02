@@ -28,6 +28,9 @@ type PeerEntry = {
     camera?: RTCRtpSender;
     screen?: RTCRtpSender;
   };
+  fileChannel?: RTCDataChannel;
+  fileChannelOpen: boolean;
+  connectionState: RTCPeerConnectionState;
   remoteCameraStream: MediaStream;
   remoteScreenStream: MediaStream;
 };
@@ -41,7 +44,30 @@ export type RemotePeerMedia = {
 type UseWebRTCMeshOptions = {
   room: string;
   myID: string;
+  onImageReceived?: (payload: {
+    peerID: string;
+    url: string;
+    mime: string;
+    name: string;
+    size: number;
+  }) => void;
 };
+
+type IncomingImageTransfer = {
+  id: string;
+  name: string;
+  mime: string;
+  size: number;
+  chunkSize: number;
+  totalChunks: number;
+  receivedChunks: number;
+  receivedBytes: number;
+  chunks: ArrayBuffer[];
+};
+
+const FILE_CHANNEL_LABEL = "pm-files";
+const IMAGE_CHUNK_SIZE = 16 * 1024; // 16KB
+const MAX_BUFFERED_AMOUNT = 2 * 1024 * 1024; // 2MB
 
 function wsSend(payload: Uint8Array) {
   let ws: WebSocket;
@@ -85,7 +111,11 @@ function looksLikeScreenTrack(track: MediaStreamTrack): boolean {
   );
 }
 
-export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
+export default function useWebRTCMesh({
+  room,
+  myID,
+  onImageReceived,
+}: UseWebRTCMeshOptions) {
   const [micEnabled, setMicEnabled] = useState(true);
   const [cameraEnabled, setCameraEnabled] = useState(false);
   const [screenShareEnabled, setScreenShareEnabled] = useState(false);
@@ -95,6 +125,25 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
   const roomUserIdsRef = useRef<Set<string>>(new Set());
   const syncTimeoutRef = useRef<number | undefined>(undefined);
   const lastSyncUsersRef = useRef<string>("");
+
+  const onImageReceivedRef =
+    useRef<UseWebRTCMeshOptions["onImageReceived"]>(onImageReceived);
+  onImageReceivedRef.current = onImageReceived;
+
+  const incomingTransfersRef = useRef<
+    Map<string, Map<string, IncomingImageTransfer>>
+  >(new Map());
+
+  const [, setPeerReadiness] = useState<
+    Record<
+      string,
+      { pc: RTCPeerConnectionState; dc: RTCDataChannelState | null }
+    >
+  >({});
+
+  const [canSendImages, setCanSendImages] = useState(false);
+  const [expectedPeersCount, setExpectedPeersCount] = useState(0);
+  const [connectedPeersCount, setConnectedPeersCount] = useState(0);
 
   const localAudioTrackRef = useRef<MediaStreamTrack | null>(null);
   const localCameraTrackRef = useRef<MediaStreamTrack | null>(null);
@@ -200,6 +249,279 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
       }
     },
     [room, myID],
+  );
+
+  const recomputeCanSendImages = useCallback(() => {
+    const expected = roomUserIdsRef.current;
+
+    setExpectedPeersCount(expected.size);
+
+    if (expected.size === 0) {
+      setConnectedPeersCount(0);
+      setCanSendImages(false);
+      return;
+    }
+
+    let connected = 0;
+
+    for (const peerID of expected) {
+      const entry = peersRef.current.get(peerID);
+
+      if (!entry) {
+        continue;
+      }
+
+      const pcConnected = entry.connectionState === "connected";
+      const dcOpen = entry.fileChannel?.readyState === "open";
+
+      if (pcConnected && dcOpen) {
+        connected += 1;
+      }
+    }
+
+    setConnectedPeersCount(connected);
+    setCanSendImages(connected === expected.size);
+  }, []);
+
+  const installFileChannelHandlers = useCallback(
+    (peerID: string, ch: RTCDataChannel) => {
+      const entry = peersRef.current.get(peerID);
+
+      if (!entry) {
+        return;
+      }
+
+      entry.fileChannel = ch;
+
+      ch.binaryType = "arraybuffer";
+
+      const updateState = () => {
+        const pcState = entry.connectionState;
+        const dcState = ch.readyState;
+
+        setPeerReadiness((prev) => ({
+          ...prev,
+          [peerID]: { pc: pcState, dc: dcState },
+        }));
+
+        entry.fileChannelOpen = dcState === "open";
+
+        recomputeCanSendImages();
+      };
+
+      ch.onopen = updateState;
+      ch.onclose = updateState;
+      ch.onerror = () => updateState();
+
+      ch.onmessage = (event: MessageEvent) => {
+        try {
+          const data = event.data as unknown;
+
+          if (typeof data === "string") {
+            const parsed = JSON.parse(data) as
+              | {
+                  t: "img-start";
+                  id: string;
+                  name: string;
+                  mime: string;
+                  size: number;
+                  chunkSize: number;
+                  totalChunks: number;
+                }
+              | { t: "img-end"; id: string };
+
+            if (parsed?.t === "img-start") {
+              if (!incomingTransfersRef.current.has(peerID)) {
+                incomingTransfersRef.current.set(peerID, new Map());
+              }
+
+              const byId = incomingTransfersRef.current.get(peerID)!;
+
+              byId.set(parsed.id, {
+                id: parsed.id,
+                name: parsed.name,
+                mime: parsed.mime,
+                size: parsed.size,
+                chunkSize: parsed.chunkSize,
+                totalChunks: parsed.totalChunks,
+                receivedChunks: 0,
+                receivedBytes: 0,
+                chunks: [],
+              });
+
+              return;
+            }
+
+            if (parsed?.t === "img-end") {
+              const byId = incomingTransfersRef.current.get(peerID);
+
+              const transfer = byId?.get(parsed.id);
+
+              if (!transfer) {
+                return;
+              }
+
+              const blob = new Blob(transfer.chunks, { type: transfer.mime });
+              const url = URL.createObjectURL(blob);
+
+              onImageReceivedRef.current?.({
+                peerID,
+                url,
+                mime: transfer.mime,
+                name: transfer.name,
+                size: transfer.size,
+              });
+
+              byId?.delete(parsed.id);
+              return;
+            }
+
+            return;
+          }
+
+          if (data instanceof ArrayBuffer) {
+            const byId = incomingTransfersRef.current.get(peerID);
+
+            if (!byId || byId.size === 0) {
+              return;
+            }
+
+            const [transfer] = byId.values();
+
+            if (!transfer) {
+              return;
+            }
+
+            transfer.chunks.push(data);
+            transfer.receivedChunks += 1;
+            transfer.receivedBytes += data.byteLength;
+
+            if (
+              transfer.receivedChunks >= transfer.totalChunks ||
+              transfer.receivedBytes >= transfer.size
+            ) {
+              const blob = new Blob(transfer.chunks, { type: transfer.mime });
+              const url = URL.createObjectURL(blob);
+
+              onImageReceivedRef.current?.({
+                peerID,
+                url,
+                mime: transfer.mime,
+                name: transfer.name,
+                size: transfer.size,
+              });
+
+              byId.clear();
+            }
+
+            return;
+          }
+        } catch (error) {
+          console.error(
+            "[useWebRTCMesh] Failed to handle file channel message",
+            error,
+          );
+        }
+      };
+
+      updateState();
+    },
+    [recomputeCanSendImages],
+  );
+
+  const waitForBufferedLow = useCallback((ch: RTCDataChannel) => {
+    if (ch.bufferedAmount <= MAX_BUFFERED_AMOUNT) {
+      return Promise.resolve();
+    }
+
+    return new Promise<void>((resolve) => {
+      const onLow = () => {
+        ch.removeEventListener("bufferedamountlow", onLow);
+        resolve();
+      };
+
+      try {
+        ch.bufferedAmountLowThreshold = 256 * 1024;
+      } catch (error) {
+        console.error("Failed to set bufferedAmountLowThreshold:", error);
+      }
+
+      ch.addEventListener("bufferedamountlow", onLow);
+
+      // Fallback in case bufferedamountlow doesn't fire.
+      globalThis.setTimeout(() => {
+        ch.removeEventListener("bufferedamountlow", onLow);
+        resolve();
+      }, 2000);
+    });
+  }, []);
+
+  const sendImage = useCallback(
+    async (file: File) => {
+      if (!file.type.startsWith("image/")) {
+        throw new Error("Only images are supported for now");
+      }
+
+      const expected = roomUserIdsRef.current;
+      if (expected.size === 0) {
+        throw new Error("No peers in room");
+      }
+
+      recomputeCanSendImages();
+
+      for (const peerID of expected) {
+        const entry = peersRef.current.get(peerID);
+        const ch = entry?.fileChannel;
+
+        if (
+          entry?.connectionState !== "connected" ||
+          ch?.readyState !== "open"
+        ) {
+          throw new Error("WebRTC not fully connected with all peers");
+        }
+      }
+
+      const transferId =
+        globalThis.crypto?.randomUUID?.() ??
+        `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+      const totalChunks = Math.max(1, Math.ceil(file.size / IMAGE_CHUNK_SIZE));
+
+      const startMsg = JSON.stringify({
+        t: "img-start",
+        id: transferId,
+        name: file.name,
+        mime: file.type || "application/octet-stream",
+        size: file.size,
+        chunkSize: IMAGE_CHUNK_SIZE,
+        totalChunks,
+      });
+
+      for (const peerID of expected) {
+        peersRef.current.get(peerID)!.fileChannel!.send(startMsg);
+      }
+
+      let offset = 0;
+
+      while (offset < file.size) {
+        const slice = file.slice(offset, offset + IMAGE_CHUNK_SIZE);
+        const buf = await slice.arrayBuffer();
+
+        for (const peerID of expected) {
+          const ch = peersRef.current.get(peerID)!.fileChannel!;
+          await waitForBufferedLow(ch);
+          ch.send(buf);
+        }
+
+        offset += buf.byteLength;
+      }
+
+      const endMsg = JSON.stringify({ t: "img-end", id: transferId });
+      for (const peerID of expected) {
+        peersRef.current.get(peerID)!.fileChannel!.send(endMsg);
+      }
+    },
+    [recomputeCanSendImages, waitForBufferedLow],
   );
 
   const updatePeerSenders = useCallback(
@@ -393,31 +715,67 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
     }
   }, [stopScreenShare, syncLocalPreviewStreams, updatePeerSenders]);
 
-  const closePeer = useCallback((peerID: string) => {
-    const entry = peersRef.current.get(peerID);
-    if (!entry) {
-      return;
-    }
-
-    try {
-      entry.pc.onicecandidate = null;
-      entry.pc.ontrack = null;
-      entry.pc.onnegotiationneeded = null;
-      entry.pc.close();
-    } catch (error) {
-      console.error("[useWebRTCMesh] Failed to close peer connection", error);
-    }
-
-    peersRef.current.delete(peerID);
-    setRemoteStreams((prev) => {
-      if (!(peerID in prev)) {
-        return prev;
+  const closePeer = useCallback(
+    (peerID: string) => {
+      const entry = peersRef.current.get(peerID);
+      if (!entry) {
+        return;
       }
-      const next = { ...prev };
-      delete next[peerID];
-      return next;
-    });
-  }, []);
+
+      try {
+        if (entry.fileChannel) {
+          entry.fileChannel.onopen = null;
+          entry.fileChannel.onclose = null;
+          entry.fileChannel.onmessage = null;
+          entry.fileChannel.onerror = null;
+          try {
+            entry.fileChannel.close();
+          } catch (error) {
+            console.error("Failed to close file channel:", error);
+          }
+        }
+
+        entry.pc.onicecandidate = null;
+        entry.pc.ontrack = null;
+        entry.pc.onnegotiationneeded = null;
+        entry.pc.onconnectionstatechange = null;
+        entry.pc.ondatachannel = null;
+        entry.pc.close();
+      } catch (error) {
+        console.error("[useWebRTCMesh] Failed to close peer connection", error);
+      }
+
+      peersRef.current.delete(peerID);
+      incomingTransfersRef.current.delete(peerID);
+
+      setPeerReadiness((prev) => {
+        if (!(peerID in prev)) {
+          return prev;
+        }
+
+        const next = { ...prev };
+
+        delete next[peerID];
+
+        return next;
+      });
+
+      recomputeCanSendImages();
+
+      setRemoteStreams((prev) => {
+        if (!(peerID in prev)) {
+          return prev;
+        }
+
+        const next = { ...prev };
+
+        delete next[peerID];
+
+        return next;
+      });
+    },
+    [recomputeCanSendImages],
+  );
 
   const createPeer = useCallback(
     async (peerID: string) => {
@@ -473,11 +831,41 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
           ignoreOffer: false,
           pendingIce: [],
           senders: {},
+          fileChannel: undefined,
+          fileChannelOpen: false,
+          connectionState: pc.connectionState,
           remoteCameraStream: new MediaStream(),
           remoteScreenStream: new MediaStream(),
         };
 
         peersRef.current.set(peerID, entry);
+
+        pc.onconnectionstatechange = () => {
+          entry.connectionState = pc.connectionState;
+          setPeerReadiness((prev) => ({
+            ...prev,
+            [peerID]: {
+              pc: entry.connectionState,
+              dc: entry.fileChannel?.readyState ?? null,
+            },
+          }));
+          recomputeCanSendImages();
+        };
+
+        pc.ondatachannel = (event) => {
+          const ch = event.channel;
+          if (ch?.label !== FILE_CHANNEL_LABEL) {
+            return;
+          }
+
+          installFileChannelHandlers(peerID, ch);
+        };
+
+        if (myID.localeCompare(peerID) < 0) {
+          const ch = pc.createDataChannel(FILE_CHANNEL_LABEL);
+
+          installFileChannelHandlers(peerID, ch);
+        }
 
         pc.ontrack = (event) => {
           const track = event.track;
@@ -552,6 +940,15 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
 
         await updatePeerSenders(entry);
 
+        setPeerReadiness((prev) => ({
+          ...prev,
+          [peerID]: {
+            pc: entry.connectionState,
+            dc: entry.fileChannel?.readyState ?? null,
+          },
+        }));
+        recomputeCanSendImages();
+
         return entry;
       })();
 
@@ -563,7 +960,15 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
         creatingPeersRef.current.delete(peerID);
       }
     },
-    [room, myID, ensureAudioTrack, negotiate, updatePeerSenders],
+    [
+      room,
+      myID,
+      ensureAudioTrack,
+      negotiate,
+      updatePeerSenders,
+      installFileChannelHandlers,
+      recomputeCanSendImages,
+    ],
   );
 
   const syncPeersFromRoomUsers = useCallback(
@@ -575,7 +980,9 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
       const ids = new Set(users.map((u) => u.userID).filter(Boolean));
       ids.delete(myID);
 
-      const userListKey = Array.from(ids).sort().join(",");
+      const userListKey = Array.from(ids)
+        .sort((a, b) => a.localeCompare(b))
+        .join(",");
 
       if (userListKey === lastSyncUsersRef.current) {
         console.log(
@@ -586,12 +993,14 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
 
       lastSyncUsersRef.current = userListKey;
       roomUserIdsRef.current = ids;
+      setExpectedPeersCount(ids.size);
+      recomputeCanSendImages();
 
       if (syncTimeoutRef.current) {
         clearTimeout(syncTimeoutRef.current);
       }
 
-      syncTimeoutRef.current = window.setTimeout(() => {
+      syncTimeoutRef.current = globalThis.setTimeout(() => {
         console.log(`[useWebRTCMesh] Syncing peers: ${ids.size} users in room`);
 
         for (const existingID of Array.from(peersRef.current.keys())) {
@@ -615,7 +1024,7 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
         }
       }, 300);
     },
-    [room, myID, closePeer, createPeer],
+    [room, myID, closePeer, createPeer, recomputeCanSendImages],
   );
 
   const flushPendingIce = useCallback(async (entry: PeerEntry) => {
@@ -751,6 +1160,7 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
 
   useEffect(() => {
     const peers = peersRef.current;
+    const transfers = incomingTransfersRef.current;
 
     return () => {
       if (syncTimeoutRef.current) {
@@ -762,6 +1172,8 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
           entry.pc.onicecandidate = null;
           entry.pc.ontrack = null;
           entry.pc.onnegotiationneeded = null;
+          entry.pc.onconnectionstatechange = null;
+          entry.pc.ondatachannel = null;
           entry.pc.close();
         } catch (error) {
           console.error(
@@ -772,6 +1184,8 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
       }
 
       peers.clear();
+
+      transfers.clear();
 
       if (localAudioTrackRef.current) {
         try {
@@ -823,5 +1237,10 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
 
     handleSignal,
     syncPeersFromRoomUsers,
+
+    canSendImages,
+    expectedPeersCount,
+    connectedPeersCount,
+    sendImage,
   };
 }
