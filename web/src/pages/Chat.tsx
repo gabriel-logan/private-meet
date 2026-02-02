@@ -1120,56 +1120,58 @@ export default function ChatPage() {
 
               <div className="min-h-0 flex-1 overflow-auto p-3">
                 <div className="space-y-3">
-                  {messages.map((m) => (
-                    <div
-                      key={m.id}
-                      className={
-                        m.isMe
-                          ? "ml-10 rounded-xl border border-indigo-500/20 bg-indigo-600/10 px-3 py-2"
-                          : "mr-10 rounded-xl border border-zinc-800 bg-zinc-950/30 px-3 py-2"
-                      }
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-xs font-medium text-zinc-300">
-                          {m.author}
-                        </p>
-                        <p className="text-[11px] text-zinc-500">
-                          {m.timestamp}
-                        </p>
-                      </div>
-                      {m.kind === "text" ? (
-                        <p className="mt-1 text-sm wrap-break-word whitespace-pre-wrap text-zinc-100">
-                          {m.text}
-                        </p>
-                      ) : (
-                        <div className="mt-2">
-                          {isSafeUrl(m.url) ? (
-                            <a
-                              href={m.url}
-                              download={m.name}
-                              className="block"
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              <img
-                                src={m.url}
-                                alt={m.name}
-                                className="max-h-80 w-full rounded-lg border border-zinc-800 object-contain"
-                                loading="lazy"
-                              />
-                            </a>
-                          ) : (
-                            <p className="text-sm text-red-500">
-                              Invalid image URL
-                            </p>
-                          )}
-                          <p className="mt-1 text-[11px] text-zinc-400">
-                            {m.name}
+                  {messages.map((m) => {
+                    return (
+                      <div
+                        key={m.id}
+                        className={
+                          m.isMe
+                            ? "ml-10 rounded-xl border border-indigo-500/20 bg-indigo-600/10 px-3 py-2"
+                            : "mr-10 rounded-xl border border-zinc-800 bg-zinc-950/30 px-3 py-2"
+                        }
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-xs font-medium text-zinc-300">
+                            {m.author}
+                          </p>
+                          <p className="text-[11px] text-zinc-500">
+                            {m.timestamp}
                           </p>
                         </div>
-                      )}
-                    </div>
-                  ))}
+                        {m.kind === "text" ? (
+                          <p className="mt-1 text-sm wrap-break-word whitespace-pre-wrap text-zinc-100">
+                            {m.text}
+                          </p>
+                        ) : (
+                          <div className="mt-2">
+                            {isSafeUrl(m.url) ? (
+                              <a
+                                href={m.url}
+                                download={m.name}
+                                className="block"
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                <img
+                                  src={m.url}
+                                  alt={m.name}
+                                  className="max-h-80 w-full rounded-lg border border-zinc-800 object-contain"
+                                  loading="lazy"
+                                />
+                              </a>
+                            ) : (
+                              <p className="text-sm text-red-500">
+                                Invalid image URL
+                              </p>
+                            )}
+                            <p className="mt-1 text-[11px] text-zinc-400">
+                              {m.name}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                   <div ref={listEndRef} />
                 </div>
               </div>
