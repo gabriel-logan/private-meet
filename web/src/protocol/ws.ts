@@ -83,6 +83,10 @@ type WSOutgoingArgsByType = {
   };
 };
 
+export function mountWSPayload(msg: WSOutgoingMessage): Uint8Array {
+  return encoder.encode(JSON.stringify(msg satisfies WSOutgoingMessage));
+}
+
 export function makeWSMessage<T extends WSOutgoingMessage["type"]>(
   type: T,
   ...args: WSOutgoingArgsByType[T] extends undefined
@@ -96,56 +100,47 @@ export function makeWSMessage<T extends WSOutgoingMessage["type"]>(
     case "chat.leave": {
       const room = (arg as { room: string }).room;
 
-      return encoder.encode(
-        JSON.stringify({
-          type,
-          room,
-          data: {},
-        } satisfies WSOutgoingMessage),
-      );
+      return mountWSPayload({
+        type,
+        room,
+        data: {},
+      });
     }
 
     case "chat.message": {
       const { room, message } = arg as { room: string; message: string };
 
-      return encoder.encode(
-        JSON.stringify({
-          type,
-          room,
-          data: {
-            message,
-          },
-        } satisfies WSOutgoingMessage),
-      );
+      return mountWSPayload({
+        type,
+        room,
+        data: { message },
+      });
     }
 
     case "chat.typing": {
       const { room, typing } = arg as { room: string; typing: boolean };
 
-      return encoder.encode(
-        JSON.stringify({
-          type,
-          room,
-          data: { typing },
-        } satisfies WSOutgoingMessage),
-      );
+      return mountWSPayload({
+        type,
+        room,
+        data: { typing },
+      });
     }
     case "utils.generateRoomID":
-      return encoder.encode(
-        JSON.stringify({ type, data: {} } satisfies WSOutgoingMessage),
-      );
+      return mountWSPayload({
+        type,
+        data: {},
+      });
 
     case "webrtc.join":
     case "webrtc.leave": {
       const { room, userID } = arg as { room: string; userID: string };
 
-      return encoder.encode(
-        JSON.stringify({
-          type,
-          room,
-          data: { userID },
-        } satisfies WSOutgoingMessage),
-      );
+      return mountWSPayload({
+        type,
+        room,
+        data: { userID },
+      });
     }
 
     case "webrtc.offer":
@@ -157,13 +152,11 @@ export function makeWSMessage<T extends WSOutgoingMessage["type"]>(
         to: string;
       };
 
-      return encoder.encode(
-        JSON.stringify({
-          type,
-          room,
-          data: { sdp, from, to },
-        } satisfies WSOutgoingMessage),
-      );
+      return mountWSPayload({
+        type,
+        room,
+        data: { sdp, from, to },
+      });
     }
 
     case "webrtc.iceCandidate": {
@@ -174,13 +167,11 @@ export function makeWSMessage<T extends WSOutgoingMessage["type"]>(
         to: string;
       };
 
-      return encoder.encode(
-        JSON.stringify({
-          type,
-          room,
-          data: { candidate, from, to },
-        } satisfies WSOutgoingMessage),
-      );
+      return mountWSPayload({
+        type,
+        room,
+        data: { candidate, from, to },
+      });
     }
 
     default:
