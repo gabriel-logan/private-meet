@@ -1043,7 +1043,11 @@ export default function ChatPage() {
                     className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-950"
                     aria-pressed={speakerMuted}
                   >
-                    {speakerMuted ? <FiVolumeX /> : <FiVolume2 />}
+                    {speakerMuted ? (
+                      <FiVolumeX size={28} />
+                    ) : (
+                      <FiVolume2 size={28} />
+                    )}
                   </button>
 
                   <button
@@ -1056,7 +1060,7 @@ export default function ChatPage() {
                     }
                     aria-pressed={micEnabled}
                   >
-                    {micEnabled ? <FiMic /> : <FiMicOff />}
+                    {micEnabled ? <FiMic size={28} /> : <FiMicOff size={28} />}
                   </button>
 
                   <button
@@ -1069,7 +1073,11 @@ export default function ChatPage() {
                     }
                     aria-pressed={cameraEnabled}
                   >
-                    {cameraEnabled ? <FiVideo /> : <FiVideoOff />}
+                    {cameraEnabled ? (
+                      <FiVideo size={28} />
+                    ) : (
+                      <FiVideoOff size={28} />
+                    )}
                   </button>
 
                   <button
@@ -1082,7 +1090,7 @@ export default function ChatPage() {
                     }
                     aria-pressed={screenShareEnabled}
                   >
-                    <FiMonitor />
+                    <FiMonitor size={28} />
                   </button>
 
                   <button
@@ -1090,7 +1098,7 @@ export default function ChatPage() {
                     className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm font-medium text-red-300 transition hover:bg-zinc-800"
                     onClick={handleLeaveRoom}
                   >
-                    <FaSignOutAlt />
+                    <FaSignOutAlt size={28} />
                   </button>
                 </div>
               </div>
