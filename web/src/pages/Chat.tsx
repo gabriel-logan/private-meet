@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { FaSignOutAlt } from "react-icons/fa";
 import {
   FiImage,
+  FiMaximize,
   FiMenu,
   FiMic,
   FiMicOff,
@@ -60,6 +61,8 @@ function VideoTile({
 }: Readonly<{ stream: MediaStream; muted: boolean; label: string }>) {
   const ref = useRef<HTMLVideoElement | null>(null);
 
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     const el = ref.current;
 
@@ -106,17 +109,40 @@ function VideoTile({
   }, [stream]);
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950/40">
+    <div
+      ref={containerRef}
+      className="group relative aspect-video min-h-40 w-full overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950/40"
+    >
       <video
         ref={ref}
         autoPlay
         playsInline
         muted={muted}
-        className="h-full w-full object-cover"
+        className="absolute inset-0 z-0 h-full w-full object-cover"
       >
         <track kind="captions" />
       </video>
-      <div className="absolute bottom-2 left-2 rounded-md bg-black/50 px-2 py-1 text-xs text-zinc-100">
+      <button
+        type="button"
+        onClick={() => {
+          const el = containerRef.current;
+          if (!el) {
+            return;
+          }
+
+          if (document.fullscreenElement) {
+            void document.exitFullscreen?.();
+            return;
+          }
+
+          void el.requestFullscreen?.();
+        }}
+        className="absolute right-2 bottom-2 z-30 inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/20 bg-black/70 text-zinc-100 shadow-lg backdrop-blur-sm transition hover:bg-black/80"
+        aria-label="Toggle fullscreen"
+      >
+        <FiMaximize className="text-sm" />
+      </button>
+      <div className="absolute bottom-2 left-2 z-20 rounded-md bg-black/60 px-2 py-1 text-xs text-zinc-100">
         {label}
       </div>
     </div>
@@ -217,48 +243,43 @@ export default function ChatPage() {
 
   const messageCharCount = Array.from(message).length;
 
-  const featured = (() => {
-    const remoteScreen = remotePeers.find(
-      (p) => p.kind === "screen" && hasVideo(p.stream),
-    );
+  const tiles = (() => {
+    const all: Array<{ key: string; stream: MediaStream; label: string }> = [];
 
-    if (remoteScreen) {
-      return {
-        key: `remote:${remoteScreen.peerID}:screen`,
-        stream: remoteScreen.stream,
-        label: `${remoteScreen.peerID.slice(0, 8)} (screen)` as const,
-      };
-    }
-
-    const remoteCamera = remotePeers.find(
-      (p) => p.kind === "camera" && hasVideo(p.stream),
-    );
-
-    if (remoteCamera) {
-      return {
-        key: `remote:${remoteCamera.peerID}:camera`,
-        stream: remoteCamera.stream,
-        label: remoteCamera.peerID.slice(0, 8),
-      };
+    if (hasVideo(localCameraStream)) {
+      all.push({
+        key: "local:camera",
+        stream: localCameraStream,
+        label: cameraEnabled ? "You" : "You (audio)",
+      });
     }
 
     if (hasVideo(localScreenStream)) {
-      return {
+      all.push({
         key: "local:screen",
         stream: localScreenStream,
-        label: "You (screen)",
-      };
+        label: screenShareEnabled ? "You (screen)" : "You",
+      });
     }
 
-    if (hasVideo(localCameraStream)) {
-      return {
-        key: "local:camera",
-        stream: localCameraStream,
-        label: "You",
-      };
+    for (const p of remotePeers) {
+      if (!hasVideo(p.stream)) {
+        continue;
+      }
+
+      const label =
+        p.kind === "screen"
+          ? `${p.peerID.slice(0, 8)} (screen)`
+          : p.peerID.slice(0, 8);
+
+      all.push({
+        key: `remote:${p.peerID}:${p.kind}`,
+        stream: p.stream,
+        label,
+      });
     }
 
-    return null;
+    return all;
   })();
 
   const remoteAudioStreams = (() => {
@@ -863,84 +884,35 @@ export default function ChatPage() {
                     <div className="h-full w-full bg-[linear-gradient(to_right,rgba(99,102,241,0.15),transparent),linear-gradient(to_top,rgba(0,0,0,0.35),transparent)]" />
                   </div>
 
-                  <div className="relative z-10 flex h-full flex-col gap-3 p-3">
-                    <div className="min-h-0 flex-1">
-                      {featured ? (
-                        <VideoTile
-                          key={featured.key}
-                          stream={featured.stream}
-                          muted
-                          label={featured.label}
-                        />
-                      ) : (
-                        <div className="grid h-full place-items-center rounded-lg border border-zinc-800 bg-zinc-950/40 p-6 text-sm text-zinc-300">
-                          <div className="flex flex-col items-center gap-2 text-center">
-                            <div className="grid h-12 w-12 place-items-center rounded-full border border-zinc-800 bg-zinc-950 text-indigo-300">
-                              <FiVideo />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-zinc-100">
-                                No video yet
-                              </p>
-                              <p className="mt-1 text-xs text-zinc-400">
-                                Turn on camera or share screen
-                              </p>
-                            </div>
+                  <div className="relative z-10 h-full p-3">
+                    {tiles.length === 0 ? (
+                      <div className="grid h-full place-items-center rounded-lg border border-zinc-800 bg-zinc-950/40 p-6 text-sm text-zinc-300">
+                        <div className="flex flex-col items-center gap-2 text-center">
+                          <div className="grid h-12 w-12 place-items-center rounded-full border border-zinc-800 bg-zinc-950 text-indigo-300">
+                            <FiVideo />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-zinc-100">
+                              No video yet
+                            </p>
+                            <p className="mt-1 text-xs text-zinc-400">
+                              Turn on camera or share screen
+                            </p>
                           </div>
                         </div>
-                      )}
-                    </div>
-
-                    <div className="flex gap-3 overflow-x-auto pb-1 max-sm:grid max-sm:max-h-48 max-sm:auto-rows-[6.5rem] max-sm:grid-cols-2 max-sm:gap-2 max-sm:overflow-y-auto max-sm:pb-0">
-                      {featured?.key !== "local:camera" &&
-                      localCameraStream.getTracks().length > 0 ? (
-                        <div className="min-w-45 flex-1 max-sm:h-28 max-sm:min-w-0">
+                      </div>
+                    ) : (
+                      <div className="grid h-full auto-rows-max grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        {tiles.map((tile) => (
                           <VideoTile
-                            stream={localCameraStream}
+                            key={tile.key}
+                            stream={tile.stream}
                             muted
-                            label={cameraEnabled ? "You" : "You (audio)"}
+                            label={tile.label}
                           />
-                        </div>
-                      ) : null}
-
-                      {featured?.key !== "local:screen" &&
-                      localScreenStream.getTracks().length > 0 ? (
-                        <div className="min-w-45 flex-1 max-sm:h-28 max-sm:min-w-0">
-                          <VideoTile
-                            stream={localScreenStream}
-                            muted
-                            label={screenShareEnabled ? "You (screen)" : "You"}
-                          />
-                        </div>
-                      ) : null}
-
-                      {remotePeers
-                        .filter((p) => p.stream.getTracks().length > 0)
-                        .map((p) => {
-                          const key = `remote:${p.peerID}:${p.kind}`;
-                          if (featured?.key === key) {
-                            return null;
-                          }
-
-                          const label =
-                            p.kind === "screen"
-                              ? `${p.peerID.slice(0, 8)} (screen)`
-                              : p.peerID.slice(0, 8);
-
-                          return (
-                            <div
-                              key={key}
-                              className="min-w-45 flex-1 max-sm:h-28 max-sm:min-w-0"
-                            >
-                              <VideoTile
-                                stream={p.stream}
-                                muted
-                                label={label}
-                              />
-                            </div>
-                          );
-                        })}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
