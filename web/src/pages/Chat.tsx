@@ -1152,14 +1152,14 @@ export default function ChatPage() {
                           <div className="mt-2">
                             {isSafeUrl(m.url) ? (
                               <Link
-                                to={m.url}
+                                to={String(m.url ?? "#")}
                                 download={String(m.name ?? "Invalid name")}
                                 className="block"
                                 target="_blank"
                                 rel="noreferrer"
                               >
                                 <img
-                                  src={m.url}
+                                  src={String(m.url ?? "")}
                                   alt={String(m.name ?? "Invalid name")}
                                   className="max-h-80 w-full rounded-lg border border-zinc-800 object-contain"
                                   loading="lazy"
