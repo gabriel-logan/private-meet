@@ -142,10 +142,7 @@ func (c *Client) writePump() {
 			}
 
 			if !ok {
-				if err = c.conn.WriteMessage(websocket.CloseMessage, nil); err != nil {
-					log.Println("WebSocket write close error:", err)
-				}
-
+				_ = c.conn.WriteMessage(websocket.CloseMessage, nil)
 				break
 			}
 
