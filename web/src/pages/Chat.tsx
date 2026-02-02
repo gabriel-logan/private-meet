@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { FaSignOutAlt } from "react-icons/fa";
 import {
   FiImage,
   FiMenu,
@@ -667,7 +668,7 @@ export default function ChatPage() {
   ]);
 
   return (
-    <main className="h-screen bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 px-3 py-4 text-zinc-100 sm:px-6">
+    <main className="h-screen bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 px-3 py-4 text-zinc-100 max-sm:h-auto max-sm:min-h-dvh max-sm:pb-6 sm:px-6">
       {remoteAudioStreams.map(([peerID, stream]) => (
         <RemoteAudio key={peerID} stream={stream} muted={speakerMuted} />
       ))}
@@ -784,7 +785,7 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-4 md:grid-cols-2 md:grid-rows-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[280px_minmax(0,2fr)_420px] lg:grid-rows-1 xl:grid-cols-[320px_minmax(0,3fr)_460px]">
+        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_minmax(0,1fr)] gap-4 max-sm:grid-rows-[minmax(0,1.35fr)_minmax(0,0.85fr)] md:grid-cols-2 md:grid-rows-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[280px_minmax(0,2fr)_420px] lg:grid-rows-1 xl:grid-cols-[320px_minmax(0,3fr)_460px]">
           <aside className="order-3 hidden min-h-0 md:order-0 md:col-start-2 md:row-start-2 md:block lg:order-1 lg:col-start-auto lg:row-start-auto">
             <section className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
@@ -832,7 +833,7 @@ export default function ChatPage() {
             </section>
           </aside>
 
-          <section className="order-1 row-start-1 min-h-0 md:order-0 md:row-span-2 lg:order-2 lg:row-span-1">
+          <section className="order-1 row-start-1 min-h-0 max-sm:min-h-[48vh] md:order-0 md:row-span-2 lg:order-2 lg:row-span-1">
             <div className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
@@ -893,10 +894,10 @@ export default function ChatPage() {
                       )}
                     </div>
 
-                    <div className="flex gap-3 overflow-x-auto pb-1">
+                    <div className="flex gap-3 overflow-x-auto pb-1 max-sm:grid max-sm:max-h-48 max-sm:auto-rows-[6.5rem] max-sm:grid-cols-2 max-sm:gap-2 max-sm:overflow-y-auto max-sm:pb-0">
                       {featured?.key !== "local:camera" &&
                       localCameraStream.getTracks().length > 0 ? (
-                        <div className="min-w-45 flex-1">
+                        <div className="min-w-45 flex-1 max-sm:h-28 max-sm:min-w-0">
                           <VideoTile
                             stream={localCameraStream}
                             muted
@@ -907,7 +908,7 @@ export default function ChatPage() {
 
                       {featured?.key !== "local:screen" &&
                       localScreenStream.getTracks().length > 0 ? (
-                        <div className="min-w-45 flex-1">
+                        <div className="min-w-45 flex-1 max-sm:h-28 max-sm:min-w-0">
                           <VideoTile
                             stream={localScreenStream}
                             muted
@@ -930,7 +931,10 @@ export default function ChatPage() {
                               : p.peerID.slice(0, 8);
 
                           return (
-                            <div key={key} className="min-w-45 flex-1">
+                            <div
+                              key={key}
+                              className="min-w-45 flex-1 max-sm:h-28 max-sm:min-w-0"
+                            >
                               <VideoTile
                                 stream={p.stream}
                                 muted
@@ -951,7 +955,6 @@ export default function ChatPage() {
                     aria-pressed={speakerMuted}
                   >
                     {speakerMuted ? <FiVolumeX /> : <FiVolume2 />}
-                    {speakerMuted ? "Unmute" : "Mute"}
                   </button>
 
                   <button
@@ -965,7 +968,6 @@ export default function ChatPage() {
                     aria-pressed={micEnabled}
                   >
                     {micEnabled ? <FiMic /> : <FiMicOff />}
-                    {micEnabled ? "Mic on" : "Mic off"}
                   </button>
 
                   <button
@@ -979,7 +981,6 @@ export default function ChatPage() {
                     aria-pressed={cameraEnabled}
                   >
                     {cameraEnabled ? <FiVideo /> : <FiVideoOff />}
-                    {cameraEnabled ? "Camera on" : "Camera off"}
                   </button>
 
                   <button
@@ -993,7 +994,6 @@ export default function ChatPage() {
                     aria-pressed={screenShareEnabled}
                   >
                     <FiMonitor />
-                    {screenShareEnabled ? "Stop share" : "Share screen"}
                   </button>
 
                   <button
@@ -1001,15 +1001,14 @@ export default function ChatPage() {
                     className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm font-medium text-red-300 transition hover:bg-zinc-800"
                     onClick={handleLeaveRoom}
                   >
-                    <FiX />
-                    Leave
+                    <FaSignOutAlt />
                   </button>
                 </div>
               </div>
             </div>
           </section>
 
-          <aside className="order-2 row-start-2 min-h-0 md:order-0 md:col-start-2 md:row-start-1 lg:order-3 lg:col-start-auto lg:row-start-auto">
+          <aside className="order-2 row-start-2 min-h-0 max-sm:min-h-[36vh] md:order-0 md:col-start-2 md:row-start-1 lg:order-3 lg:col-start-auto lg:row-start-auto">
             <section className="flex h-full min-h-0 flex-col rounded-xl border border-zinc-800 bg-zinc-900/70 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.6)]">
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
