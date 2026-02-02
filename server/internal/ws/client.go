@@ -142,7 +142,7 @@ func (c *Client) writePump() {
 			}
 
 			if !ok {
-				_ = c.conn.WriteMessage(websocket.CloseMessage, nil)
+				c.conn.WriteMessage(websocket.CloseMessage, nil)
 				break
 			}
 
