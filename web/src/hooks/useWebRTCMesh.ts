@@ -89,6 +89,8 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
   const [screenShareEnabled, setScreenShareEnabled] = useState(false);
 
   const peersRef = useRef<Map<string, PeerEntry>>(new Map());
+  const creatingPeersRef = useRef<Map<string, Promise<PeerEntry>>>(new Map());
+  const roomUserIdsRef = useRef<Set<string>>(new Set());
 
   const localAudioTrackRef = useRef<MediaStreamTrack | null>(null);
   const localCameraTrackRef = useRef<MediaStreamTrack | null>(null);
@@ -254,8 +256,6 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
 
     for (const [, entry] of peersRef.current) {
       await updatePeerSenders(entry);
-
-      void negotiate(entry);
     }
 
     return track;
@@ -289,8 +289,6 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
 
       for (const [, entry] of peersRef.current) {
         await updatePeerSenders(entry);
-
-        void negotiate(entry);
       }
 
       return;
@@ -315,8 +313,6 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
 
     for (const [, entry] of peersRef.current) {
       await updatePeerSenders(entry);
-
-      void negotiate(entry);
     }
   }
 
@@ -330,8 +326,6 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
 
     for (const [, entry] of peersRef.current) {
       await updatePeerSenders(entry);
-
-      void negotiate(entry);
     }
   }
 
@@ -381,7 +375,6 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
 
     for (const [, entry] of peersRef.current) {
       await updatePeerSenders(entry);
-      void negotiate(entry);
     }
   }
 
@@ -418,6 +411,11 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
       return existing;
     }
 
+    const pending = creatingPeersRef.current.get(peerID);
+    if (pending) {
+      return pending;
+    }
+
     if (!room || !myID) {
       throw new Error("Missing room/myID");
     }
@@ -426,70 +424,55 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
       throw new Error("Refusing to create peer connection to self");
     }
 
-    await ensureAudioTrack().catch((error) => {
-      console.error(
-        "[useWebRTCMesh] Failed to getUserMedia(audio) while creating peer",
-        error,
-      );
-    });
+    const createPromise = (async () => {
+      await ensureAudioTrack().catch((error) => {
+        console.error(
+          "[useWebRTCMesh] Failed to getUserMedia(audio) while creating peer",
+          error,
+        );
+      });
 
-    const pc = new RTCPeerConnection(webRTCConfig);
+      const pc = new RTCPeerConnection(webRTCConfig);
 
-    const entry: PeerEntry = {
-      peerID,
-      pc,
-      polite: myID.localeCompare(peerID) > 0,
-      makingOffer: false,
-      ignoreOffer: false,
-      pendingIce: [],
-      senders: {},
-      remoteCameraStream: new MediaStream(),
-      remoteScreenStream: new MediaStream(),
-    };
+      const entry: PeerEntry = {
+        peerID,
+        pc,
+        polite: myID.localeCompare(peerID) > 0,
+        makingOffer: false,
+        ignoreOffer: false,
+        pendingIce: [],
+        senders: {},
+        remoteCameraStream: new MediaStream(),
+        remoteScreenStream: new MediaStream(),
+      };
 
-    peersRef.current.set(peerID, entry);
+      peersRef.current.set(peerID, entry);
 
-    pc.ontrack = (event) => {
-      const track = event.track;
+      pc.ontrack = (event) => {
+        const track = event.track;
 
-      if (track.kind === "audio") {
-        for (const t of entry.remoteCameraStream.getAudioTracks()) {
-          entry.remoteCameraStream.removeTrack(t);
-        }
-
-        entry.remoteCameraStream.addTrack(track);
-      } else if (track.kind === "video") {
-        const isScreen = looksLikeScreenTrack(track);
-
-        if (isScreen) {
-          for (const t of entry.remoteScreenStream.getVideoTracks()) {
-            entry.remoteScreenStream.removeTrack(t);
-          }
-
-          entry.remoteScreenStream.addTrack(track);
-        } else {
-          for (const t of entry.remoteCameraStream.getVideoTracks()) {
+        if (track.kind === "audio") {
+          for (const t of entry.remoteCameraStream.getAudioTracks()) {
             entry.remoteCameraStream.removeTrack(t);
           }
 
           entry.remoteCameraStream.addTrack(track);
-        }
-      }
+        } else if (track.kind === "video") {
+          const isScreen = looksLikeScreenTrack(track);
 
-      setRemoteStreams((prev) => ({
-        ...prev,
-        [peerID]: {
-          camera: entry.remoteCameraStream,
-          screen: entry.remoteScreenStream,
-        },
-      }));
+          if (isScreen) {
+            for (const t of entry.remoteScreenStream.getVideoTracks()) {
+              entry.remoteScreenStream.removeTrack(t);
+            }
 
-      track.addEventListener("ended", () => {
-        if (track.kind === "audio") {
-          entry.remoteCameraStream.removeTrack(track);
-        } else {
-          entry.remoteCameraStream.removeTrack(track);
-          entry.remoteScreenStream.removeTrack(track);
+            entry.remoteScreenStream.addTrack(track);
+          } else {
+            for (const t of entry.remoteCameraStream.getVideoTracks()) {
+              entry.remoteCameraStream.removeTrack(t);
+            }
+
+            entry.remoteCameraStream.addTrack(track);
+          }
         }
 
         setRemoteStreams((prev) => ({
@@ -499,32 +482,55 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
             screen: entry.remoteScreenStream,
           },
         }));
-      });
-    };
 
-    pc.onicecandidate = (event) => {
-      if (!event.candidate) {
-        return;
-      }
+        track.addEventListener("ended", () => {
+          if (track.kind === "audio") {
+            entry.remoteCameraStream.removeTrack(track);
+          } else {
+            entry.remoteCameraStream.removeTrack(track);
+            entry.remoteScreenStream.removeTrack(track);
+          }
 
-      wsSend(
-        makeWSMessage("webrtc.iceCandidate", {
-          room,
-          to: peerID,
-          candidate: JSON.stringify(event.candidate.toJSON()),
-        }),
-      );
-    };
+          setRemoteStreams((prev) => ({
+            ...prev,
+            [peerID]: {
+              camera: entry.remoteCameraStream,
+              screen: entry.remoteScreenStream,
+            },
+          }));
+        });
+      };
 
-    pc.onnegotiationneeded = () => {
-      void negotiate(entry);
-    };
+      pc.onicecandidate = (event) => {
+        if (!event.candidate) {
+          return;
+        }
 
-    await updatePeerSenders(entry);
+        wsSend(
+          makeWSMessage("webrtc.iceCandidate", {
+            room,
+            to: peerID,
+            candidate: JSON.stringify(event.candidate.toJSON()),
+          }),
+        );
+      };
 
-    void negotiate(entry);
+      pc.onnegotiationneeded = () => {
+        void negotiate(entry);
+      };
 
-    return entry;
+      await updatePeerSenders(entry);
+
+      return entry;
+    })();
+
+    creatingPeersRef.current.set(peerID, createPromise);
+
+    try {
+      return await createPromise;
+    } finally {
+      creatingPeersRef.current.delete(peerID);
+    }
   }
 
   async function syncPeersFromRoomUsers(users: RoomUser[]) {
@@ -533,6 +539,8 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
     }
 
     const ids = new Set(users.map((u) => u.userID).filter(Boolean));
+
+    roomUserIdsRef.current = ids;
 
     ids.delete(myID);
 
@@ -587,6 +595,10 @@ export default function useWebRTCMesh({ room, myID }: UseWebRTCMeshOptions) {
       const from = typeof msg.from === "string" ? msg.from : "";
 
       if (!from || from === myID) {
+        return;
+      }
+
+      if (!roomUserIdsRef.current.has(from)) {
         return;
       }
 
