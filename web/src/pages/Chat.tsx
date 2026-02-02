@@ -37,7 +37,7 @@ import {
   type WSIncomingMessage,
 } from "../protocol/ws";
 import { useAuthStore } from "../stores/authStore";
-import { getTimeLabel, isString, normalizeRoomId } from "../utils";
+import { getTimeLabel, isSafeUrl, isString, normalizeRoomId } from "../utils";
 
 type ChatMessage =
   | {
@@ -1143,20 +1143,26 @@ export default function ChatPage() {
                         </p>
                       ) : (
                         <div className="mt-2">
-                          <a
-                            href={m.url}
-                            download={m.name}
-                            className="block"
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <img
-                              src={m.url}
-                              alt={m.name}
-                              className="max-h-80 w-full rounded-lg border border-zinc-800 object-contain"
-                              loading="lazy"
-                            />
-                          </a>
+                          {isSafeUrl(m.url) ? (
+                            <a
+                              href={m.url}
+                              download={m.name}
+                              className="block"
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              <img
+                                src={m.url}
+                                alt={m.name}
+                                className="max-h-80 w-full rounded-lg border border-zinc-800 object-contain"
+                                loading="lazy"
+                              />
+                            </a>
+                          ) : (
+                            <p className="text-sm text-red-500">
+                              Invalid image URL
+                            </p>
+                          )}
                           <p className="mt-1 text-[11px] text-zinc-400">
                             {m.name}
                           </p>

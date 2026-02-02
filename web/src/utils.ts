@@ -45,3 +45,13 @@ export function getTimeLabel() {
     minute: "2-digit",
   });
 }
+
+export function isSafeUrl(url: string) {
+  try {
+    const u = new URL(url);
+
+    return u.protocol === "blob:" || u.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
