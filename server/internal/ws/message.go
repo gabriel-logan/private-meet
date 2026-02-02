@@ -76,19 +76,16 @@ type WebRTCLeaveData struct {
 }
 
 type WebRTCOfferData struct {
-	SDP  string `json:"sdp"`
-	From string `json:"from"`
-	To   string `json:"to"`
+	SDP string `json:"sdp"`
+	To  string `json:"to"`
 }
 
 type WebRTCAnswerData struct {
-	SDP  string `json:"sdp"`
-	From string `json:"from"`
-	To   string `json:"to"`
+	SDP string `json:"sdp"`
+	To  string `json:"to"`
 }
 
 type WebRTCIceCandidateData struct {
 	Candidate string `json:"candidate"`
-	From      string `json:"from"`
 	To        string `json:"to"`
 }

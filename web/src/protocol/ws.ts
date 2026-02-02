@@ -40,29 +40,22 @@ export type WSIncomingMessage =
   | { type: "room.users"; room: string; data: { users: RoomUser[] } }
   | { type: "utils.generateRoomID"; data: { roomID: string } }
   | {
-      type: "webrtc.join";
-      room: string;
-      data: { userID: string };
-    }
-  | {
-      type: "webrtc.leave";
-      room: string;
-      data: { userID: string };
-    }
-  | {
       type: "webrtc.offer";
       room: string;
-      data: { sdp: string; from: string; to: string };
+      from?: string;
+      data: { sdp: string; to: string };
     }
   | {
       type: "webrtc.answer";
       room: string;
-      data: { sdp: string; from: string; to: string };
+      from?: string;
+      data: { sdp: string; to: string };
     }
   | {
       type: "webrtc.iceCandidate";
       room: string;
-      data: { candidate: string; from: string; to: string };
+      from?: string;
+      data: { candidate: string; to: string };
     };
 
 type WSOutgoingArgsByType = {
@@ -71,16 +64,9 @@ type WSOutgoingArgsByType = {
   "chat.message": { room: string; message: string };
   "chat.typing": { room: string; typing: boolean };
   "utils.generateRoomID": undefined;
-  "webrtc.join": { room: string; userID: string };
-  "webrtc.leave": { room: string; userID: string };
-  "webrtc.offer": { room: string; sdp: string; from: string; to: string };
-  "webrtc.answer": { room: string; sdp: string; from: string; to: string };
-  "webrtc.iceCandidate": {
-    room: string;
-    candidate: string;
-    from: string;
-    to: string;
-  };
+  "webrtc.offer": { room: string; sdp: string; to: string };
+  "webrtc.answer": { room: string; sdp: string; to: string };
+  "webrtc.iceCandidate": { room: string; candidate: string; to: string };
 };
 
 export function mountWSPayload(msg: WSOutgoingMessage): Uint8Array {
@@ -132,45 +118,32 @@ export function makeWSMessage<T extends WSOutgoingMessage["type"]>(
         data: {},
       });
 
-    case "webrtc.join":
-    case "webrtc.leave": {
-      const { room, userID } = arg as { room: string; userID: string };
-
-      return mountWSPayload({
-        type,
-        room,
-        data: { userID },
-      });
-    }
-
     case "webrtc.offer":
     case "webrtc.answer": {
-      const { room, sdp, from, to } = arg as {
+      const { room, sdp, to } = arg as {
         room: string;
         sdp: string;
-        from: string;
         to: string;
       };
 
       return mountWSPayload({
         type,
         room,
-        data: { sdp, from, to },
+        data: { sdp, to },
       });
     }
 
     case "webrtc.iceCandidate": {
-      const { room, candidate, from, to } = arg as {
+      const { room, candidate, to } = arg as {
         room: string;
         candidate: string;
-        from: string;
         to: string;
       };
 
       return mountWSPayload({
         type,
         room,
-        data: { candidate, from, to },
+        data: { candidate, to },
       });
     }
 
@@ -208,25 +181,25 @@ export async function parseIncomingWSMessage(
     throw new Error("Parsed WS message is not an object.");
   }
 
-  const msg = parsed as { type?: unknown };
+  const { type } = parsed as { type?: unknown };
 
-  if (typeof msg.type !== "string") {
+  if (typeof type !== "string") {
     throw new TypeError("WS message type is not a string.");
   }
 
-  switch (msg.type) {
+  const correctType = type as WSIncomingMessage["type"];
+
+  switch (correctType) {
     case "general.error":
     case "chat.message":
     case "chat.typing":
     case "room.users":
     case "utils.generateRoomID":
-    case "webrtc.join":
-    case "webrtc.leave":
     case "webrtc.offer":
     case "webrtc.answer":
     case "webrtc.iceCandidate":
       return parsed as WSIncomingMessage;
     default:
-      throw new Error(`Unsupported WS message type: ${String(msg.type)}`);
+      throw new Error(`Unsupported WS message type: ${String(type)}`);
   }
 }
