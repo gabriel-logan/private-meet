@@ -15,11 +15,13 @@ func runHelperProcess(t *testing.T, env map[string]string) (string, error) {
 	cmd := exec.Command(os.Args[0], "-test.run=TestHelperProcess")
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "GO_WANT_HELPER_PROCESS=1")
+
 	for k, v := range env {
 		cmd.Env = append(cmd.Env, k+"="+v)
 	}
 
 	out, err := cmd.CombinedOutput()
+
 	return string(out), err
 }
 
@@ -57,6 +59,8 @@ func TestHelperProcess(t *testing.T) {
 	key := os.Getenv("TARGET_KEY")
 
 	switch helper {
+	case "mustExistBool":
+		_ = mustExistBool(key)
 	case "mustExistString":
 		_ = mustExistString(key)
 	case "mustExistDuration":
@@ -92,6 +96,47 @@ func TestMustExistStringMissing(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected subprocess to fail (log.Fatal), got nil error; output=%q", out)
 	}
+	if !strings.Contains(out, EnvironmentPrefixMsg+key+" is required") {
+		t.Fatalf("expected fatal message to mention missing env var; output=%q", out)
+	}
+}
+
+func TestMustExistBoolTrue(t *testing.T) {
+	key := "TEST_MUST_EXIST_BOOL_TRUE"
+	expectedValue := "true"
+
+	t.Setenv(key, expectedValue)
+
+	value := mustExistBool(key)
+	if value != true {
+		t.Errorf("Expected true, got %v", value)
+	}
+}
+
+func TestMustExistBoolFalse(t *testing.T) {
+	key := "TEST_MUST_EXIST_BOOL_FALSE"
+	expectedValue := "false"
+
+	t.Setenv(key, expectedValue)
+
+	value := mustExistBool(key)
+	if value != false {
+		t.Errorf("Expected false, got %v", value)
+	}
+}
+
+func TestMustExistBoolMissing(t *testing.T) {
+	key := "TEST_MUST_EXIST_BOOL_MISSING"
+
+	out, err := runHelperProcess(t, map[string]string{
+		"HELPER_NAME": "mustExistBool",
+		"TARGET_KEY":  key,
+	})
+
+	if err == nil {
+		t.Fatalf("expected subprocess to fail (log.Fatal), got nil error; output=%q", out)
+	}
+
 	if !strings.Contains(out, EnvironmentPrefixMsg+key+" is required") {
 		t.Fatalf("expected fatal message to mention missing env var; output=%q", out)
 	}
@@ -145,6 +190,7 @@ func TestInitEnv(t *testing.T) {
 	ensureInternalDotEnvFile(t)
 
 	t.Setenv("GO_ENV", "test")
+	t.Setenv("USE_LOCAL_TLS", "false")
 	t.Setenv("APP_NAME", "TestApp")
 	t.Setenv("ALLOWED_ORIGIN", "http://localhost")
 	t.Setenv("SERVER_PORT", "8080")
@@ -156,6 +202,10 @@ func TestInitEnv(t *testing.T) {
 
 	if env.GoEnv != "test" {
 		t.Errorf("Expected GO_ENV to be 'test', got '%s'", env.GoEnv)
+	}
+
+	if env.UseLocalTLS != false {
+		t.Errorf("Expected USE_LOCAL_TLS to be false, got '%v'", env.UseLocalTLS)
 	}
 
 	if env.AppName != "TestApp" {
@@ -186,6 +236,7 @@ func TestInitEnv(t *testing.T) {
 func TestGetEnvValid(t *testing.T) {
 	env = &Env{
 		GoEnv:          "test",
+		UseLocalTLS:    false,
 		AppName:        "TestApp",
 		AllowedOrigin:  "http://localhost",
 		ServerPort:     "8080",
@@ -198,6 +249,10 @@ func TestGetEnvValid(t *testing.T) {
 
 	if got.GoEnv != "test" {
 		t.Errorf("Expected GO_ENV to be 'test', got '%s'", got.GoEnv)
+	}
+
+	if got.UseLocalTLS != false {
+		t.Errorf("Expected USE_LOCAL_TLS to be false, got '%v'", got.UseLocalTLS)
 	}
 
 	if got.AppName != "TestApp" {

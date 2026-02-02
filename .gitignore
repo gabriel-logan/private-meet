@@ -131,3 +131,5 @@ temp/
 !dev-key.pem
 
 temporario.*
+!fake_cert.pem
+!fake_key.pem

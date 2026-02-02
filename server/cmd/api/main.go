@@ -30,5 +30,9 @@ func main() {
 
 	log.Println("Starting server on http://localhost:" + env.ServerPort)
 	log.Println("Running in " + env.GoEnv + " mode")
-	log.Fatal(server.ListenAndServe())
+	if env.UseLocalTLS {
+		log.Fatal(server.ListenAndServeTLS("../utils/fake_cert.pem", "../utils/fake_key.pem"))
+	} else {
+		log.Fatal(server.ListenAndServe())
+	}
 }

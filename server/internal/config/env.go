@@ -9,9 +9,11 @@ import (
 )
 
 const EnvironmentPrefixMsg = "Environment variable "
+const EnvironmentSuffixMsg = " is required."
 
 type Env struct {
 	GoEnv          string
+	UseLocalTLS    bool
 	AppName        string
 	AllowedOrigin  string
 	ServerPort     string
@@ -22,11 +24,21 @@ type Env struct {
 
 var env *Env
 
+func mustExistBool(key string) bool {
+	value := os.Getenv(key)
+
+	if value == "" {
+		log.Fatal(EnvironmentPrefixMsg + key + EnvironmentSuffixMsg)
+	}
+
+	return value == "true"
+}
+
 func mustExistString(key string) string {
 	value := os.Getenv(key)
 
 	if value == "" {
-		log.Fatal(EnvironmentPrefixMsg + key + " is required")
+		log.Fatal(EnvironmentPrefixMsg + key + EnvironmentSuffixMsg)
 	}
 
 	return value
@@ -36,7 +48,7 @@ func mustExistDuration(key string) time.Duration {
 	value := os.Getenv(key)
 
 	if value == "" {
-		log.Fatal(EnvironmentPrefixMsg + key + " is required")
+		log.Fatal(EnvironmentPrefixMsg + key + EnvironmentSuffixMsg)
 	}
 
 	duration, err := time.ParseDuration(value)
@@ -55,6 +67,7 @@ func InitEnv() *Env {
 
 	env = &Env{
 		GoEnv:          mustExistString("GO_ENV"),
+		UseLocalTLS:    mustExistBool("USE_LOCAL_TLS"),
 		AppName:        mustExistString("APP_NAME"),
 		AllowedOrigin:  mustExistString("ALLOWED_ORIGIN"),
 		ServerPort:     mustExistString("SERVER_PORT"),

@@ -49,6 +49,7 @@ func initTestEnv(t *testing.T, appName, secret string, jwtExpiration time.Durati
 	ensureInternalDotEnvFile(t)
 
 	t.Setenv("GO_ENV", "test")
+	t.Setenv("USE_LOCAL_TLS", "false")
 	t.Setenv("APP_NAME", appName)
 	t.Setenv("ALLOWED_ORIGIN", "http://localhost")
 	t.Setenv("SERVER_PORT", "8080")
