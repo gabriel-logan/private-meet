@@ -3,9 +3,20 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 const genPrefix = (length: number): string => {
-  const n = Math.trunc(Math.random() * 10 ** length);
+  if (length > 32) {
+    throw new Error("Prefix length too long");
+  }
 
-  return n.toString().padStart(length, "0");
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  let out = "";
+
+  for (let i = 0; i < length; i++) {
+    out += chars[Math.trunc(Math.random() * chars.length)];
+  }
+
+  return out;
 };
 
 export default defineConfig({
