@@ -43,7 +43,7 @@ export default function JoinMeeting() {
   useEffect(() => {
     const ws = getWSInstance();
 
-    ws.onmessage = async (event) => {
+    const onMessage = async (event: MessageEvent) => {
       try {
         const { type, data } = await parseIncomingWSMessage(event.data);
 
@@ -57,8 +57,10 @@ export default function JoinMeeting() {
       }
     };
 
+    ws.addEventListener("message", onMessage);
+
     return () => {
-      ws.onmessage = null;
+      ws.removeEventListener("message", onMessage);
     };
   }, []);
 

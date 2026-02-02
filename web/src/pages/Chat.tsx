@@ -7,7 +7,6 @@ import {
   FiMic,
   FiMicOff,
   FiMonitor,
-  FiPaperclip,
   FiSend,
   FiSmile,
   FiUser,
@@ -289,9 +288,7 @@ export default function ChatPage() {
     syncPeersRef.current = syncPeersFromRoomUsers;
   }, [syncPeersFromRoomUsers]);
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
-  const videoInputRef = useRef<HTMLInputElement | null>(null);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const listEndRef = useRef<HTMLDivElement | null>(null);
@@ -1171,7 +1168,6 @@ export default function ChatPage() {
                   </div>
                 ) : null}
 
-                <input ref={fileInputRef} type="file" className="hidden" />
                 <input
                   ref={imageInputRef}
                   type="file"
@@ -1188,12 +1184,6 @@ export default function ChatPage() {
 
                     void handleSendImage(file);
                   }}
-                />
-                <input
-                  ref={videoInputRef}
-                  type="file"
-                  accept="video/*"
-                  className="hidden"
                 />
 
                 <div className="relative">
@@ -1239,16 +1229,6 @@ export default function ChatPage() {
 
                         <button
                           type="button"
-                          onClick={() => trigger(fileInputRef)}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
-                          aria-label="Attach file"
-                          title="Attach file"
-                        >
-                          <FiPaperclip />
-                        </button>
-
-                        <button
-                          type="button"
                           onClick={() => trigger(imageInputRef)}
                           disabled={!canSendImagesToRoom}
                           className={
@@ -1264,16 +1244,6 @@ export default function ChatPage() {
                           }
                         >
                           <FiImage />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => trigger(videoInputRef)}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
-                          aria-label="Attach video"
-                          title="Attach video"
-                        >
-                          <FiVideo />
                         </button>
                       </div>
 
