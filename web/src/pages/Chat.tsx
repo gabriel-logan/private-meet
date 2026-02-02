@@ -37,7 +37,13 @@ import {
   type WSIncomingMessage,
 } from "../protocol/ws";
 import { useAuthStore } from "../stores/authStore";
-import { getTimeLabel, isSafeUrl, isString, normalizeRoomId } from "../utils";
+import {
+  getTimeLabel,
+  isSafeUrl,
+  isString,
+  normalizeRoomId,
+  safeText,
+} from "../utils";
 
 type ChatMessage =
   | {
@@ -1144,7 +1150,7 @@ export default function ChatPage() {
 
                         {m.kind === "text" && (
                           <p className="mt-1 text-sm wrap-break-word whitespace-pre-wrap text-zinc-100">
-                            {String(m.text ?? "Invalid text")}
+                            {safeText(m.text ?? "Invalid text")}
                           </p>
                         )}
 
@@ -1152,15 +1158,15 @@ export default function ChatPage() {
                           <div className="mt-2">
                             {isSafeUrl(m.url) ? (
                               <Link
-                                to={String(m.url ?? "#")}
-                                download={String(m.name ?? "Invalid name")}
+                                to={safeText(m.url)}
+                                download={safeText(m.name ?? "Invalid name")}
                                 className="block"
                                 target="_blank"
                                 rel="noreferrer"
                               >
                                 <img
-                                  src={String(m.url ?? "")}
-                                  alt={String(m.name ?? "Invalid name")}
+                                  src={safeText(m.url)}
+                                  alt={safeText(m.name ?? "Invalid name")}
                                   className="max-h-80 w-full rounded-lg border border-zinc-800 object-contain"
                                   loading="lazy"
                                 />
@@ -1171,7 +1177,7 @@ export default function ChatPage() {
                               </p>
                             )}
                             <p className="mt-1 text-[11px] text-zinc-400">
-                              {String(m.name ?? "Invalid name")}
+                              {safeText(m.name ?? "Invalid name")}
                             </p>
                           </div>
                         )}

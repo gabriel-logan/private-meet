@@ -55,3 +55,7 @@ export function isSafeUrl(url: string) {
     return false;
   }
 }
+
+export function safeText(input: unknown): string {
+  return typeof input === "string" ? input : "";
+}
