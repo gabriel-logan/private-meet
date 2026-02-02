@@ -4,7 +4,7 @@ export const roomIDPrefix = __ROOM_ID_PREFIX__;
 export const maxRoomIDLength = 128 - roomIDPrefix.length;
 
 // Chat / uploads
-export const chatMaxImageBytes = 8 * 1024 * 1024; // 8MB
+export const chatMaxImageBytes = 16 * 1024 * 1024; // 16MB
 
 // WebRTC
 export const webRTCMaxPeerConnections = 8;
