@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 
 import CreateUser from "../components/CreateUser";
@@ -34,7 +34,9 @@ export default function HomePage() {
           }}
           className="mb-3 text-center text-2xl font-semibold tracking-tight"
         >
-          Welcome to <span className="text-indigo-400">Private Meet</span>
+          <Trans i18nKey="WelcomeMessage">
+            Welcome to <span className="text-indigo-500">Private Meet</span>
+          </Trans>
         </motion.h1>
 
         <p className="mb-8 text-center text-sm leading-relaxed text-zinc-400">

@@ -1,6 +1,6 @@
 {
   "Hello, world!": "Olá, mundo!",
-  "WelcomeMessage": "Bem-vindo ao Private Meet",
+  "WelcomeMessage": "Bem-vindo ao <1>Private Meet</1>",
   "IntroductionText": "Private Meet é um espaço leve e seguro para reuniões privadas instantâneas. Crie um usuário, gere uma sala e conecte-se — sem atritos, sem ruído.",
   "Username": "Nome de usuário",
   "EnterYourUsername": "Digite seu nome de usuário",
