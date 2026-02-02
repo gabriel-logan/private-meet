@@ -25,6 +25,7 @@ import VideoTile from "../components/VideoTile";
 import { chatMaxImageBytes, maxMessageChars } from "../constants";
 import useEmoji from "../hooks/useEmoji";
 import useInitE2ee from "../hooks/useInitE2ee";
+import useMessages from "../hooks/useMessages";
 import useOnlineUsers, { type OnlineUser } from "../hooks/useOnlineUsers";
 import useWebRTCMesh from "../hooks/useWebRTCMesh";
 import {
@@ -49,26 +50,6 @@ import {
   safeText,
 } from "../utils/general";
 
-type ChatMessage =
-  | {
-      id: string;
-      author: string;
-      timestamp: string;
-      isMe: boolean;
-      kind: "text";
-      text: string;
-    }
-  | {
-      id: string;
-      author: string;
-      timestamp: string;
-      isMe: boolean;
-      kind: "image";
-      url: string;
-      name: string;
-      mime: string;
-    };
-
 export default function ChatPage() {
   const navigate = useNavigate();
 
@@ -83,7 +64,9 @@ export default function ChatPage() {
 
   const { onlineUsers, setOnlineUsers, onlineUsersRef } = useOnlineUsers();
 
-  const [message, setMessage] = useState("");
+  const { listEndRef, messages, setMessages, message, setMessage } =
+    useMessages();
+
   const [usersOpen, setUsersOpen] = useState(false);
 
   const [speakerMuted, setSpeakerMuted] = useState(true);
@@ -161,9 +144,6 @@ export default function ChatPage() {
   }, [syncPeersFromRoomUsers]);
 
   const imageInputRef = useRef<HTMLInputElement | null>(null);
-
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const listEndRef = useRef<HTMLDivElement | null>(null);
 
   const [typingUsers, setTypingUsers] = useState<Record<string, string>>({});
   const typingTimeoutRef = useRef<number | null>(null);
@@ -428,11 +408,6 @@ export default function ChatPage() {
 
     return `${names[0]} and ${names.length - 1} others are typing…`;
   })();
-
-  // Scroll to bottom on new message
-  useEffect(() => {
-    listEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length]);
 
   // WebSocket message handling
   useEffect(() => {
