@@ -642,7 +642,18 @@ export default function ChatPage() {
 
       ws.removeEventListener("message", onMessage);
     };
-  }, [accessToken, handleSignal, me.sub, me.username, navigate, room]);
+  }, [
+    accessToken,
+    e2eeKeyRef,
+    handleSignal,
+    me.sub,
+    me.username,
+    navigate,
+    onlineUsersRef,
+    room,
+    setMessages,
+    setOnlineUsers,
+  ]);
 
   return (
     <main className="h-screen bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 px-3 py-4 text-zinc-100 max-sm:h-auto max-sm:min-h-dvh max-sm:pb-6 sm:px-6">
