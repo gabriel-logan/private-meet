@@ -25,6 +25,7 @@ import VideoTile from "../components/VideoTile";
 import { chatMaxImageBytes, maxMessageChars } from "../constants";
 import useEmoji from "../hooks/useEmoji";
 import useInitE2ee from "../hooks/useInitE2ee";
+import useOnlineUsers, { type OnlineUser } from "../hooks/useOnlineUsers";
 import useWebRTCMesh from "../hooks/useWebRTCMesh";
 import {
   decryptWireToText,
@@ -68,12 +69,6 @@ type ChatMessage =
       mime: string;
     };
 
-type OnlineUser = {
-  id: string;
-  name: string;
-  status: "online" | "idle";
-};
-
 export default function ChatPage() {
   const navigate = useNavigate();
 
@@ -86,13 +81,12 @@ export default function ChatPage() {
 
   const { emojiOpen, setEmojiOpen, emojiButtonRef, emojiMenuRef } = useEmoji();
 
+  const { onlineUsers, setOnlineUsers, onlineUsersRef } = useOnlineUsers();
+
   const [message, setMessage] = useState("");
   const [usersOpen, setUsersOpen] = useState(false);
 
   const [speakerMuted, setSpeakerMuted] = useState(true);
-
-  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
-  const onlineUsersRef = useRef<OnlineUser[]>([]);
 
   const objectUrlsRef = useRef<string[]>([]);
 
@@ -439,11 +433,6 @@ export default function ChatPage() {
   useEffect(() => {
     listEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages.length]);
-
-  // Keep online users ref updated
-  useEffect(() => {
-    onlineUsersRef.current = onlineUsers;
-  }, [onlineUsers]);
 
   // WebSocket message handling
   useEffect(() => {
