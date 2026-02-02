@@ -22,6 +22,7 @@ import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
 import { chatMaxImageBytes, maxMessageChars } from "../constants";
+import useEmoji from "../hooks/useEmoji";
 import useInitE2ee from "../hooks/useInitE2ee";
 import useWebRTCMesh from "../hooks/useWebRTCMesh";
 import {
@@ -213,12 +214,10 @@ export default function ChatPage() {
   const room = rawRoomId ? normalizeRoomId(rawRoomId) : "";
   const me = parseJwt(accessToken);
 
-  const [message, setMessage] = useState("");
-  const [emojiOpen, setEmojiOpen] = useState(false);
-  const [usersOpen, setUsersOpen] = useState(false);
+  const { emojiOpen, setEmojiOpen, emojiButtonRef, emojiMenuRef } = useEmoji();
 
-  const emojiMenuRef = useRef<HTMLDivElement | null>(null);
-  const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
+  const [message, setMessage] = useState("");
+  const [usersOpen, setUsersOpen] = useState(false);
 
   const [speakerMuted, setSpeakerMuted] = useState(true);
 
@@ -580,39 +579,6 @@ export default function ChatPage() {
   useEffect(() => {
     onlineUsersRef.current = onlineUsers;
   }, [onlineUsers]);
-
-  // Close emoji menu when clicking outside
-  useEffect(() => {
-    if (!emojiOpen) {
-      return;
-    }
-
-    const onPointerDown = (event: PointerEvent) => {
-      const target = event.target;
-      if (!(target instanceof Node)) {
-        return;
-      }
-
-      const menuEl = emojiMenuRef.current;
-      const buttonEl = emojiButtonRef.current;
-
-      if (menuEl?.contains(target)) {
-        return;
-      }
-
-      if (buttonEl?.contains(target)) {
-        return;
-      }
-
-      setEmojiOpen(false);
-    };
-
-    document.addEventListener("pointerdown", onPointerDown, true);
-
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown, true);
-    };
-  }, [emojiOpen]);
 
   // WebSocket message handling
   useEffect(() => {
