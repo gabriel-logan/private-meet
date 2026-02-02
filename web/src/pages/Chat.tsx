@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   FiImage,
   FiMenu,
@@ -166,11 +166,8 @@ export default function ChatPage() {
   const accessToken = useAuthStore((s) => s.accessToken);
 
   const rawRoomId = (searchParams.get("room") ?? "").trim();
-  const room = useMemo(
-    () => (rawRoomId ? normalizeRoomId(rawRoomId) : ""),
-    [rawRoomId],
-  );
-  const me = useMemo(() => parseJwt(accessToken), [accessToken]);
+  const room = rawRoomId ? normalizeRoomId(rawRoomId) : "";
+  const me = parseJwt(accessToken);
 
   const [message, setMessage] = useState("");
   const [emojiOpen, setEmojiOpen] = useState(false);
@@ -212,9 +209,9 @@ export default function ChatPage() {
 
   const [e2eeReady, setE2eeReady] = useState(false);
 
-  const messageCharCount = useMemo(() => Array.from(message).length, [message]);
+  const messageCharCount = Array.from(message).length;
 
-  const featured = useMemo(() => {
+  const featured = (() => {
     const remoteScreen = remotePeers.find(
       (p) => p.kind === "screen" && hasVideo(p.stream),
     );
@@ -256,9 +253,9 @@ export default function ChatPage() {
     }
 
     return null;
-  }, [localCameraStream, localScreenStream, remotePeers]);
+  })();
 
-  const remoteAudioStreams = useMemo(() => {
+  const remoteAudioStreams = (() => {
     const byPeer = new Map<string, MediaStream>();
 
     for (const p of remotePeers) {
@@ -274,7 +271,7 @@ export default function ChatPage() {
     }
 
     return Array.from(byPeer.entries());
-  }, [remotePeers]);
+  })();
 
   function trigger(ref: React.RefObject<HTMLInputElement | null>) {
     ref.current?.click();
@@ -396,7 +393,7 @@ export default function ChatPage() {
     }
   }
 
-  const typingLabel = useMemo(() => {
+  const typingLabel = (() => {
     const names = Object.values(typingUsers);
 
     if (names.length === 0) {
@@ -412,7 +409,7 @@ export default function ChatPage() {
     }
 
     return `${names[0]} and ${names.length - 1} others are typing…`;
-  }, [typingUsers]);
+  })();
 
   // Initialize E2EE - Should be the first useEffect
   useInitE2ee({ rawRoomId, e2eeKeyRef, setE2eeReady });
