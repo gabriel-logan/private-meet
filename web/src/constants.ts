@@ -11,20 +11,3 @@ export const webRTCMaxPeerConnections = 8;
 export const webRTCFileChannelLabel = "pm-files";
 export const webRTCImageChunkSizeBytes = 16 * 1024; // 16KB
 export const webRTCFileChannelMaxBufferedAmountBytes = 2 * 1024 * 1024; // 2MB
-
-// E2EE
-export const E2EE_DEFAULTS = {
-  // AES-GCM standard IV length
-  ivBytes: 12,
-  // PBKDF2 work factor (tune based on target devices)
-  pbkdf2Iterations: 200000,
-  // Salt derived from room id hash
-  saltBytes: 16,
-  // Keep aligned with UI/server limits (server currently limits chat message size)
-  maxPlaintextChars: maxMessageChars,
-  // Helps avoid sending messages that will exceed server limits after encoding.
-  // (Rough guard; final size depends on base64 and envelope overhead.)
-  maxWireChars: 5000,
-
-  WIRE_PREFIX: __E2EE_WIRE_PREFIX__,
-} as const;

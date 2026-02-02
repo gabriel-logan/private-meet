@@ -1,4 +1,16 @@
-import { E2EE_DEFAULTS } from "../constants";
+import { maxMessageChars } from "../constants";
+
+// AES-GCM standard IV length
+export const ivBytes = 12;
+// PBKDF2 work factor (tune based on target devices)
+export const pbkdf2Iterations = 200000;
+// Salt derived from room id hash
+export const saltBytes = 16;
+// Helps avoid sending messages that will exceed server limits after encoding.
+// (Rough guard; final size depends on base64 and envelope overhead.)
+export const maxWireCharsDefault = 5000;
+
+export const wirePrefix = __E2EE_WIRE_PREFIX__;
 
 export type AesGcmAlg = "AES-GCM";
 
@@ -15,7 +27,7 @@ export async function initE2EE(
 ): Promise<CryptoKey> {
   const salt = await saltFromRoom(saltString);
 
-  const key = await deriveKey(passphrase, salt, E2EE_DEFAULTS.pbkdf2Iterations);
+  const key = await deriveKey(passphrase, salt, pbkdf2Iterations);
 
   return key;
 }
@@ -31,7 +43,7 @@ function toArrayBuffer(u8: Uint8Array): ArrayBuffer {
 export async function deriveKey(
   passphrase: string,
   salt: Uint8Array,
-  iterations = E2EE_DEFAULTS.pbkdf2Iterations,
+  iterations = pbkdf2Iterations,
 ): Promise<CryptoKey> {
   const enc = new TextEncoder();
 
@@ -65,7 +77,7 @@ export async function encryptString(
   key: CryptoKey,
   aad?: Uint8Array,
 ): Promise<{ iv: string; content: string; alg: AesGcmAlg; v?: 1 }> {
-  const ivU8 = crypto.getRandomValues(new Uint8Array(E2EE_DEFAULTS.ivBytes));
+  const ivU8 = crypto.getRandomValues(new Uint8Array(ivBytes));
 
   const dataU8 = new TextEncoder().encode(plaintext);
 
@@ -111,11 +123,11 @@ export async function decryptString(
 }
 
 export function isEncryptedWireMessage(text: string): boolean {
-  return text.startsWith(E2EE_DEFAULTS.WIRE_PREFIX);
+  return text.startsWith(wirePrefix);
 }
 
 export function packEnvelope(envelope: E2EEEnvelopeV1): string {
-  return `${E2EE_DEFAULTS.WIRE_PREFIX}${JSON.stringify(envelope)}`;
+  return `${wirePrefix}${JSON.stringify(envelope)}`;
 }
 
 export function unpackEnvelope(text: string): E2EEEnvelopeV1 | null {
@@ -124,7 +136,7 @@ export function unpackEnvelope(text: string): E2EEEnvelopeV1 | null {
   }
 
   try {
-    const json = text.slice(E2EE_DEFAULTS.WIRE_PREFIX.length);
+    const json = text.slice(wirePrefix.length);
 
     const parsed = JSON.parse(json) as Partial<E2EEEnvelopeV1>;
 
@@ -160,8 +172,7 @@ export async function encryptTextToWire(
     maxPlaintextChars?: number;
   },
 ): Promise<string> {
-  const maxPlaintextChars =
-    opts.maxPlaintextChars ?? E2EE_DEFAULTS.maxPlaintextChars;
+  const maxPlaintextChars = opts.maxPlaintextChars ?? maxMessageChars;
 
   if (Array.from(plaintext).length > maxPlaintextChars) {
     throw new Error("Plaintext message is too long.");
@@ -180,7 +191,7 @@ export async function encryptTextToWire(
 
   const wire = packEnvelope(envelope);
 
-  const maxWireChars = opts.maxWireChars ?? E2EE_DEFAULTS.maxWireChars;
+  const maxWireChars = opts.maxWireChars ?? maxWireCharsDefault;
 
   if (wire.length > maxWireChars) {
     throw new Error("Encrypted message is too large for the wire format.");
@@ -236,7 +247,7 @@ export async function saltFromRoom(roomId: string): Promise<Uint8Array> {
     new TextEncoder().encode(`salt:${roomId}`),
   );
 
-  return new Uint8Array(hash).slice(0, E2EE_DEFAULTS.saltBytes);
+  return new Uint8Array(hash).slice(0, saltBytes);
 }
 
 export function aadFrom(roomId: string, userId?: string): Uint8Array {
