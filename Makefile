@@ -19,6 +19,12 @@ install:
 test:
 	cd server && go test ./...
 
+test_cov:
+	cd server && go test ./... -cover
+
+test_cov_html:
+	cd server && go test ./... -coverprofile=coverage.out && go tool cover -html=coverage.out
+
 tidy:
 	cd server && go mod tidy
 
