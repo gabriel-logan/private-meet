@@ -34,7 +34,7 @@ export default function HomePage() {
           }}
           className="mb-3 text-center text-2xl font-semibold tracking-tight"
         >
-          <Trans i18nKey="WelcomeMessage">
+          <Trans i18nKey="WelcomeMessage" t={t}>
             Welcome to <span className="text-indigo-500">Private Meet</span>
           </Trans>
         </motion.h1>

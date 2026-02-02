@@ -1,7 +1,14 @@
+import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router";
 import { motion } from "motion/react";
 
+import { useUserStore } from "../stores/userStore";
+
 export default function Header() {
+  const { t, i18n } = useTranslation();
+
+  const { locale, setLocale } = useUserStore();
+
   const isChatPage = useLocation().pathname === "/chat";
 
   if (isChatPage) {
@@ -9,8 +16,8 @@ export default function Header() {
   }
 
   const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
+    { name: t("Header.Home"), href: "/" },
+    { name: t("Header.About"), href: "/about" },
   ];
 
   return (
@@ -32,6 +39,19 @@ export default function Header() {
         </Link>
 
         <nav className="flex items-center gap-6">
+          <button
+            onClick={() => {
+              const newLocale = locale === "en" ? "pt" : "en";
+
+              i18n.changeLanguage(newLocale);
+
+              setLocale(newLocale);
+            }}
+            className="text-2xl"
+            aria-label={t("Header.ChangeLanguage")}
+          >
+            🌐
+          </button>
           {navLinks.map((link) => (
             <Link
               key={link.href}
