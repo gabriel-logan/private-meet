@@ -23,8 +23,10 @@ export default defineConfig({
   envDir: "../",
 
   define: {
-    __ROOM_ID_PREFIX__: JSON.stringify(genPrefix(4) + ":"),
-    __E2EE_WIRE_PREFIX__: JSON.stringify(genPrefix(7) + ":"),
+    __ROOM_ID_PREFIX__: JSON.stringify(genPrefix(5) + ":"),
+    __E2EE_WIRE_PREFIX__: JSON.stringify(genPrefix(5) + ":"),
+    __WEBRTC_FILE_CHANNEL_LABEL__: JSON.stringify(genPrefix(5) + ":"),
+    __USER_STORAGE_KEY__: JSON.stringify(genPrefix(5) + ":"),
   },
 
   plugins: [
