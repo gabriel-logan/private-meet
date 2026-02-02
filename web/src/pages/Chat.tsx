@@ -217,6 +217,9 @@ export default function ChatPage() {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [usersOpen, setUsersOpen] = useState(false);
 
+  const emojiMenuRef = useRef<HTMLDivElement | null>(null);
+  const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
+
   const [speakerMuted, setSpeakerMuted] = useState(true);
 
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
@@ -577,6 +580,39 @@ export default function ChatPage() {
   useEffect(() => {
     onlineUsersRef.current = onlineUsers;
   }, [onlineUsers]);
+
+  // Close emoji menu when clicking outside
+  useEffect(() => {
+    if (!emojiOpen) {
+      return;
+    }
+
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+
+      const menuEl = emojiMenuRef.current;
+      const buttonEl = emojiButtonRef.current;
+
+      if (menuEl?.contains(target)) {
+        return;
+      }
+
+      if (buttonEl?.contains(target)) {
+        return;
+      }
+
+      setEmojiOpen(false);
+    };
+
+    document.addEventListener("pointerdown", onPointerDown, true);
+
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown, true);
+    };
+  }, [emojiOpen]);
 
   // WebSocket message handling
   useEffect(() => {
@@ -1217,7 +1253,10 @@ export default function ChatPage() {
 
                 <div className="relative">
                   {emojiOpen ? (
-                    <div className="absolute bottom-[calc(100%+10px)] left-0 z-10 w-full overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 shadow-[0_18px_40px_-18px_rgba(0,0,0,0.75)]">
+                    <div
+                      ref={emojiMenuRef}
+                      className="absolute bottom-[calc(100%+10px)] left-0 z-10 w-full overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 shadow-[0_18px_40px_-18px_rgba(0,0,0,0.75)]"
+                    >
                       <div className="flex items-center justify-between border-b border-zinc-800 px-3 py-2">
                         <p className="text-xs font-medium text-zinc-200">
                           Emojis
@@ -1248,6 +1287,7 @@ export default function ChatPage() {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
+                          ref={emojiButtonRef}
                           onClick={() => setEmojiOpen((v) => !v)}
                           className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
                           aria-label="Open emoji picker"
