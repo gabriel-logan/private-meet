@@ -1,19 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 import { initE2EE } from "../lib/e2ee";
 
 interface UseInitE2eeProps {
   rawRoomId: string | null;
-  e2eeKeyRef: React.RefObject<CryptoKey | null>;
-  setE2eeReady: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function useInitE2ee({
-  rawRoomId,
-  e2eeKeyRef,
-  setE2eeReady,
-}: UseInitE2eeProps) {
+export default function useInitE2ee({ rawRoomId }: UseInitE2eeProps) {
+  const e2eeKeyRef = useRef<CryptoKey | null>(null);
+
+  const [e2eeReady, setE2eeReady] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -49,5 +47,7 @@ export default function useInitE2ee({
       setE2eeReady(false);
       e2eeKeyRef.current = null;
     };
-  }, [e2eeKeyRef, rawRoomId, setE2eeReady]);
+  }, [rawRoomId]);
+
+  return { e2eeKeyRef, e2eeReady };
 }

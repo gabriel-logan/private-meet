@@ -59,3 +59,7 @@ export function isSafeUrl(url: string) {
 export function safeText(input: unknown): string {
   return typeof input === "string" ? input : "";
 }
+
+export function hasVideo(stream: MediaStream | null | undefined): boolean {
+  return Boolean(stream && stream.getVideoTracks().length > 0);
+}

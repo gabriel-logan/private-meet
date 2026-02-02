@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { FaSignOutAlt } from "react-icons/fa";
 import {
   FiImage,
-  FiMaximize,
   FiMenu,
   FiMic,
   FiMicOff,
@@ -21,6 +20,8 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
+import RemoteAudio from "../components/RemoteAudio";
+import VideoTile from "../components/VideoTile";
 import { chatMaxImageBytes, maxMessageChars } from "../constants";
 import useEmoji from "../hooks/useEmoji";
 import useInitE2ee from "../hooks/useInitE2ee";
@@ -40,6 +41,7 @@ import {
 import { useAuthStore } from "../stores/authStore";
 import {
   getTimeLabel,
+  hasVideo,
   isSafeUrl,
   isString,
   normalizeRoomId,
@@ -71,138 +73,6 @@ type OnlineUser = {
   name: string;
   status: "online" | "idle";
 };
-
-function VideoTile({
-  stream,
-  muted,
-  label,
-}: Readonly<{ stream: MediaStream; muted: boolean; label: string }>) {
-  const ref = useRef<HTMLVideoElement | null>(null);
-
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-
-    if (!el) {
-      return;
-    }
-
-    if (el.srcObject !== stream) {
-      el.srcObject = stream;
-    }
-
-    let cancelled = false;
-
-    const tryPlay = async () => {
-      if (cancelled) {
-        return;
-      }
-
-      try {
-        await el.play();
-      } catch (error) {
-        const name = (error as DOMException | null)?.name;
-
-        if (name === "AbortError" || name === "NotAllowedError") {
-          return;
-        }
-
-        console.error("Failed to play video element:", error);
-      }
-    };
-
-    const onLoadedMetadata = () => {
-      void tryPlay();
-    };
-
-    el.addEventListener("loadedmetadata", onLoadedMetadata);
-
-    void tryPlay();
-
-    return () => {
-      cancelled = true;
-      el.removeEventListener("loadedmetadata", onLoadedMetadata);
-    };
-  }, [stream]);
-
-  return (
-    <div
-      ref={containerRef}
-      className="group relative aspect-video min-h-40 w-full overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950/40"
-    >
-      <video
-        ref={ref}
-        autoPlay
-        playsInline
-        muted={muted}
-        className="absolute inset-0 z-0 h-full w-full object-cover"
-      >
-        <track kind="captions" />
-      </video>
-      <button
-        type="button"
-        onClick={() => {
-          const el = containerRef.current;
-          if (!el) {
-            return;
-          }
-
-          if (document.fullscreenElement) {
-            void document.exitFullscreen?.();
-            return;
-          }
-
-          void el.requestFullscreen?.();
-        }}
-        className="absolute right-2 bottom-2 z-30 inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/20 bg-black/70 text-zinc-100 shadow-lg backdrop-blur-sm transition hover:bg-black/80"
-        aria-label="Toggle fullscreen"
-      >
-        <FiMaximize className="text-sm" />
-      </button>
-      <div className="absolute bottom-2 left-2 z-20 rounded-md bg-black/60 px-2 py-1 text-xs text-zinc-100">
-        {label}
-      </div>
-    </div>
-  );
-}
-
-function RemoteAudio({
-  stream,
-  muted,
-}: Readonly<{ stream: MediaStream; muted: boolean }>) {
-  const ref = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-
-    if (!el) {
-      return;
-    }
-
-    if (el.srcObject !== stream) {
-      el.srcObject = stream;
-    }
-
-    el.muted = muted;
-
-    void el.play().catch((error) => {
-      const name = (error as DOMException | null)?.name;
-
-      if (name === "AbortError" || name === "NotAllowedError") {
-        return;
-      }
-
-      console.error("Failed to play audio element:", error);
-    });
-  }, [muted, stream]);
-
-  return <audio ref={ref} autoPlay />;
-}
-
-function hasVideo(stream: MediaStream | null | undefined): boolean {
-  return Boolean(stream && stream.getVideoTracks().length > 0);
-}
 
 export default function ChatPage() {
   const navigate = useNavigate();
@@ -305,9 +175,8 @@ export default function ChatPage() {
   const typingTimeoutRef = useRef<number | null>(null);
   const typingSentRef = useRef(false);
 
-  const e2eeKeyRef = useRef<CryptoKey | null>(null);
-
-  const [e2eeReady, setE2eeReady] = useState(false);
+  // Initialize E2EE - Should be the first useEffect
+  const { e2eeReady, e2eeKeyRef } = useInitE2ee({ rawRoomId });
 
   const messageCharCount = Array.from(message).length;
 
@@ -565,9 +434,6 @@ export default function ChatPage() {
 
     return `${names[0]} and ${names.length - 1} others are typing…`;
   })();
-
-  // Initialize E2EE - Should be the first useEffect
-  useInitE2ee({ rawRoomId, e2eeKeyRef, setE2eeReady });
 
   // Scroll to bottom on new message
   useEffect(() => {
