@@ -4,7 +4,18 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   envDir: "../",
+
   plugins: [react(), tailwindcss()],
+
+  server: {
+    https: {
+      key: "../cert/fake_key.pem",
+      cert: "../cert/fake_cert.pem",
+    },
+
+    host: true,
+  },
+
   build: {
     rollupOptions: {
       output: {
