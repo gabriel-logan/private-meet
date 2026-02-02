@@ -21,25 +21,27 @@ type pmWriter struct {
 func (w *pmWriter) Write(p []byte) (n int, err error) {
 	msg := strings.TrimRight(string(p), "\n")
 
-	level := "DEBUG"
-	if strings.HasPrefix(strings.ToUpper(msg), "WARN") || strings.HasPrefix(strings.ToUpper(msg), "WARNING") {
+	upper := strings.ToUpper(msg)
+
+	level := "INFO"
+	if strings.HasPrefix(upper, "DEBUG") {
+		level = "DEBUG"
+	} else if strings.HasPrefix(upper, "WARN") || strings.HasPrefix(upper, "WARNING") {
 		level = "WARNING"
-	} else if strings.HasPrefix(strings.ToUpper(msg), "ERROR") || strings.HasPrefix(strings.ToUpper(msg), "FATAL") {
+	} else if strings.HasPrefix(upper, "ERROR") || strings.HasPrefix(upper, "FATAL") {
 		level = "ERROR"
-	} else {
-		level = "INFO"
 	}
 
 	var prefix string
 	switch level {
+	case "DEBUG":
+		prefix = "[PM-debug]"
 	case "INFO":
 		prefix = "[PM]"
 	case "WARNING":
 		prefix = "[PM-warning]"
 	case "ERROR":
 		prefix = "[PM-error]"
-	default:
-		prefix = "[PM-debug]"
 	}
 
 	timestamp := time.Now().Format("2006/01/02 - 15:04:05")
