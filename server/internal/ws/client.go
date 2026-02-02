@@ -87,7 +87,7 @@ func (c *Client) readPump() { // nosonar
 
 		if !msg.Type.IsValid() {
 			if !fail("Invalid message type") {
-				return
+				break
 			}
 
 			continue
@@ -97,7 +97,7 @@ func (c *Client) readPump() { // nosonar
 
 		if msg.Room == "" && msg.Type != MessageUtilsGenerateRoomID {
 			if !fail("Room ID is required") {
-				return
+				break
 			}
 
 			continue
@@ -105,7 +105,7 @@ func (c *Client) readPump() { // nosonar
 
 		if len([]rune(msg.Room)) > maxRoomIDLength {
 			if !fail(fmt.Sprintf("Room ID too long (maximum is %d characters)", maxRoomIDLength)) {
-				return
+				break
 			}
 
 			continue
@@ -119,7 +119,7 @@ func (c *Client) readPump() { // nosonar
 			// Backpressure: if the hub is overloaded, drop the message.
 			// This keeps the connection responsive under load.
 			if !fail("Server busy") {
-				return
+				continue
 			}
 		}
 	}
@@ -138,7 +138,7 @@ func (c *Client) writePump() {
 			err := c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err != nil {
 				log.Println("WebSocket set write deadline error:", err)
-				return
+				break
 			}
 
 			if !ok {
@@ -146,7 +146,7 @@ func (c *Client) writePump() {
 					log.Println("WebSocket write close error:", err)
 				}
 
-				return
+				break
 			}
 
 			if err = c.conn.WriteMessage(websocket.BinaryMessage, msg); err != nil {
@@ -158,7 +158,7 @@ func (c *Client) writePump() {
 			err := c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err != nil {
 				log.Println("WebSocket set write deadline error:", err)
-				return
+				break
 			}
 
 			if err = c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
