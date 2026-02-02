@@ -12,27 +12,27 @@ import { motion } from "motion/react";
 
 const roadmapCards = [
   {
-    title: "End-to-end encryption (planned)",
+    title: "Better E2EE key exchange (next)",
     description:
-      "The goal is to encrypt messages on the client so the server relays ciphertext only.",
+      "Today E2EE uses a simple room-based secret. Next step is a safer key exchange and UX for shared secrets.",
     icon: FiLock,
   },
   {
-    title: "Temporary messages (planned)",
+    title: "Temporary messages (next)",
     description:
       "Ephemeral messages with expiration policies so chats don't live forever by default.",
     icon: FiClock,
   },
   {
-    title: "File sharing (planned)",
+    title: "More file types (next)",
     description:
-      "Send files and media with clear limits, previews, and privacy-first defaults.",
+      "Generalize file sharing beyond images, with clear limits, previews, and privacy-first defaults.",
     icon: FiFile,
   },
   {
-    title: "Voice + video via WebRTC (planned)",
+    title: "TURN + reliability (next)",
     description:
-      "Real-time voice/video rooms using WebRTC, with signaling over WebSocket.",
+      "Improve NAT traversal and connection reliability by adding TURN support and better diagnostics.",
     icon: FiVideo,
   },
 ] as const;
@@ -48,6 +48,24 @@ const currentCards = [
     title: "Presence + typing",
     description: "See who's online in the room and when someone is typing.",
     icon: FiShield,
+  },
+  {
+    title: "Client-side encrypted chat (E2EE)",
+    description:
+      "Chat messages can be encrypted client-side using the Web Crypto API (current key setup is simple and will be improved).",
+    icon: FiLock,
+  },
+  {
+    title: "WebRTC voice/video/screen share",
+    description:
+      "Peer-to-peer media with WebRTC (mesh). Signaling is handled over WebSocket.",
+    icon: FiVideo,
+  },
+  {
+    title: "Image sharing (WebRTC data channel)",
+    description:
+      "Send images directly peer-to-peer in chat. Sending is enabled only when WebRTC is connected with all peers in the room.",
+    icon: FiFile,
   },
 ] as const;
 
@@ -77,10 +95,11 @@ export default function AboutPage() {
               </h1>
 
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-300 sm:text-base">
-                Private Meet is a lightweight real-time chat experience. The
-                roadmap is to evolve it into a privacy-first platform with
-                encrypted and temporary messages, file sharing, and voice/video
-                communication via WebRTC.
+                Private Meet is a lightweight real-time chat + meeting
+                experience. It already supports client-side encrypted chat,
+                WebRTC media, and image sharing over WebRTC data channels. Next,
+                the focus is improving reliability and polishing the privacy
+                model.
               </p>
 
               <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -103,7 +122,7 @@ export default function AboutPage() {
                 <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
                   <p className="text-xs text-zinc-500">Stack</p>
                   <p className="mt-1 text-sm text-zinc-200">
-                    React + WebSocket + Go
+                    React + WebSocket + WebRTC + Go
                   </p>
                 </div>
                 <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
@@ -115,7 +134,7 @@ export default function AboutPage() {
                 <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
                   <p className="text-xs text-zinc-500">Roadmap</p>
                   <p className="mt-1 text-sm text-zinc-200">
-                    E2E, ephemeral, files, WebRTC
+                    Better E2EE, ephemeral, files, reliability
                   </p>
                 </div>
               </div>
@@ -133,8 +152,7 @@ export default function AboutPage() {
             What exists today
           </h2>
           <p className="mt-1 text-sm text-zinc-400">
-            The app already has the real-time building blocks and a solid UI
-            foundation.
+            These features are already available in the current version.
           </p>
 
           <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -223,9 +241,9 @@ export default function AboutPage() {
                 Client-side encryption
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                The plan is for clients to encrypt messages locally. The server
-                acts as a relay and should not need plaintext to deliver
-                messages.
+                Clients can encrypt chat messages locally. The server acts as a
+                relay for encrypted payloads (current key setup is intentionally
+                simple and will be improved).
               </p>
             </div>
 
@@ -234,8 +252,8 @@ export default function AboutPage() {
                 Minimal retention
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                Messages are intended to be temporary and not stored by default.
-                Expiration policies help reduce long-term data exposure.
+                The direction is to keep retention minimal. A future milestone
+                is ephemeral messages and expiration policies.
               </p>
             </div>
 
@@ -244,15 +262,15 @@ export default function AboutPage() {
                 WebRTC for media
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                Voice and video should flow peer-to-peer via WebRTC when
+                Voice, video, and screen share flow peer-to-peer via WebRTC when
                 possible, with the server used mainly for signaling.
               </p>
             </div>
           </div>
 
           <p className="mt-4 text-xs leading-relaxed text-zinc-500">
-            Note: This page describes the intended direction. Not all features
-            above are implemented yet.
+            Note: Private Meet is still evolving. Some privacy and reliability
+            improvements are planned.
           </p>
         </motion.section>
 

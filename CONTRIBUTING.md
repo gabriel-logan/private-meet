@@ -12,7 +12,20 @@
      git clone https://github.com/gabriel-logan/private-meet.git
      ```
 
-3. **Commit and Push**
+  3. **Install dependencies**
+
+    ```bash
+    make install
+    ```
+
+  4. **Run locally**
+
+    ```bash
+    make run_server
+    make run_web
+    ```
+
+5. **Commit and Push**
    - Commit your changes and push them to the forked repository:
 
      ```
@@ -26,40 +39,47 @@
 
 ## Contribution Guidelines
 
+Private Meet is split into:
+
+- `server/` (Go)
+- `web/` (React + TypeScript)
+
+When possible, keep changes scoped to one area and include a short explanation in the PR.
+
 - **feat**: adds a new feature to the project. For example:
 
   ```
-  feat: add controller for user management
+  feat(web): add image send button gating
   ```
 
 - **fix**: fixes an existing bug or issue. For example:
 
   ```
-  fix: fix validation error in the controller
+  fix(server): handle websocket disconnect cleanly
   ```
 
 - **refactor**: restructures existing code without changing its functionality. For example:
 
   ```
-  refactor: rearrange methods in the controller for better readability
+  refactor(web): simplify webrtc peer lifecycle
   ```
 
 - **docs**: updates the project's documentation. For example:
 
   ```
-  docs: update documentation for the user controller
+  docs: update README for current stack
   ```
 
 - **style**: makes code style-related changes, such as formatting, indentation, etc. For example:
 
   ```
-  style: format code in the controller according to project guidelines
+  style(web): run prettier
   ```
 
 - **test**: adds or modifies tests in the project. For example:
 
   ```
-  test: add tests for the user controller
+  test(server): cover jwt validation
   ```
 
 - **chore**: performs maintenance tasks or other activities not directly related to code. For example:
@@ -71,7 +91,7 @@
 - **perf**: makes performance improvements in the code. For example:
 
   ```
-  perf: optimize data query in the controller
+  perf(web): reduce rerenders in chat list
   ```
 
 - **revert**: reverts a previous change. For example:
@@ -83,16 +103,22 @@
 - **ci**: makes modifications related to continuous integration (CI) and deployment. For example:
 
   ```
-  ci: configure ci pipeline to automatically test the controller
+  ci: update build pipeline
   ```
 
 ---
 
-- Follow the coding standards of the language you're contributing to (JavaScript, TypeScript, Java, etc.).
+- Follow the coding standards of the language you're contributing to (Go, TypeScript).
 - Keep the code clean and readable.
-- Add tests for new functionalities or bug fixes.
+- Add tests for new functionalities or bug fixes when practical.
 - Properly document the changes made, including updates to README if necessary.
 - Be respectful to other contributors and maintain a collaborative environment.
+
+## Useful commands
+
+- `make test` (server tests)
+- `cd web && pnpm lint` / `cd web && pnpm lint:fix`
+- `cd web && pnpm build`
 
 ## License
 

@@ -1,31 +1,44 @@
 # Learning Resources for Private Meet
 
-This document provides a curated list of resources to help you learn and understand the technologies used in the Private Meet application, including NestJS, Handlebars, Socket.io, and WebRTC.
+This document provides a curated list of resources to help you learn and understand the technologies used in Private Meet.
 
-## NestJS
+Current stack (high level): Go + WebSocket/WebRTC signaling (server), React + TypeScript + Vite (web).
 
-- [NestJS Documentation](https://docs.nestjs.com/)
-- [Building a RESTful API with NestJS](https://docs.nestjs.com/first-steps)
+## Go
 
-## Handlebars
+- [The Go Programming Language (Tour)](https://go.dev/tour/)
+- [Effective Go](https://go.dev/doc/effective_go)
+- [net/http package](https://pkg.go.dev/net/http)
 
-- [Handlebars Documentation](https://handlebarsjs.com/)
+## WebSockets
 
-## Socket.io
-
-- [Socket.io Documentation](https://socket.io/docs/v4/)
+- [MDN: WebSockets API](https://developer.mozilla.org/docs/Web/API/WebSockets_API)
+- [gorilla/websocket](https://github.com/gorilla/websocket)
 
 ## WebRTC
 
-- [WebRTC Documentation](https://webrtc.org/)
-- [Mozilla WebRTC Guide](https://developer.mozilla.org/docs/Web/API/WebRTC_API)
+- [WebRTC (webrtc.org)](https://webrtc.org/)
+- [MDN: WebRTC API](https://developer.mozilla.org/docs/Web/API/WebRTC_API)
+- [MDN: RTCPeerConnection](https://developer.mozilla.org/docs/Web/API/RTCPeerConnection)
+- [MDN: RTCDataChannel](https://developer.mozilla.org/docs/Web/API/RTCDataChannel)
+- [MDN: ICE (candidates, STUN, TURN)](https://developer.mozilla.org/docs/Web/API/WebRTC_API/Connectivity)
 
-## Additional Resources
+## Client-side crypto (E2EE)
 
-- [NestJS Best Practices](https://docs.nestjs.com/faq/faq)
-- [Handlebars Best Practices](https://handlebarsjs.com/guide.html#best-practices)
+- [MDN: Web Crypto API](https://developer.mozilla.org/docs/Web/API/Web_Crypto_API)
+- [AES-GCM (MDN)](https://developer.mozilla.org/docs/Web/API/SubtleCrypto/encrypt)
 
-Feel free to explore these resources to enhance your understanding and skills in building applications with Private Meet's technology stack!
+## React + TypeScript + Vite
+
+- [React Docs](https://react.dev/)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/)
+- [Vite Guide](https://vite.dev/guide/)
+
+## Architecture notes
+
+- Private Meet uses WebSocket for room events (presence/typing/chat) and WebRTC signaling.
+- Media (voice/video/screen share) flows peer-to-peer via WebRTC.
+- Images in chat are transferred peer-to-peer via an RTCDataChannel (images only).
 
 ## Presentation
 
@@ -33,14 +46,13 @@ Most communication apps today require accounts, collect metadata, or limit user 
 
 The goal was to design a platform that anyone can use — without registration — while ensuring **end-to-end confidentiality, structured access control, and transparent technology** that users can fully trust.
 
-That’s why we built **Private Meet**, a real-time communication platform powered by **NestJS, Handlebars, Socket.io, and WebRTC**. With Private Meet you get:
+That’s why we built **Private Meet**, a real-time communication platform powered by **Go + WebSockets + WebRTC**, with a **React** web client. With Private Meet you get:
 
 - **No accounts required** — create or join a room instantly.
 - **Flexible room identifiers** — define IDs with **1 to 128 characters**, or generate unguessable ones via **UUID v4**.
-- **End-to-end encrypted chat** for private messaging.
+- **Client-side encrypted chat** (E2EE) for private messaging.
 - **WebRTC-based voice, video, and screen sharing**, with low latency and peer-to-peer security.
-- **Unlimited participants** in each room.
-- **Structured access control** to manage entry and participation.
+- **Image sharing** via WebRTC data channels (images only).
 - **Open source freedom** — anyone can clone, self-host, and redeploy Private Meet on their own infrastructure.
 
 **Private Meet** makes private communication available to everyone. It is **simple, secure, and transparent by design** — giving users complete control over how and where they connect, whether it’s one-on-one, in a group, or at scale.
