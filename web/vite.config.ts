@@ -2,8 +2,19 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
+const genPrefix = (length: number): string => {
+  const n = Math.trunc(Math.random() * 10 ** length);
+
+  return n.toString().padStart(length, "0");
+};
+
 export default defineConfig({
   envDir: "../",
+
+  define: {
+    __ROOM_ID_PREFIX__: JSON.stringify(genPrefix(4) + ":"),
+    __E2EE_WIRE_PREFIX__: JSON.stringify(genPrefix(7) + ":"),
+  },
 
   plugins: [
     react({

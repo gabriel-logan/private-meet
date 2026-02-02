@@ -1,11 +1,6 @@
-export const createPrefix = (length: number): string => {
-  const n = Math.trunc(Math.random() * 10 ** length);
-  return n.toString().padStart(length, "0");
-};
-
 export const userStorageKey = "private-meet-user-storage-key";
 export const maxMessageChars = 1500;
-export const roomIDPrefix = createPrefix(4) + ":";
+export const roomIDPrefix = __ROOM_ID_PREFIX__;
 export const maxRoomIDLength = 128 - roomIDPrefix.length;
 
 // Chat / uploads
@@ -31,5 +26,5 @@ export const E2EE_DEFAULTS = {
   // (Rough guard; final size depends on base64 and envelope overhead.)
   maxWireChars: 5000,
 
-  WIRE_PREFIX: createPrefix(7) + ":",
+  WIRE_PREFIX: __E2EE_WIRE_PREFIX__,
 } as const;
