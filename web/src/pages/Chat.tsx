@@ -43,7 +43,7 @@ import {
   isString,
   normalizeRoomId,
   safeText,
-} from "../utils";
+} from "../utils/general";
 
 type ChatMessage =
   | {

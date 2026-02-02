@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 
 import apiInstance from "../lib/apiInstance";
 import { useAuthStore } from "../stores/authStore";
-import getAxiosErrorMessage from "../utils";
+import getAxiosErrorMessage from "../utils/general";
 
 export default function CreateUser() {
   const setAccessToken = useAuthStore((s) => s.setAccessToken);

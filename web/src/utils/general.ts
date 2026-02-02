@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { roomIDPrefix } from "./constants";
+import { roomIDPrefix } from "../constants";
 
 export function isString(value: unknown): value is string {
   return typeof value === "string";
