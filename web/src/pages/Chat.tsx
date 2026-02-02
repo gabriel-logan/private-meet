@@ -507,7 +507,9 @@ export default function ChatPage() {
     }
 
     if (file.size > chatMaxImageBytes) {
-      toast.error("Image too large (max 8MB for now).");
+      toast.error(
+        `Image too large (max ${chatMaxImageBytes / (1024 * 1024)}MB for now).`,
+      );
       return;
     }
 
