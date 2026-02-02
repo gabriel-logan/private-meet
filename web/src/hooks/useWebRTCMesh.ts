@@ -1,14 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
+  webRTCFileChannelLabel,
+  webRTCFileChannelMaxBufferedAmountBytes,
+  webRTCImageChunkSizeBytes,
+  webRTCMaxPeerConnections,
+} from "../constants";
+import {
   addIceCandidate,
   createAnswer,
   createOffer,
   setRemoteDescription,
   webRTCConfig,
 } from "../lib/webRTC";
-
-const MAX_PEER_CONNECTIONS = 8;
 import { getWSInstance } from "../lib/wsInstance";
 import {
   makeWSMessage,
@@ -64,10 +68,6 @@ type IncomingImageTransfer = {
   receivedBytes: number;
   chunks: ArrayBuffer[];
 };
-
-const FILE_CHANNEL_LABEL = "pm-files";
-const IMAGE_CHUNK_SIZE = 16 * 1024; // 16KB
-const MAX_BUFFERED_AMOUNT = 2 * 1024 * 1024; // 2MB
 
 function wsSend(payload: Uint8Array) {
   let ws: WebSocket;
@@ -430,7 +430,7 @@ export default function useWebRTCMesh({
   );
 
   const waitForBufferedLow = useCallback((ch: RTCDataChannel) => {
-    if (ch.bufferedAmount <= MAX_BUFFERED_AMOUNT) {
+    if (ch.bufferedAmount <= webRTCFileChannelMaxBufferedAmountBytes) {
       return Promise.resolve();
     }
 
@@ -485,7 +485,10 @@ export default function useWebRTCMesh({
         globalThis.crypto?.randomUUID?.() ??
         `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-      const totalChunks = Math.max(1, Math.ceil(file.size / IMAGE_CHUNK_SIZE));
+      const totalChunks = Math.max(
+        1,
+        Math.ceil(file.size / webRTCImageChunkSizeBytes),
+      );
 
       const startMsg = JSON.stringify({
         t: "img-start",
@@ -493,7 +496,7 @@ export default function useWebRTCMesh({
         name: file.name,
         mime: file.type || "application/octet-stream",
         size: file.size,
-        chunkSize: IMAGE_CHUNK_SIZE,
+        chunkSize: webRTCImageChunkSizeBytes,
         totalChunks,
       });
 
@@ -504,7 +507,7 @@ export default function useWebRTCMesh({
       let offset = 0;
 
       while (offset < file.size) {
-        const slice = file.slice(offset, offset + IMAGE_CHUNK_SIZE);
+        const slice = file.slice(offset, offset + webRTCImageChunkSizeBytes);
         const buf = await slice.arrayBuffer();
 
         for (const peerID of expected) {
@@ -803,14 +806,14 @@ export default function useWebRTCMesh({
       }
 
       const totalPeers = peersRef.current.size + creatingPeersRef.current.size;
-      if (totalPeers >= MAX_PEER_CONNECTIONS) {
+      if (totalPeers >= webRTCMaxPeerConnections) {
         throw new Error(
-          `Max peer connections reached (${totalPeers}/${MAX_PEER_CONNECTIONS})`,
+          `Max peer connections reached (${totalPeers}/${webRTCMaxPeerConnections})`,
         );
       }
 
       console.log(
-        `[useWebRTCMesh] Creating peer ${peerID} (total: ${totalPeers + 1}/${MAX_PEER_CONNECTIONS})`,
+        `[useWebRTCMesh] Creating peer ${peerID} (total: ${totalPeers + 1}/${webRTCMaxPeerConnections})`,
       );
 
       const createPromise = (async () => {
@@ -854,7 +857,7 @@ export default function useWebRTCMesh({
 
         pc.ondatachannel = (event) => {
           const ch = event.channel;
-          if (ch?.label !== FILE_CHANNEL_LABEL) {
+          if (ch?.label !== webRTCFileChannelLabel) {
             return;
           }
 
@@ -862,7 +865,7 @@ export default function useWebRTCMesh({
         };
 
         if (myID.localeCompare(peerID) < 0) {
-          const ch = pc.createDataChannel(FILE_CHANNEL_LABEL);
+          const ch = pc.createDataChannel(webRTCFileChannelLabel);
 
           installFileChannelHandlers(peerID, ch);
         }

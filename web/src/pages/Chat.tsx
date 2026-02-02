@@ -21,7 +21,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
-import { maxMessageChars } from "../constants";
+import { chatMaxImageBytes, maxMessageChars } from "../constants";
 import useInitE2ee from "../hooks/useInitE2ee";
 import useWebRTCMesh from "../hooks/useWebRTCMesh";
 import {
@@ -500,8 +500,7 @@ export default function ChatPage() {
       return;
     }
 
-    const maxBytes = 8 * 1024 * 1024;
-    if (file.size > maxBytes) {
+    if (file.size > chatMaxImageBytes) {
       toast.error("Image too large (max 8MB for now).");
       return;
     }

@@ -1,4 +1,4 @@
-import { maxMessageChars } from "../constants";
+import { E2EE_DEFAULTS } from "../constants";
 
 export type AesGcmAlg = "AES-GCM";
 
@@ -8,22 +8,6 @@ export type E2EEEnvelopeV1 = {
   iv: string;
   content: string;
 };
-
-export const E2EE_DEFAULTS = {
-  // AES-GCM standard IV length
-  ivBytes: 12,
-  // PBKDF2 work factor (tune based on target devices)
-  pbkdf2Iterations: 200000,
-  // Salt derived from room id hash
-  saltBytes: 16,
-  // Keep aligned with UI/server limits (server currently limits chat message size)
-  maxPlaintextChars: maxMessageChars,
-  // Helps avoid sending messages that will exceed server limits after encoding.
-  // (Rough guard; final size depends on base64 and envelope overhead.)
-  maxWireChars: 5000,
-
-  WIRE_PREFIX: "pm:e2ee:",
-} as const;
 
 export async function initE2EE(
   passphrase: string,
