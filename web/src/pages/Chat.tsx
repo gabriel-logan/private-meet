@@ -985,8 +985,8 @@ export default function ChatPage() {
                     onClick={toggleScreenShare}
                     className={
                       screenShareEnabled
-                        ? "inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
-                        : "inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-950"
+                        ? "hidden items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-500 sm:inline-flex"
+                        : "hidden items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-950 sm:inline-flex"
                     }
                     aria-pressed={screenShareEnabled}
                   >
