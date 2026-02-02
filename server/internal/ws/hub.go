@@ -38,8 +38,6 @@ func (h *Hub) Run() {
 		case c := <-h.register:
 			h.clients[c] = true
 
-			h.clientJoinRoom("user:"+c.UserID, c)
-
 		case c := <-h.unregister:
 			delete(h.clients, c)
 
@@ -127,6 +125,8 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 			return
 		}
 
+		to := ""
+
 		switch msg.Type {
 		case MessageWebRTCOffer:
 			var payload WebRTCOfferData
@@ -135,6 +135,8 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 				return
 			}
 
+			to = strings.TrimSpace(payload.To)
+
 		case MessageWebRTCAnswer:
 			var payload WebRTCAnswerData
 			if err := json.Unmarshal(msg.Data, &payload); err != nil {
@@ -142,12 +144,21 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 				return
 			}
 
+			to = strings.TrimSpace(payload.To)
+
 		case MessageWebRTCIceCandidate:
 			var payload WebRTCIceCandidateData
 			if err := json.Unmarshal(msg.Data, &payload); err != nil {
 				c.sendError("Invalid WebRTC ICE candidate payload")
 				return
 			}
+
+			to = strings.TrimSpace(payload.To)
+		}
+
+		if to == "" {
+			c.sendError("Missing WebRTC recipient")
+			return
 		}
 
 		h.clientBroadcastToRoom(msg.Room, msg)
