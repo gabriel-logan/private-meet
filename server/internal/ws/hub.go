@@ -121,20 +121,13 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 			),
 		)
 
-	case MessageWebRTCJoin, MessageWebRTCOffer, MessageWebRTCAnswer, MessageWebRTCIceCandidate:
+	case MessageWebRTCOffer, MessageWebRTCAnswer, MessageWebRTCIceCandidate:
 		if !h.isClientInRoom(msg.Room, c) {
 			c.sendError("You are not in this room")
 			return
 		}
 
 		switch msg.Type {
-		case MessageWebRTCJoin:
-			var payload WebRTCJoinData
-			if err := json.Unmarshal(msg.Data, &payload); err != nil {
-				c.sendError("Invalid WebRTC join payload")
-				return
-			}
-
 		case MessageWebRTCOffer:
 			var payload WebRTCOfferData
 			if err := json.Unmarshal(msg.Data, &payload); err != nil {
