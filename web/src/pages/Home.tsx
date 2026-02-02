@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 
 import CreateUser from "../components/CreateUser";
@@ -5,6 +6,8 @@ import JoinMeeting from "../components/JoinMeeting";
 import { useAuthStore } from "../stores/authStore";
 
 export default function HomePage() {
+  const { t } = useTranslation();
+
   const accessToken = useAuthStore((s) => s.accessToken);
 
   return (
@@ -35,9 +38,7 @@ export default function HomePage() {
         </motion.h1>
 
         <p className="mb-8 text-center text-sm leading-relaxed text-zinc-400">
-          Private Meet is a lightweight, secure space for instant private
-          meetings. Create a user, generate a room, and connect — no friction,
-          no noise.
+          {t("IntroductionText")}
         </p>
 
         {accessToken ? <JoinMeeting /> : <CreateUser />}

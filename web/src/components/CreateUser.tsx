@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FiUser } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { motion } from "motion/react";
@@ -8,6 +9,8 @@ import { useAuthStore } from "../stores/authStore";
 import getAxiosErrorMessage from "../utils/general";
 
 export default function CreateUser() {
+  const { t } = useTranslation();
+
   const setAccessToken = useAuthStore((s) => s.setAccessToken);
 
   const [username, setUsername] = useState("");
@@ -47,7 +50,7 @@ export default function CreateUser() {
       className="flex flex-col gap-4"
     >
       <label htmlFor="username" className="text-sm text-zinc-300">
-        Username
+        {t("Username")}
       </label>
 
       <input
@@ -55,7 +58,7 @@ export default function CreateUser() {
         id="username"
         type="text"
         name="username"
-        placeholder="Enter your username"
+        placeholder={t("EnterYourUsername")}
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         className="w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
@@ -66,7 +69,7 @@ export default function CreateUser() {
         className="mt-2 flex items-center justify-center gap-2 rounded-md bg-indigo-600 py-2 text-sm font-medium transition hover:bg-indigo-500"
       >
         <FiUser />
-        Create User
+        {t("CreateUser")}
       </button>
     </motion.form>
   );
