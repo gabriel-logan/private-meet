@@ -429,7 +429,6 @@ export default function ChatPage() {
       }
     } catch (error) {
       console.error("Failed to toggle screen share:", error);
-      toast.error("Failed to start screen share.");
     }
   };
 
