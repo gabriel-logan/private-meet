@@ -32,7 +32,7 @@ func main() {
 	log.Printf("Running in %s mode with TLS: %t \n", env.GoEnv, env.UseLocalTLS)
 
 	if env.UseLocalTLS {
-		log.Fatal(server.ListenAndServeTLS("../utils/fake_cert.pem", "../utils/fake_key.pem"))
+		log.Fatal(server.ListenAndServeTLS("./cert/fake_cert.pem", "./cert/fake_key.pem"))
 	} else {
 		log.Fatal(server.ListenAndServe())
 	}
