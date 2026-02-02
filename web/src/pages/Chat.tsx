@@ -11,6 +11,7 @@ import {
   FiUser,
   FiUsers,
   FiVideo,
+  FiVideoOff,
   FiVolume2,
   FiVolumeX,
   FiX,
@@ -21,6 +22,7 @@ import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
 import { maxMessageChars } from "../constants";
 import useInitE2ee from "../hooks/useInitE2ee";
+import useWebRTCMesh from "../hooks/useWebRTCMesh";
 import {
   decryptWireToText,
   encryptTextToWire,
@@ -50,6 +52,113 @@ type OnlineUser = {
   status: "online" | "idle";
 };
 
+function VideoTile({
+  stream,
+  muted,
+  label,
+}: Readonly<{ stream: MediaStream; muted: boolean; label: string }>) {
+  const ref = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+
+    if (!el) {
+      return;
+    }
+
+    if (el.srcObject !== stream) {
+      el.srcObject = stream;
+    }
+
+    let cancelled = false;
+
+    const tryPlay = async () => {
+      if (cancelled) {
+        return;
+      }
+
+      try {
+        await el.play();
+      } catch (error) {
+        const name = (error as DOMException | null)?.name;
+
+        if (name === "AbortError" || name === "NotAllowedError") {
+          return;
+        }
+
+        console.error("Failed to play video element:", error);
+      }
+    };
+
+    const onLoadedMetadata = () => {
+      void tryPlay();
+    };
+
+    el.addEventListener("loadedmetadata", onLoadedMetadata);
+
+    void tryPlay();
+
+    return () => {
+      cancelled = true;
+      el.removeEventListener("loadedmetadata", onLoadedMetadata);
+    };
+  }, [stream]);
+
+  return (
+    <div className="relative h-full w-full overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950/40">
+      <video
+        ref={ref}
+        autoPlay
+        playsInline
+        muted={muted}
+        className="h-full w-full object-cover"
+      >
+        <track kind="captions" />
+      </video>
+      <div className="absolute bottom-2 left-2 rounded-md bg-black/50 px-2 py-1 text-xs text-zinc-100">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function RemoteAudio({
+  stream,
+  muted,
+}: Readonly<{ stream: MediaStream; muted: boolean }>) {
+  const ref = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+
+    if (!el) {
+      return;
+    }
+
+    if (el.srcObject !== stream) {
+      el.srcObject = stream;
+    }
+
+    el.muted = muted;
+
+    void el.play().catch((error) => {
+      const name = (error as DOMException | null)?.name;
+
+      if (name === "AbortError" || name === "NotAllowedError") {
+        return;
+      }
+
+      console.error("Failed to play audio element:", error);
+    });
+  }, [muted, stream]);
+
+  return <audio ref={ref} autoPlay />;
+}
+
+function hasVideo(stream: MediaStream | null | undefined): boolean {
+  return Boolean(stream && stream.getVideoTracks().length > 0);
+}
+
 export default function ChatPage() {
   const navigate = useNavigate();
 
@@ -67,8 +176,23 @@ export default function ChatPage() {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [usersOpen, setUsersOpen] = useState(false);
 
-  const [speakerMuted, setSpeakerMuted] = useState(false);
-  const [micEnabled, setMicEnabled] = useState(true);
+  const [speakerMuted, setSpeakerMuted] = useState(true);
+
+  const {
+    localCameraStream,
+    localScreenStream,
+    remotePeers,
+    micEnabled,
+    setMicEnabled,
+    cameraEnabled,
+    startCamera,
+    stopCamera,
+    screenShareEnabled,
+    startScreenShare,
+    stopScreenShare,
+    handleSignal,
+    syncPeersFromRoomUsers,
+  } = useWebRTCMesh({ room, myID: me.sub || "" });
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
@@ -89,6 +213,68 @@ export default function ChatPage() {
   const [e2eeReady, setE2eeReady] = useState(false);
 
   const messageCharCount = useMemo(() => Array.from(message).length, [message]);
+
+  const featured = useMemo(() => {
+    const remoteScreen = remotePeers.find(
+      (p) => p.kind === "screen" && hasVideo(p.stream),
+    );
+
+    if (remoteScreen) {
+      return {
+        key: `remote:${remoteScreen.peerID}:screen`,
+        stream: remoteScreen.stream,
+        label: `${remoteScreen.peerID.slice(0, 8)} (screen)` as const,
+      };
+    }
+
+    const remoteCamera = remotePeers.find(
+      (p) => p.kind === "camera" && hasVideo(p.stream),
+    );
+
+    if (remoteCamera) {
+      return {
+        key: `remote:${remoteCamera.peerID}:camera`,
+        stream: remoteCamera.stream,
+        label: remoteCamera.peerID.slice(0, 8),
+      };
+    }
+
+    if (hasVideo(localScreenStream)) {
+      return {
+        key: "local:screen",
+        stream: localScreenStream,
+        label: "You (screen)",
+      };
+    }
+
+    if (hasVideo(localCameraStream)) {
+      return {
+        key: "local:camera",
+        stream: localCameraStream,
+        label: "You",
+      };
+    }
+
+    return null;
+  }, [localCameraStream, localScreenStream, remotePeers]);
+
+  const remoteAudioStreams = useMemo(() => {
+    const byPeer = new Map<string, MediaStream>();
+
+    for (const p of remotePeers) {
+      if (p.kind !== "camera") {
+        continue;
+      }
+
+      if (p.stream.getAudioTracks().length === 0) {
+        continue;
+      }
+
+      byPeer.set(p.peerID, p.stream);
+    }
+
+    return Array.from(byPeer.entries());
+  }, [remotePeers]);
 
   function trigger(ref: React.RefObject<HTMLInputElement | null>) {
     ref.current?.click();
@@ -126,6 +312,32 @@ export default function ChatPage() {
 
     navigate("/");
   }
+
+  const toggleCamera = async () => {
+    try {
+      if (cameraEnabled) {
+        await stopCamera();
+      } else {
+        await startCamera();
+      }
+    } catch (error) {
+      console.error("Failed to toggle camera:", error);
+      toast.error("Failed to access camera.");
+    }
+  };
+
+  const toggleScreenShare = async () => {
+    try {
+      if (screenShareEnabled) {
+        await stopScreenShare();
+      } else {
+        await startScreenShare();
+      }
+    } catch (error) {
+      console.error("Failed to toggle screen share:", error);
+      toast.error("Failed to start screen share.");
+    }
+  };
 
   async function handleSend() {
     if (onlineUsers.length <= 1) {
@@ -233,7 +445,8 @@ export default function ChatPage() {
 
     try {
       ws = getWSInstance();
-    } catch {
+    } catch (error) {
+      console.error("WebSocket not initialized.", error);
       toast.error("WebSocket not initialized.");
       navigate("/");
       return;
@@ -296,6 +509,18 @@ export default function ChatPage() {
         });
 
         setOnlineUsers(users);
+
+        void syncPeersFromRoomUsers(parsed.data.users);
+
+        return;
+      }
+
+      if (
+        parsed.type === "webrtc.offer" ||
+        parsed.type === "webrtc.answer" ||
+        parsed.type === "webrtc.iceCandidate"
+      ) {
+        void handleSignal(parsed);
         return;
       }
 
@@ -434,10 +659,21 @@ export default function ChatPage() {
 
       ws.removeEventListener("message", onMessage);
     };
-  }, [accessToken, me.sub, me.username, navigate, room]);
+  }, [
+    accessToken,
+    handleSignal,
+    me.sub,
+    me.username,
+    navigate,
+    room,
+    syncPeersFromRoomUsers,
+  ]);
 
   return (
     <main className="h-screen bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 px-3 py-4 text-zinc-100 sm:px-6">
+      {remoteAudioStreams.map(([peerID, stream]) => (
+        <RemoteAudio key={peerID} stream={stream} muted={speakerMuted} />
+      ))}
       <div className="mx-auto flex h-full w-full flex-col gap-4">
         <div className="flex shrink-0 flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -445,7 +681,7 @@ export default function ChatPage() {
               Meeting Room
             </h1>
             <p className="text-sm text-zinc-400">
-              Text chat enabled. WebRTC tiles later.
+              Audio starts on. Enable camera or share screen.
             </p>
           </div>
 
@@ -627,22 +863,85 @@ export default function ChatPage() {
               </div>
 
               <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
-                <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-lg border border-zinc-800 bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950">
+                <div className="relative min-h-0 flex-1 overflow-hidden rounded-lg border border-zinc-800 bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950">
                   <div className="absolute inset-0 mask-[radial-gradient(circle_at_center,black,transparent_70%)] opacity-50">
                     <div className="h-full w-full bg-[linear-gradient(to_right,rgba(99,102,241,0.15),transparent),linear-gradient(to_top,rgba(0,0,0,0.35),transparent)]" />
                   </div>
 
-                  <div className="relative flex max-w-md flex-col items-center gap-3 px-6 text-center">
-                    <div className="grid h-12 w-12 place-items-center rounded-full border border-zinc-800 bg-zinc-950 text-indigo-300">
-                      <FiVideo />
+                  <div className="relative z-10 flex h-full flex-col gap-3 p-3">
+                    <div className="min-h-0 flex-1">
+                      {featured ? (
+                        <VideoTile
+                          key={featured.key}
+                          stream={featured.stream}
+                          muted
+                          label={featured.label}
+                        />
+                      ) : (
+                        <div className="grid h-full place-items-center rounded-lg border border-zinc-800 bg-zinc-950/40 p-6 text-sm text-zinc-300">
+                          <div className="flex flex-col items-center gap-2 text-center">
+                            <div className="grid h-12 w-12 place-items-center rounded-full border border-zinc-800 bg-zinc-950 text-indigo-300">
+                              <FiVideo />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-zinc-100">
+                                No video yet
+                              </p>
+                              <p className="mt-1 text-xs text-zinc-400">
+                                Turn on camera or share screen
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-zinc-100">
-                        Camera / Screen Share Area
-                      </p>
-                      <p className="mt-1 text-xs text-zinc-400">
-                        Placeholder for WebRTC tiles (design only)
-                      </p>
+
+                    <div className="flex gap-3 overflow-x-auto pb-1">
+                      {featured?.key !== "local:camera" &&
+                      localCameraStream.getTracks().length > 0 ? (
+                        <div className="min-w-45 flex-1">
+                          <VideoTile
+                            stream={localCameraStream}
+                            muted
+                            label={cameraEnabled ? "You" : "You (audio)"}
+                          />
+                        </div>
+                      ) : null}
+
+                      {featured?.key !== "local:screen" &&
+                      localScreenStream.getTracks().length > 0 ? (
+                        <div className="min-w-45 flex-1">
+                          <VideoTile
+                            stream={localScreenStream}
+                            muted
+                            label={screenShareEnabled ? "You (screen)" : "You"}
+                          />
+                        </div>
+                      ) : null}
+
+                      {remotePeers
+                        .filter((p) => p.stream.getTracks().length > 0)
+                        .map((p) => {
+                          const key = `remote:${p.peerID}:${p.kind}`;
+                          if (featured?.key === key) {
+                            return null;
+                          }
+
+                          const label =
+                            p.kind === "screen"
+                              ? `${p.peerID.slice(0, 8)} (screen)`
+                              : p.peerID.slice(0, 8);
+
+                          return (
+                            <div key={key} className="min-w-45 flex-1">
+                              <VideoTile
+                                stream={p.stream}
+                                muted
+                                label={label}
+                              />
+                            </div>
+                          );
+                        })}
                     </div>
                   </div>
                 </div>
@@ -660,7 +959,7 @@ export default function ChatPage() {
 
                   <button
                     type="button"
-                    onClick={() => setMicEnabled((v) => !v)}
+                    onClick={() => void setMicEnabled(!micEnabled)}
                     className={
                       micEnabled
                         ? "inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
@@ -674,10 +973,30 @@ export default function ChatPage() {
 
                   <button
                     type="button"
-                    className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-950"
+                    onClick={toggleCamera}
+                    className={
+                      cameraEnabled
+                        ? "inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
+                        : "inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-950"
+                    }
+                    aria-pressed={cameraEnabled}
+                  >
+                    {cameraEnabled ? <FiVideo /> : <FiVideoOff />}
+                    {cameraEnabled ? "Camera on" : "Camera off"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={toggleScreenShare}
+                    className={
+                      screenShareEnabled
+                        ? "inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
+                        : "inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-950"
+                    }
+                    aria-pressed={screenShareEnabled}
                   >
                     <FiMonitor />
-                    Share screen
+                    {screenShareEnabled ? "Stop share" : "Share screen"}
                   </button>
 
                   <button
