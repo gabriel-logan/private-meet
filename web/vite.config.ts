@@ -5,7 +5,14 @@ import { defineConfig } from "vite";
 export default defineConfig({
   envDir: "../",
 
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react({
+      babel: {
+        plugins: ["babel-plugin-react-compiler"],
+      },
+    }),
+    tailwindcss(),
+  ],
 
   server: {
     https: {
