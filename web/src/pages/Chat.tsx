@@ -17,7 +17,7 @@ import {
   FiVolumeX,
   FiX,
 } from "react-icons/fi";
-import { useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
@@ -1121,6 +1121,9 @@ export default function ChatPage() {
               <div className="min-h-0 flex-1 overflow-auto p-3">
                 <div className="space-y-3">
                   {messages.map((m) => {
+                    const safeAuthor = String(m.author ?? "");
+                    const safeTimestamp = String(m.timestamp ?? "");
+
                     return (
                       <div
                         key={m.id}
@@ -1132,40 +1135,43 @@ export default function ChatPage() {
                       >
                         <div className="flex items-center justify-between gap-3">
                           <p className="text-xs font-medium text-zinc-300">
-                            {m.author}
+                            {safeAuthor}
                           </p>
                           <p className="text-[11px] text-zinc-500">
-                            {m.timestamp}
+                            {safeTimestamp}
                           </p>
                         </div>
-                        {m.kind === "text" ? (
+
+                        {m.kind === "text" && (
                           <p className="mt-1 text-sm wrap-break-word whitespace-pre-wrap text-zinc-100">
-                            {m.text}
+                            {String(m.text ?? "Invalid text")}
                           </p>
-                        ) : (
+                        )}
+
+                        {m.kind === "image" && (
                           <div className="mt-2">
                             {isSafeUrl(m.url) ? (
-                              <a
-                                href={m.url}
-                                download={m.name}
+                              <Link
+                                to={m.url}
+                                download={String(m.name ?? "Invalid name")}
                                 className="block"
                                 target="_blank"
                                 rel="noreferrer"
                               >
                                 <img
                                   src={m.url}
-                                  alt={m.name}
+                                  alt={String(m.name ?? "Invalid name")}
                                   className="max-h-80 w-full rounded-lg border border-zinc-800 object-contain"
                                   loading="lazy"
                                 />
-                              </a>
+                              </Link>
                             ) : (
                               <p className="text-sm text-red-500">
                                 Invalid image URL
                               </p>
                             )}
                             <p className="mt-1 text-[11px] text-zinc-400">
-                              {m.name}
+                              {String(m.name ?? "Invalid name")}
                             </p>
                           </div>
                         )}
