@@ -20,14 +20,8 @@ func newMessage(msgType MessageType, room string, data json.RawMessage, from str
 	msg := &Message{
 		Type: msgType,
 		Data: data,
-	}
-
-	if room != "" {
-		msg.Room = room
-	}
-
-	if from != "" {
-		msg.From = from
+		From: from,
+		Room: room,
 	}
 
 	v, err := json.Marshal(msg)
