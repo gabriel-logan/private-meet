@@ -192,6 +192,11 @@ export default function ChatPage() {
     syncPeersFromRoomUsers,
   } = useWebRTCMesh({ room, myID: me.sub || "" });
 
+  const syncPeersRef = useRef(syncPeersFromRoomUsers);
+  useEffect(() => {
+    syncPeersRef.current = syncPeersFromRoomUsers;
+  }, [syncPeersFromRoomUsers]);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
@@ -508,7 +513,7 @@ export default function ChatPage() {
 
         setOnlineUsers(users);
 
-        void syncPeersFromRoomUsers(parsed.data.users);
+        void syncPeersRef.current(parsed.data.users);
 
         return;
       }
@@ -657,15 +662,7 @@ export default function ChatPage() {
 
       ws.removeEventListener("message", onMessage);
     };
-  }, [
-    accessToken,
-    handleSignal,
-    me.sub,
-    me.username,
-    navigate,
-    room,
-    syncPeersFromRoomUsers,
-  ]);
+  }, [accessToken, handleSignal, me.sub, me.username, navigate, room]);
 
   return (
     <main className="h-screen bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 px-3 py-4 text-zinc-100 max-sm:h-auto max-sm:min-h-dvh max-sm:pb-6 sm:px-6">
