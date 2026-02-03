@@ -3,8 +3,7 @@ import { Link, useLocation } from "react-router";
 import { motion } from "motion/react";
 
 import { useUserStore } from "../stores/userStore";
-import en from "../utils/locales/en.json";
-import pt from "../utils/locales/pt.json";
+import { resources } from "../utils/i18n";
 
 type AnyRecord = Record<string, unknown>;
 
@@ -27,12 +26,12 @@ function flattenStrings(obj: AnyRecord, prefix = ""): Record<string, string> {
   return out;
 }
 
-const enFlat = flattenStrings(en as AnyRecord);
-const ptFlat = flattenStrings(pt as AnyRecord);
+const enFlat = flattenStrings(resources.en.translation as AnyRecord);
+const ptFlat = flattenStrings(resources.pt.translation as AnyRecord);
 
 const totalEnKeys = Object.keys(enFlat).length;
 
-const ptCoveragePct = (() => {
+const lngCoveragePct = (lngFlat: AnyRecord) => {
   if (totalEnKeys === 0) {
     return 100;
   }
@@ -40,7 +39,7 @@ const ptCoveragePct = (() => {
   let covered = 0;
 
   for (const key of Object.keys(enFlat)) {
-    const v = ptFlat[key];
+    const v = lngFlat[key];
 
     if (typeof v === "string" && v.trim().length > 0) {
       covered++;
@@ -48,7 +47,7 @@ const ptCoveragePct = (() => {
   }
 
   return Math.round((covered / totalEnKeys) * 100);
-})();
+};
 
 export default function Header() {
   const { t, i18n } = useTranslation();
@@ -101,7 +100,7 @@ export default function Header() {
               aria-label={t("Header.ChangeLanguage")}
             >
               <option value="en">English (100%)</option>
-              <option value="pt">Português ({ptCoveragePct}%)</option>
+              <option value="pt">Português ({lngCoveragePct(ptFlat)}%)</option>
             </select>
           </div>
           {navLinks.map((link) => (
