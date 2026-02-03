@@ -34,6 +34,32 @@ Current stack (high level): Go + WebSocket/WebRTC signaling (server), React + Ty
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/)
 - [Vite Guide](https://vite.dev/guide/)
 
+## Routing
+
+- [React Router docs](https://reactrouter.com/)
+
+## Styling
+
+- [Tailwind CSS docs](https://tailwindcss.com/docs)
+
+## State management
+
+- [Zustand docs](https://zustand-demo.pmnd.rs/)
+
+## i18n
+
+- [i18next](https://www.i18next.com/)
+- [react-i18next](https://react.i18next.com/)
+
+## Testing
+
+- [Vitest](https://vitest.dev/)
+- [Testing Library (React)](https://testing-library.com/docs/react-testing-library/intro/)
+
+## Deployment (current)
+
+- [Render docs](https://render.com/docs)
+
 ## Architecture notes
 
 - Private Meet uses WebSocket for room events (presence/typing/chat) and WebRTC signaling.

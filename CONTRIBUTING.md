@@ -12,20 +12,35 @@
      git clone https://github.com/gabriel-logan/private-meet.git
      ```
 
-  3. **Install dependencies**
+  3. **Configure environment**
+
+    Private Meet expects a `.env` at the repo root (shared by `server/` and `web/`).
+
+    ```bash
+    cp .env.example .env
+    ```
+
+    Note: when testing from another device on your LAN (not `localhost`), you typically need a secure context for WebRTC/media capture. The project supports local HTTPS via `cert/` and `USE_LOCAL_TLS=true`.
+
+  4. **Install dependencies**
 
     ```bash
     make install
     ```
 
-  4. **Run locally**
+  5. **Run locally**
+
+    In separate terminals:
 
     ```bash
     make run_server
+    ```
+
+    ```bash
     make run_web
     ```
 
-5. **Commit and Push**
+6. **Commit and Push**
    - Commit your changes and push them to the forked repository:
 
      ```
@@ -34,7 +49,7 @@
      git push origin my-feature
      ```
 
-4. **Open a Pull Request (PR)**
+7. **Open a Pull Request (PR)**
    - Go to the forked repository on GitHub and open a PR to the main branch of the project.
 
 ## Contribution Guidelines

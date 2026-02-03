@@ -12,11 +12,33 @@ This is the React + TypeScript + Vite client for Private Meet.
 pnpm install
 ```
 
+## Environment (.env)
+
+The web client reads environment variables from the repo root `.env` (see `vite.config.ts` → `envDir: "../"`).
+
+If you don't have it yet:
+
+```bash
+cp ../.env.example ../.env
+```
+
+Required:
+
+- `VITE_HTTP_API_URL` (e.g. `http://localhost:3000`)
+- `VITE_WS_API_URL` (e.g. `ws://localhost:3000`)
+
+Optional (TURN):
+
+- `VITE_HAS_TURN_SERVER` (`true`/`false`)
+- `VITE_TURN_SERVER_URL`, `VITE_TURN_SERVER_USERNAME`, `VITE_TURN_SERVER_CREDENTIAL`
+
 ## Run (dev)
 
 ```bash
 pnpm dev
 ```
+
+Note: the Vite dev server is configured to run with HTTPS using the local certs in `cert/`. Browsers may warn about the certificate unless you trust it.
 
 ## Lint / format
 

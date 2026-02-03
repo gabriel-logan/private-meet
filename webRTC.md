@@ -6,6 +6,26 @@ WebRTC establishes a **direct, secure, peer-to-peer connection** between two end
 Signaling is required only to exchange metadata (SDP and ICE candidates).
 Media and data flow directly between peers.
 
+## Private Meet specifics (source-of-truth)
+
+In Private Meet, signaling is done over **WebSocket** (`GET /ws?token=<jwt>`), and the signaling payloads are JSON messages with the shape:
+
+```ts
+{ type: string; room?: string; data: unknown; from?: string }
+```
+
+WebRTC signaling message types used by the app:
+
+- `webrtc.offer` → `data: { sdp: string, to: string }`
+- `webrtc.answer` → `data: { sdp: string, to: string }`
+- `webrtc.iceCandidate` → `data: { candidate: string, to: string }`
+
+Notes:
+
+- Private Meet uses a **mesh** topology (peer-to-peer connections between participants). This does not scale to large rooms.
+- TURN support is optional and configured in the web client via `VITE_HAS_TURN_SERVER` + `VITE_TURN_SERVER_*`.
+- The server currently relays signaling and room events; media flows peer-to-peer.
+
 1. The application starts
 2. A peer decides to initiate a connection
 3. An `RTCPeerConnection` is created
@@ -149,10 +169,13 @@ The offer is transmitted using a signaling channel (WebSocket, HTTP, etc).
 **Example**
 
 ```ts
-signaling.send({
-  type: 'offer',
-  sdp: offer
-})
+ws.send(
+  JSON.stringify({
+    type: 'webrtc.offer',
+    room,
+    data: { sdp: offer.sdp, to: remoteUserId }
+  })
+)
 ```
 
 ---
@@ -176,7 +199,7 @@ The remote peer applies the received offer.
 **Example**
 
 ```ts
-await peerConnection.setRemoteDescription(message.sdp)
+await peerConnection.setRemoteDescription({ type: 'offer', sdp: message.data.sdp })
 ```
 
 ---
@@ -212,10 +235,13 @@ The answer is returned to the initiating peer.
 **Example**
 
 ```ts
-signaling.send({
-  type: 'answer',
-  sdp: answer
-})
+ws.send(
+  JSON.stringify({
+    type: 'webrtc.answer',
+    room,
+    data: { sdp: answer.sdp, to: remoteUserId }
+  })
+)
 ```
 
 ---
@@ -253,10 +279,13 @@ The browser starts discovering network paths.
 ```ts
 peerConnection.onicecandidate = event => {
   if (event.candidate) {
-    signaling.send({
-      type: 'ice-candidate',
-      candidate: event.candidate
-    })
+    ws.send(
+      JSON.stringify({
+        type: 'webrtc.iceCandidate',
+        room,
+        data: { candidate: event.candidate.candidate, to: remoteUserId }
+      })
+    )
   }
 }
 ```
@@ -270,7 +299,7 @@ Each discovered candidate is sent to the remote peer.
 **Example**
 
 ```ts
-await peerConnection.addIceCandidate(message.candidate)
+await peerConnection.addIceCandidate({ candidate: message.data.candidate })
 ```
 
 ---

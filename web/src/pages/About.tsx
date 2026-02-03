@@ -32,7 +32,7 @@ const roadmapCards = [
   {
     title: "TURN + reliability (next)",
     description:
-      "Improve NAT traversal and connection reliability by adding TURN support and better diagnostics.",
+      "TURN can be enabled in the web client via env config, but the next step is production-grade TURN setup + better diagnostics and UX for unreliable networks.",
     icon: FiVideo,
   },
 ] as const;
@@ -58,7 +58,7 @@ const currentCards = [
   {
     title: "WebRTC voice/video/screen share",
     description:
-      "Peer-to-peer media with WebRTC (mesh). Signaling is handled over WebSocket.",
+      "Peer-to-peer media with WebRTC (mesh). Signaling is handled over WebSocket (currently capped at ~8 peer connections per client).",
     icon: FiVideo,
   },
   {

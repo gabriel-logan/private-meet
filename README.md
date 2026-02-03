@@ -31,7 +31,7 @@ We are using free instances, so performance may vary.
 Limitations (current)
 
 - WebRTC mesh does not scale to large rooms (peer-to-peer connections per participant).
-- The mesh is capped (see `MAX_PEER_CONNECTIONS` in the web client).
+- The mesh is capped (see `webRTCMaxPeerConnections` in `web/src/constants.ts`).
 - Without TURN, some NATs will fail to connect.
 
 ## Folders
@@ -45,11 +45,41 @@ Limitations (current)
 - Go 1.25+
 - Node.js + pnpm
 
+## Configuration (.env)
+
+This repo uses a single `.env` at the project root (used by both `server/` and `web/`).
+
+Start from the example:
+
+```bash
+cp .env.example .env
+```
+
+### Backend variables
+
+- `GO_ENV`: `development` enables permissive WS origin + CORS middleware.
+- `USE_LOCAL_TLS`: when `true`, the Go server serves HTTPS using `cert/`.
+- `APP_NAME`: used as JWT issuer.
+- `SERVER_PORT`: HTTP(S) port the Go server listens on.
+- `JWT_SECRET`: HS256 secret for access tokens.
+- `JWT_EXPIRATION`: duration string (e.g. `1h`, `30m`).
+- `CONTEXT_TIMEOUT`: duration string (e.g. `15s`).
+- `ALLOWED_ORIGIN`: used for WS origin checks in non-dev environments.
+
+### Frontend variables (Vite)
+
+- `VITE_HTTP_API_URL`: base URL for REST calls (e.g. `http://localhost:3000`).
+- `VITE_WS_API_URL`: base URL for WS calls (e.g. `ws://localhost:3000`).
+- `VITE_HAS_TURN_SERVER`: `true`/`false` (enables TURN in the WebRTC ICE config).
+- `VITE_TURN_SERVER_URL`, `VITE_TURN_SERVER_USERNAME`, `VITE_TURN_SERVER_CREDENTIAL`: TURN config (used only if `VITE_HAS_TURN_SERVER=true`).
+
 ## Install
 
 ```bash
 make install
 ```
+
+Make sure you have a root `.env` configured (see the section above) before running the app.
 
 ## Running the Application
 
@@ -65,17 +95,62 @@ Run frontend:
 make run_web
 ```
 
+### Local dev TLS / secure context note
+
+- When you're testing from another device on your LAN (not `localhost`), browsers require a **secure context** for things like WebRTC media capture.
+- The Vite dev server is configured to use HTTPS with the local certs in `cert/`.
+- The Go server can also serve HTTPS when `USE_LOCAL_TLS=true`.
+
+Expect a browser warning for the fake certificate unless you install/trust it.
+
 ## Building for Production
 
 ```bash
 make build
 ```
 
+Production build output:
+
+- `web/dist/` (static assets)
+- `server/bin/server` (Go binary)
+
+The Go server serves the SPA from `web/dist/` at `/`.
+
 ## Testing
 
 ```bash
 make test
 ```
+
+## API / Protocol (current)
+
+### REST
+
+- `GET /health` → `OK`
+- `POST /auth/sign-in` → returns `{ accessToken, tokenType, userId, username }`
+
+### WebSocket
+
+- Endpoint: `GET /ws?token=<jwt>`
+- The WS connection requires a valid JWT (issued by `/auth/sign-in`).
+- Payloads are JSON messages with shape `{ type, room?, data, from? }`.
+
+Current message types include:
+
+- `chat.join`, `chat.leave`, `chat.message`, `chat.typing`
+- `room.users` (server snapshot)
+- `utils.generateRoomID`
+- `webrtc.offer`, `webrtc.answer`, `webrtc.iceCandidate` (signaling)
+
+See the source-of-truth types in `web/src/protocol/ws.ts`.
+
+## Current limits (selected)
+
+- Room ID length: up to 128 chars
+- Server-side chat limit: 5000 runes
+- Client-side UI cap: 1500 chars per message
+- WebRTC mesh cap: 8 peer connections per client
+- Image sharing limit (client): 12MB per image, sent P2P via RTCDataChannel
 
 ## License
 
