@@ -1,0 +1,135 @@
+{
+  "Hello, world!": "Hallo, Welt!",
+  "WelcomeMessage": "Willkommen bei <1>Private Meet</1>",
+  "IntroductionText": "Private Meet ist ein leichter und sicherer Raum für sofortige private Treffen. Erstellen Sie einen Benutzer, generieren Sie einen Raum und verbinden Sie sich – ohne Reibung, ohne Lärm.",
+  "Username": "Benutzername",
+  "EnterYourUsername": "Geben Sie Ihren Benutzernamen ein",
+  "CreateUser": "Benutzer erstellen",
+
+  "Header": {
+    "Home": "Startseite",
+    "About": "Über",
+    "ChangeLanguage": "Sprache ändern"
+  },
+
+  "Footer": {
+    "PrivacyPolicy": "Datenschutz-Bestimmungen",
+    "TermsOfService": "Nutzungsbedingungen",
+    "ContactUs": "Kontaktieren Sie uns",
+    "GithubRepository": "GitHub-Repository",
+    "CreatedBy": "Erstellt von Gabriel Logan"
+  },
+
+  "Loading": {
+    "LoadingDotDotDot": "Wird geladen..."
+  },
+
+  "Errors": {
+    "AnErrorOccurred": "Ein Fehler ist aufgetreten.",
+    "AnErrorOccurredWithMessage": "Ein Fehler ist aufgetreten: {{message}}",
+    "SomethingWentWrong": "Etwas ist schief gelaufen.",
+    "FailedToCreateUser": "Benutzererstellung fehlgeschlagen.",
+    "PleaseEnterRoomID": "Bitte geben Sie eine Raum-ID ein.",
+    "RoomIDIsTooLong": "Die Raum-ID ist zu lang (maximal {{maxRoomIDLength}} Zeichen).",
+    "ErrorProcessingServerMessage": "Fehler beim Verarbeiten der Servernachricht.",
+    "AudioTrackNotReady": "Audio-Track ist nicht bereit.",
+    "VideoTrackNotReady": "Video-Track ist nicht bereit.",
+    "OnlyImageFilesAllowed": "Nur Bilddateien sind erlaubt.",
+    "NoPeersInRoom": "Keine Teilnehmer im Raum.",
+    "WebRTCNotFullyConnectedWithAllPeers": "WebRTC ist nicht vollständig mit allen Teilnehmern verbunden.",
+    "NoCameraTrackAvailable": "Keine Kamera-Spur verfügbar.",
+    "NoMicrophoneTrackAvailable": "Keine Mikrofon-Spur verfügbar.",
+    "NoScreenShareTrackAvailable": "Keine Bildschirmfreigabe-Spur verfügbar.",
+    "MissingRoomID": "Raum-ID fehlt.",
+    "RefusingToCreatePeerConnToSelf": "Verweigerung, Peer-Verbindung zu sich selbst herzustellen.",
+    "MaxPeerConnectionsReached": "Maximale Anzahl von Peer-Verbindungen erreicht ({{maxPeerConnections}}).",
+    "UseWebRTCMeshFailedToGetUserMediaAudioWhileCreatingPeer": "[useWebRTCMesh] Fehler beim Abrufen von getUserMedia(audio) beim Erstellen des Peers.",
+    "FailedToRevokeObjectURL": "Fehler beim Widerrufen der Objekt-URL.",
+    "FailedToInitE2EE": "Fehler beim Initialisieren von E2EE.",
+    "WsIsNotConnected": "WebSocket ist nicht verbunden.",
+    "NotConnectedYetTryAgainInASecond": "Noch nicht verbunden. Versuchen Sie es in einer Sekunde erneut.",
+    "WsConnFailed": "WebSocket-Verbindung fehlgeschlagen.",
+    "WsInstanceIsNotInitialized": "WebSocket-Instanz ist nicht initialisiert.",
+    "FailedToConnectToWsServer": "Verbindung zum WebSocket-Server fehlgeschlagen.",
+    "FailedToAccessCamera": "Zugriff auf die Kamera fehlgeschlagen.",
+    "FailedToAccessMicrophone": "Zugriff auf das Mikrofon fehlgeschlagen.",
+    "NoOneInTheRoomToReceiveMessage": "Kein anderer Teilnehmer im Raum, um Ihre Nachricht zu empfangen.",
+    "PleaseEnterAMessage": "Bitte geben Sie eine Nachricht ein.",
+    "EnryptionNotReadyYet": "Die Verschlüsselung ist noch nicht bereit.",
+    "FailedToSendEncryptedMessage": "Fehler beim Senden der verschlüsselten Nachricht.",
+    "NoOneInTheRoomToSendFile": "Kein anderer Teilnehmer im Raum, um Ihre Datei zu empfangen.",
+    "ImageSendingIsOnlyAllowedAfterWebRTCIsConnected": "Das Senden von Bildern ist nur möglich, wenn WebRTC mit allen im Raum verbunden ist.",
+    "OnlyImagesAreSupportedForNow": "Derzeit werden nur Bilder unterstützt.",
+    "ImageTooLarge": "Bild zu groß (maximal {{maxImageSizeMB}}MB derzeit).",
+    "FailedToSendImageOverWebRTC": "Fehler beim Senden des Bildes über WebRTC.",
+    "PleaseCreateAUserFirst": "Bitte erstellen Sie zuerst einen Benutzer.",
+    "InvalidRoom": "Ungültiger Raum.",
+    "ConnectingDotDotDotTryAgainInAMoment": "Verbindung wird hergestellt... Bitte versuchen Sie es in einem Moment erneut.",
+    "E2EENotConfiguredWhenSendMSG": "[Nachricht geschützt: E2EE nicht konfiguriert]",
+    "E2EECanNotDecryptMessage": "[Nachricht geschützt: Kann nicht entschlüsseln]",
+    "UnknownError": "Unbekannter Fehler.",
+    "UnknownErrorFromServer": "Unbekannter Fehler vom Server."
+  },
+
+  "NotFound": {
+    "PageNotFoundTitle": "404 - Seite nicht gefunden",
+    "PageNotFoundMessage": "Die von Ihnen gesuchte Seite existiert nicht."
+  },
+
+  "Infos": {
+    "UserDeletedSuccessfully": "Benutzer gelöscht. Bitte erstellen Sie einen neuen Benutzer, um fortzufahren.",
+    "UserIsTypingDotDotDot": "{{username}} tippt...",
+    "TwoUsersAreTypingDotDotDot": "{{username1}} und {{username2}} tippen...",
+    "MultipleUsersAreTypingDotDotDot": "{{username1}}, {{username2}} und {{count}} weitere tippen..."
+  },
+
+  "Success": {
+    "UserCreated": "Benutzer erfolgreich erstellt!",
+    "RoomIDGenerated": "Neue Raum-ID generiert!"
+  },
+
+  "JoinMeeting": {
+    "RoomID": "Raum-ID",
+    "EnterRoomID": "Raum-ID eingeben",
+    "Passphrase": "Passwort",
+    "EnterPassphrase": "Passwort eingeben (optional)",
+    "PText1": "Maximale Länge: {{maxRoomIDLength}} Zeichen. Sowohl Raum-ID als auch Passwort.",
+    "PText2": "Das Passwort wird verwendet, um Ihre Nachrichten Ende-zu-Ende zu verschlüsseln. Wenn Sie es leer lassen, wird die Raum-ID als Passwort verwendet. Es wird dringend empfohlen, ein Passwort für bessere Sicherheit zu verwenden. Alle Benutzer im Raum müssen dasselbe Passwort verwenden, um sicher zu kommunizieren, andernfalls können sie die Nachrichten der anderen nicht lesen.",
+    "JoinRoomButton": "Raum betreten",
+    "GenerateNewRoomIDButton": "Neue sichere Raum-ID generieren",
+    "DeleteUserButton": "Benutzer löschen"
+  },
+
+  "Chat": {
+    "MeetingRoom": "Besprechungsraum",
+    "AudioStartsOn": "Audio startet in.",
+    "EnableCameraOrShareScreen": "Kamera aktivieren oder Bildschirm teilen.",
+    "Users": "Benutzer",
+    "Connected": "Verbunden",
+    "ConnectingDotDotDot": "Verbindung wird hergestellt...",
+    "Online": "Online",
+    "Idle": "Inaktiv",
+    "Stage": "Bühne",
+    "RoomColon": "Raum: ",
+    "NoVideoYet": "Noch kein Video.",
+    "TurnOnCameraOrShareScreen": "Kamera einschalten oder Bildschirm teilen, um das Video zu starten.",
+    "Chat": "Chat",
+    "EnterToSend": "Drücken Sie Enter zum Senden",
+    "ShiftPlusEnterForNewLine": "Shift+Enter für neue Zeile",
+    "InvalidImageURL": "Ungültige Bild-URL.",
+    "InvalidText": "Ungültiger Text.",
+    "InvalidName": "Ungültiger Name.",
+    "Emojis": "Emojis",
+    "Close": "Schließen",
+    "Send": "Senden",
+    "Message": "Nachricht",
+    "WriteAMessage": "Schreiben Sie eine Nachricht...",
+    "InitializingEncryption": "Initialisiere Verschlüsselung...",
+    "You": "Sie",
+    "YouAudio": "Sie (Audio)",
+    "YouScreen": "Sie (Bildschirm)",
+    "MsgsAreSentViaWsE2EEEncryption": "Nachrichten werden über WebSocket gesendet. Ende-zu-Ende-Verschlüsselung.",
+    "AttachImage": "Bild anhängen",
+    "WaitingForWebRTCConn": "Warte auf WebRTC-Verbindungen ({{msg}})"
+  }
+}

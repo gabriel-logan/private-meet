@@ -1,0 +1,135 @@
+{
+  "Hello, world!": "こんにちは、世界！",
+  "WelcomeMessage": "<1>Private Meet</1>へようこそ",
+  "IntroductionText": "Private Meetは、瞬時にプライベートなミーティングを行える、軽量で安全な空間です。ユーザーを作成し、ルームを生成して接続 — 面倒な手続きや雑音はありません。",
+  "Username": "ユーザー名",
+  "EnterYourUsername": "ユーザー名を入力してください",
+  "CreateUser": "ユーザーを作成",
+
+  "Header": {
+    "Home": "ホーム",
+    "About": "約",
+    "ChangeLanguage": "言語を変更する"
+  },
+
+  "Footer": {
+    "PrivacyPolicy": "プライバシーポリシー",
+    "TermsOfService": "利用規約",
+    "ContactUs": "お問い合わせ",
+    "GithubRepository": "GitHubリポジトリ",
+    "CreatedBy": "作成者 Gabriel Logan"
+  },
+
+  "Loading": {
+    "LoadingDotDotDot": "読み込み中..."
+  },
+
+  "Errors": {
+    "AnErrorOccurred": "エラーが発生しました。",
+    "AnErrorOccurredWithMessage": "エラーが発生しました: {{message}}",
+    "SomethingWentWrong": "問題が発生しました。",
+    "FailedToCreateUser": "ユーザーの作成に失敗しました。",
+    "PleaseEnterRoomID": "ルームIDを入力してください。",
+    "RoomIDIsTooLong": "ルームIDが長すぎます（最大{{maxRoomIDLength}}文字）。",
+    "ErrorProcessingServerMessage": "サーバーメッセージの処理中にエラーが発生しました。",
+    "AudioTrackNotReady": "オーディオトラックが準備できていません。",
+    "VideoTrackNotReady": "ビデオトラックが準備できていません。",
+    "OnlyImageFilesAllowed": "画像ファイルのみ許可されています。",
+    "NoPeersInRoom": "ルームに参加者がいません。",
+    "WebRTCNotFullyConnectedWithAllPeers": "WebRTCはすべての参加者と完全に接続されていません。",
+    "NoCameraTrackAvailable": "カメラトラックが利用できません。",
+    "NoMicrophoneTrackAvailable": "マイクトラックが利用できません。",
+    "NoScreenShareTrackAvailable": "画面共有トラックが利用できません。",
+    "MissingRoomID": "ルームIDがありません。",
+    "RefusingToCreatePeerConnToSelf": "自分自身へのピア接続の作成を拒否しています。",
+    "MaxPeerConnectionsReached": "最大ピア接続数に達しました（{{maxPeerConnections}}）。",
+    "UseWebRTCMeshFailedToGetUserMediaAudioWhileCreatingPeer": "[useWebRTCMesh] ピア作成時にgetUserMedia(audio)の取得に失敗しました。",
+    "FailedToRevokeObjectURL": "オブジェクトURLの取り消しに失敗しました。",
+    "FailedToInitE2EE": "E2EEの初期化に失敗しました。",
+    "WsIsNotConnected": "WebSocketが接続されていません。",
+    "NotConnectedYetTryAgainInASecond": "まだ接続されていません。1秒後に再試行してください。",
+    "WsConnFailed": "WebSocket接続に失敗しました。",
+    "WsInstanceIsNotInitialized": "WebSocketインスタンスが初期化されていません。",
+    "FailedToConnectToWsServer": "WebSocketサーバーへの接続に失敗しました。",
+    "FailedToAccessCamera": "カメラへのアクセスに失敗しました。",
+    "FailedToAccessMicrophone": "マイクへのアクセスに失敗しました。",
+    "NoOneInTheRoomToReceiveMessage": "ルームに他の参加者がいません。メッセージを受信できません。",
+    "PleaseEnterAMessage": "メッセージを入力してください。",
+    "EnryptionNotReadyYet": "暗号化がまだ準備できていません。",
+    "FailedToSendEncryptedMessage": "暗号化されたメッセージの送信に失敗しました。",
+    "NoOneInTheRoomToSendFile": "ルームに他の参加者がいません。ファイルを送信できません。",
+    "ImageSendingIsOnlyAllowedAfterWebRTCIsConnected": "画像の送信は、WebRTCがルーム内の全員と接続された後にのみ許可されます。",
+    "OnlyImagesAreSupportedForNow": "現在は画像のみサポートされています。",
+    "ImageTooLarge": "画像が大きすぎます（最大{{maxImageSizeMB}}MBまで）。",
+    "FailedToSendImageOverWebRTC": "WebRTC経由での画像送信に失敗しました。",
+    "PleaseCreateAUserFirst": "まずユーザーを作成してください。",
+    "InvalidRoom": "無効なルームです。",
+    "ConnectingDotDotDotTryAgainInAMoment": "接続中... 少し待ってから再試行してください。",
+    "E2EENotConfiguredWhenSendMSG": "[保護されたメッセージ: E2EEが設定されていません]",
+    "E2EECanNotDecryptMessage": "[保護されたメッセージ: 復号できません]",
+    "UnknownError": "不明なエラーが発生しました。",
+    "UnknownErrorFromServer": "サーバーから不明なエラーが発生しました。"
+  },
+
+  "NotFound": {
+    "PageNotFoundTitle": "404 - ページが見つかりません",
+    "PageNotFoundMessage": "お探しのページは存在しません。"
+  },
+
+  "Infos": {
+    "UserDeletedSuccessfully": "ユーザーが削除されました。続行するには新しいユーザーを作成してください。",
+    "UserIsTypingDotDotDot": "{{username}} が入力しています...",
+    "TwoUsersAreTypingDotDotDot": "{{username1}} と {{username2}} が入力しています...",
+    "MultipleUsersAreTypingDotDotDot": "{{username1}}、{{username2}} とさらに {{count}} 人が入力しています..."
+  },
+
+  "Success": {
+    "UserCreated": "ユーザーが正常に作成されました！",
+    "RoomIDGenerated": "新しいルームIDが生成されました！"
+  },
+
+  "JoinMeeting": {
+    "RoomID": "ルームID",
+    "EnterRoomID": "ルームIDを入力してください",
+    "Passphrase": "パスフレーズ",
+    "EnterPassphrase": "パスフレーズを入力してください（任意）",
+    "PText1": "最大長: {{maxRoomIDLength}} 文字。ルームIDとパスフレーズの両方に適用されます。",
+    "PText2": "パスフレーズはエンドツーエンドのメッセージ暗号化に使用されます。空白の場合、ルームIDがパスフレーズとして使用されます。セキュリティ向上のためにパスフレーズの使用を強く推奨します。ルーム内のすべてのユーザーは安全に通信するために同じパスフレーズを使用する必要があります。そうしないと、お互いのメッセージを読むことができません。",
+    "JoinRoomButton": "ルームに参加",
+    "GenerateNewRoomIDButton": "安全なランダムルームIDを生成",
+    "DeleteUserButton": "ユーザーを削除"
+  },
+
+  "Chat": {
+    "MeetingRoom": "ミーティングルーム",
+    "AudioStartsOn": "オーディオが開始されます。",
+    "EnableCameraOrShareScreen": "カメラを有効にするか、画面を共有してください。",
+    "Users": "ユーザー",
+    "Connected": "接続済み",
+    "ConnectingDotDotDot": "接続中...",
+    "Online": "オンライン",
+    "Idle": "アイドル",
+    "Stage": "ステージ",
+    "RoomColon": "ルーム: ",
+    "NoVideoYet": "まだビデオがありません。",
+    "TurnOnCameraOrShareScreen": "ビデオを開始するにはカメラを有効にするか、画面を共有してください。",
+    "Chat": "チャット",
+    "EnterToSend": "Enterキーで送信",
+    "ShiftPlusEnterForNewLine": "Shift+Enterで改行",
+    "InvalidImageURL": "無効な画像URLです。",
+    "InvalidText": "無効なテキストです。",
+    "InvalidName": "無効な名前です。",
+    "Emojis": "絵文字",
+    "Close": "閉じる",
+    "Send": "送信",
+    "Message": "メッセージ",
+    "WriteAMessage": "メッセージを入力してください...",
+    "InitializingEncryption": "暗号化を初期化しています...",
+    "You": "あなた",
+    "YouAudio": "あなた（オーディオ）",
+    "YouScreen": "あなた（画面）",
+    "MsgsAreSentViaWsE2EEEncryption": "メッセージはWebSocket経由で送信されます。エンドツーエンドの暗号化。",
+    "AttachImage": "画像を添付",
+    "WaitingForWebRTCConn": "WebRTC接続を待っています（{{msg}}）"
+  }
+}
