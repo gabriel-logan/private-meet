@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FiGlobe, FiHome, FiInfo, FiMenu, FiX } from "react-icons/fi";
 import { Link, useLocation } from "react-router";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 
 import { useUserStore } from "../stores/userStore";
 import type { Locale } from "../types";
@@ -58,40 +60,47 @@ export default function Header() {
 
   const { locale, setLocale } = useUserStore();
 
-  const isChatPage = useLocation().pathname === "/chat";
+  const location = useLocation();
 
-  if (isChatPage) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  if (location.pathname === "/chat") {
     return null;
   }
 
   const navLinks = [
-    { name: t("Header.Home"), href: "/" },
-    { name: t("Header.About"), href: "/about" },
+    {
+      name: t("Header.Home"),
+      href: "/",
+      icon: FiHome,
+    },
+    {
+      name: t("Header.About"),
+      href: "/about",
+      icon: FiInfo,
+    },
   ];
 
+  const isActive = (href: string) => location.pathname === href;
+
   return (
-    <header className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur">
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
-        className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6"
+        className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6"
       >
         <Link to="/" className="flex items-center gap-3">
-          <img
-            src="/logo.svg"
-            alt="Private Meet"
-            className="h-8 w-8"
-            loading="eager"
-          />
-          <h1 className="text-lg font-semibold text-zinc-100">Private Meet</h1>
+          <img src="/logo.svg" alt="Private Meet" className="h-8 w-8" />
+          <span className="text-lg font-semibold text-zinc-100">
+            Private Meet
+          </span>
         </Link>
 
-        <nav className="flex items-center gap-6">
+        <nav className="hidden items-center gap-6 md:flex">
           <div className="flex items-center gap-2">
-            <span className="text-xl" aria-hidden="true">
-              🌐
-            </span>
+            <FiGlobe className="text-zinc-400" />
             <select
               value={locale}
               onChange={(e) => {
@@ -101,8 +110,7 @@ export default function Header() {
 
                 setLocale(newLocale);
               }}
-              className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-100 transition outline-none focus:ring-1 focus:ring-indigo-500/50"
-              aria-label={t("Header.ChangeLanguage")}
+              className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-100 outline-none focus:ring-1 focus:ring-indigo-500/50"
             >
               <option value="en">English (100%)</option>
               <option value="de">Deutsch ({lngCoveragePct(deFlat)}%)</option>
@@ -111,17 +119,82 @@ export default function Header() {
               <option value="zh">中文 ({lngCoveragePct(zhFlat)}%)</option>
             </select>
           </div>
-          {navLinks.map((link) => (
+
+          {navLinks.map(({ href, name, icon: Icon }) => (
             <Link
-              key={link.href}
-              to={link.href}
-              className="text-sm text-zinc-400 transition hover:text-zinc-100"
+              key={href}
+              to={href}
+              className={`flex items-center gap-2 text-sm transition ${
+                isActive(href)
+                  ? "text-indigo-400"
+                  : "text-zinc-400 hover:text-zinc-100"
+              } `}
             >
-              {link.name}
+              <Icon className="text-base" />
+              {name}
             </Link>
           ))}
         </nav>
+
+        <button
+          onClick={() => setMenuOpen((v) => !v)}
+          className="text-zinc-100 md:hidden"
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
+        </button>
       </motion.div>
+
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.nav
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="border-t border-zinc-800 bg-zinc-950 px-4 py-4 md:hidden"
+          >
+            <div className="flex flex-col gap-4">
+              {navLinks.map(({ href, name, icon: Icon }) => (
+                <Link
+                  key={href}
+                  to={href}
+                  onClick={() => setMenuOpen(false)}
+                  className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition ${
+                    isActive(href)
+                      ? "bg-indigo-500/10 text-indigo-400"
+                      : "text-zinc-300 hover:bg-zinc-900"
+                  } `}
+                >
+                  <Icon />
+                  {name}
+                </Link>
+              ))}
+
+              <div className="mt-2 flex items-center gap-2">
+                <FiGlobe className="text-zinc-400" />
+                <select
+                  value={locale}
+                  onChange={(e) => {
+                    const newLocale = e.target.value as Locale;
+
+                    i18n.changeLanguage(newLocale);
+
+                    setLocale(newLocale);
+                  }}
+                  className="flex-1 rounded-md border border-zinc-800 bg-zinc-950 px-2 py-2 text-sm text-zinc-100 outline-none"
+                >
+                  <option value="en">English</option>
+                  <option value="de">Deutsch</option>
+                  <option value="ja">日本語</option>
+                  <option value="pt">Português</option>
+                  <option value="zh">中文</option>
+                </select>
+              </div>
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
