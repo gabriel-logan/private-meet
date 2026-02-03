@@ -1,7 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { FiAlertTriangle } from "react-icons/fi";
 import { motion } from "motion/react";
 
 export default function NotFoundPage() {
+  const { t } = useTranslation();
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 px-4 text-zinc-100">
       <motion.div
@@ -15,11 +18,11 @@ export default function NotFoundPage() {
         </div>
 
         <h1 className="mb-2 text-2xl font-semibold tracking-tight">
-          404 - Page Not Found
+          {t("NotFound.PageNotFoundTitle")}
         </h1>
 
         <p className="text-sm text-zinc-400">
-          The page you are looking for does not exist.
+          {t("NotFound.PageNotFoundMessage")}
         </p>
       </motion.div>
     </main>

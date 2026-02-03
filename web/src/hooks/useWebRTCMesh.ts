@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   webRTCFileChannelLabel,
@@ -116,6 +117,8 @@ export default function useWebRTCMesh({
   myID,
   onImageReceived,
 }: UseWebRTCMeshOptions) {
+  const { t } = useTranslation();
+
   const [micEnabled, setMicEnabled] = useState(true);
   const [cameraEnabled, setCameraEnabled] = useState(false);
   const [screenShareEnabled, setScreenShareEnabled] = useState(false);
@@ -153,7 +156,7 @@ export default function useWebRTCMesh({
   const localScreenStreamRef = useRef<MediaStream>(new MediaStream());
   const ensureAudioTrackRef = useRef<() => Promise<MediaStreamTrack>>(
     async () => {
-      throw new Error("Audio track not ready");
+      throw new Error(t("Errors.AudioTrackNotReady"));
     },
   );
 
@@ -459,12 +462,12 @@ export default function useWebRTCMesh({
   const sendImage = useCallback(
     async (file: File) => {
       if (!file.type.startsWith("image/")) {
-        throw new Error("Only images are supported for now");
+        throw new Error(t("Errors.OnlyImagesAreSupportedForNow"));
       }
 
       const expected = roomUserIdsRef.current;
       if (expected.size === 0) {
-        throw new Error("No peers in room");
+        throw new Error(t("Errors.NoPeersInRoom"));
       }
 
       recomputeCanSendImages();
@@ -477,7 +480,7 @@ export default function useWebRTCMesh({
           entry?.connectionState !== "connected" ||
           ch?.readyState !== "open"
         ) {
-          throw new Error("WebRTC not fully connected with all peers");
+          throw new Error(t("Errors.WebRTCNotFullyConnectedWithAllPeers"));
         }
       }
 
@@ -524,7 +527,7 @@ export default function useWebRTCMesh({
         peersRef.current.get(peerID)!.fileChannel!.send(endMsg);
       }
     },
-    [recomputeCanSendImages, waitForBufferedLow],
+    [recomputeCanSendImages, t, waitForBufferedLow],
   );
 
   const updatePeerSenders = useCallback(
@@ -581,7 +584,7 @@ export default function useWebRTCMesh({
     const [track] = stream.getAudioTracks();
 
     if (!track) {
-      throw new Error("No audio track");
+      throw new Error(t("Errors.AudioTrackNotReady"));
     }
 
     track.enabled = micEnabled;
@@ -594,7 +597,7 @@ export default function useWebRTCMesh({
     }
 
     return track;
-  }, [micEnabled, syncLocalPreviewStreams, updatePeerSenders]);
+  }, [micEnabled, syncLocalPreviewStreams, t, updatePeerSenders]);
 
   useEffect(() => {
     ensureAudioTrackRef.current = ensureAudioTrack;
@@ -642,7 +645,7 @@ export default function useWebRTCMesh({
     const [track] = stream.getVideoTracks();
 
     if (!track) {
-      throw new Error("No camera track");
+      throw new Error(t("Errors.NoCameraTrackAvailable"));
     }
 
     localCameraTrackRef.current = track;
@@ -654,7 +657,7 @@ export default function useWebRTCMesh({
     for (const [, entry] of peersRef.current) {
       await updatePeerSenders(entry);
     }
-  }, [syncLocalPreviewStreams, updatePeerSenders]);
+  }, [syncLocalPreviewStreams, t, updatePeerSenders]);
 
   const stopCamera = useCallback(async () => {
     if (localCameraTrackRef.current) {
@@ -698,7 +701,7 @@ export default function useWebRTCMesh({
     const [track] = stream.getVideoTracks();
 
     if (!track) {
-      throw new Error("No screen track");
+      throw new Error(t("Errors.NoScreenShareTrackAvailable"));
     }
 
     track.addEventListener(
@@ -716,7 +719,7 @@ export default function useWebRTCMesh({
     for (const [, entry] of peersRef.current) {
       await updatePeerSenders(entry);
     }
-  }, [stopScreenShare, syncLocalPreviewStreams, updatePeerSenders]);
+  }, [stopScreenShare, syncLocalPreviewStreams, t, updatePeerSenders]);
 
   const closePeer = useCallback(
     (peerID: string) => {
@@ -798,17 +801,19 @@ export default function useWebRTCMesh({
       }
 
       if (!room || !myID) {
-        throw new Error("Missing room/myID");
+        throw new Error(t("Errors.MissingRoomID"));
       }
 
       if (peerID === myID) {
-        throw new Error("Refusing to create peer connection to self");
+        throw new Error(t("Errors.RefusingToCreatePeerConnToSelf"));
       }
 
       const totalPeers = peersRef.current.size + creatingPeersRef.current.size;
       if (totalPeers >= webRTCMaxPeerConnections) {
         throw new Error(
-          `Max peer connections reached (${totalPeers}/${webRTCMaxPeerConnections})`,
+          t("Errors.MaxPeerConnectionsReached", {
+            maxPeerConnections: `${totalPeers}/${webRTCMaxPeerConnections}`,
+          }),
         );
       }
 
@@ -966,11 +971,12 @@ export default function useWebRTCMesh({
     [
       room,
       myID,
+      t,
       ensureAudioTrack,
-      negotiate,
       updatePeerSenders,
-      installFileChannelHandlers,
       recomputeCanSendImages,
+      installFileChannelHandlers,
+      negotiate,
     ],
   );
 

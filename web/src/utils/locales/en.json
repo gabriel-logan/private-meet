@@ -42,7 +42,7 @@
     "NoScreenShareTrackAvailable": "No screen share track available.",
     "MissingRoomID": "Missing Room ID.",
     "RefusingToCreatePeerConnToSelf": "Refusing to create peer connection to self.",
-    "maxPeerConnectionsReached": "Max peer connections reached ({{maxPeerConnections}}).",
+    "MaxPeerConnectionsReached": "Max peer connections reached ({{maxPeerConnections}}).",
     "UseWebRTCMeshFailedToGetUserMediaAudioWhileCreatingPeer": "[useWebRTCMesh] Failed to getUserMedia(audio) while creating peer.",
     "FailedToRevokeObjectURL": "Failed to revoke object URL.",
     "FailedToInitE2EE": "Failed to initialize E2EE.",
@@ -77,7 +77,10 @@
   },
 
   "Infos": {
-    "UserDeletedSuccessfully": "User deleted. Please create a new user to continue."
+    "UserDeletedSuccessfully": "User deleted. Please create a new user to continue.",
+    "UserIsTypingDotDotDot": "{{username}} is typing...",
+    "TwoUsersAreTypingDotDotDot": "{{username1}} and {{username2}} are typing...",
+    "MultipleUsersAreTypingDotDotDot": "{{username1}}, {{username2}}, and {{count}} others are typing..."
   },
 
   "Success": {
@@ -105,6 +108,7 @@
     "Connected": "Connected",
     "ConnectingDotDotDot": "Connecting...",
     "Online": "Online",
+    "Idle": "Idle",
     "Stage": "Stage",
     "RoomColon": "Room: ",
     "NoVideoYet": "No video yet.",
@@ -113,6 +117,8 @@
     "EnterToSend": "Enter to send",
     "ShiftPlusEnterForNewLine": "Shift+Enter for newline",
     "InvalidImageURL": "Invalid image URL.",
+    "InvalidText": "Invalid text.",
+    "InvalidName": "Invalid name.",
     "Emojis": "Emojis",
     "Close": "Close",
     "Send": "Send",
@@ -120,7 +126,11 @@
     "WriteAMessage": "Write a message...",
     "InitializingEncryption": "Initializing encryption...",
     "You": "You",
-    "MsgsAreSentViaWsE2EEEncryption": "Messages are sent via WebSocket. End-to-end encrypted."
+    "YouAudio": "You (audio)",
+    "YouScreen": "You (screen)",
+    "MsgsAreSentViaWsE2EEEncryption": "Messages are sent via WebSocket. End-to-end encrypted.",
+    "AttachImage": "Attach image",
+    "WaitingForWebRTCConn": "Waiting for WebRTC connections ({{msg}})"
   },
 
   "About": {

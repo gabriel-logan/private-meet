@@ -1,9 +1,12 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { FiAlertCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { motion } from "motion/react";
 
 export default function ErrorPage({ message }: Readonly<{ message: string }>) {
+  const { t } = useTranslation();
+
   useEffect(() => {
     toast.error("An error occurred: " + message);
   }, [message]);
@@ -21,7 +24,7 @@ export default function ErrorPage({ message }: Readonly<{ message: string }>) {
         </div>
 
         <h2 className="mb-1 text-lg font-semibold text-zinc-100">
-          Something went wrong
+          {t("Errors.SomethingWentWrong")}
         </h2>
 
         <p className="text-sm text-zinc-400">{message}</p>

@@ -1,6 +1,9 @@
+import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 
 export default function Loading() {
+  const { t } = useTranslation();
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950">
       <motion.div
@@ -10,7 +13,9 @@ export default function Loading() {
         className="flex flex-col items-center gap-4"
       >
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-zinc-700 border-t-indigo-500" />
-        <span className="text-sm text-zinc-400">Loading...</span>
+        <span className="text-sm text-zinc-400">
+          {t("Loading.LoadingDotDotDot")}
+        </span>
       </motion.div>
     </main>
   );

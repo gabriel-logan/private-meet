@@ -1,7 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { FaGithub } from "react-icons/fa";
 import { Link, useLocation } from "react-router";
 
 export default function Footer() {
+  const { t } = useTranslation();
+
   const isChatPage = useLocation().pathname === "/chat";
 
   if (isChatPage) {
@@ -22,7 +25,7 @@ export default function Footer() {
             className="text-sm text-zinc-500 hover:underline"
           >
             <FaGithub className="mr-1 mb-0.5 inline" />
-            GitHub Repository
+            {t("Footer.GithubRepository")}
           </Link>
         </div>
         <p className="mt-2 text-xs text-zinc-600">
@@ -31,7 +34,7 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Created by Gabriel Logan
+            {t("Footer.CreatedBy")}
           </Link>
         </p>
       </div>

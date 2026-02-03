@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FaSignOutAlt } from "react-icons/fa";
 import {
   FiImage,
@@ -54,6 +55,8 @@ import {
 } from "../utils/general";
 
 export default function ChatPage() {
+  const { t } = useTranslation();
+
   const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
@@ -152,7 +155,7 @@ export default function ChatPage() {
       all.push({
         key: "local:camera",
         stream: localCameraStream,
-        label: cameraEnabled ? "You" : "You (audio)",
+        label: cameraEnabled ? t("Chat.You") : t("Chat.YouAudio"),
       });
     }
 
@@ -160,7 +163,7 @@ export default function ChatPage() {
       all.push({
         key: "local:screen",
         stream: localScreenStream,
-        label: screenShareEnabled ? "You (screen)" : "You",
+        label: screenShareEnabled ? t("Chat.YouScreen") : t("Chat.You"),
       });
     }
 
@@ -233,7 +236,7 @@ export default function ChatPage() {
       }
     } catch (error) {
       console.error("Failed to toggle camera:", error);
-      toast.error("Failed to access camera.");
+      toast.error(t("Errors.FailedToAccessCamera"));
     }
   };
 
@@ -251,24 +254,24 @@ export default function ChatPage() {
 
   async function handleSendText() {
     if (onlineUsers.length <= 1) {
-      toast.error("No one else is in the room to receive your message.");
+      toast.error(t("Errors.NoOneInTheRoomToReceiveMessage"));
       return;
     }
 
     const text = message.trim();
 
     if (!text) {
-      toast.error("Please enter a message.");
+      toast.error(t("Errors.PleaseEnterAMessage"));
       return;
     }
 
     if (!room) {
-      toast.error("Missing room id.");
+      toast.error(t("Errors.MissingRoomID"));
       return;
     }
 
     if (!e2eeKeyRef.current) {
-      toast.error("Encryption not ready yet.");
+      toast.error(t("Errors.EnryptionNotReadyYet"));
       return;
     }
 
@@ -276,7 +279,7 @@ export default function ChatPage() {
       const ws = getWSInstance();
 
       if (ws.readyState !== WebSocket.OPEN) {
-        toast.error("Not connected yet.");
+        toast.error(t("Errors.NotConnectedYetTryAgainInASecond"));
         return;
       }
 
@@ -302,31 +305,31 @@ export default function ChatPage() {
       setEmojiOpen(false);
     } catch (error) {
       console.error("Error sending message:", error);
-      toast.error("Failed to send encrypted message.");
+      toast.error(t("Errors.FailedToSendEncryptedMessage"));
     }
   }
 
   async function handleSendImage(file: File) {
     if (onlineUsers.length <= 1) {
-      toast.error("No one else is in the room to receive your image.");
+      toast.error(t("Errors.NoOneInTheRoomToSendFile"));
       return;
     }
 
     if (!canSendImagesToRoom) {
-      toast.error(
-        "Image sending is only available after WebRTC is connected with everyone in the room.",
-      );
+      toast.error(t("Errors.ImageSendingIsOnlyAllowedAfterWebRTCIsConnected"));
       return;
     }
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Only images are supported for now.");
+      toast.error(t("Errors.OnlyImagesAreSupportedForNow"));
       return;
     }
 
     if (file.size > chatMaxImageBytes) {
       toast.error(
-        `Image too large (max ${chatMaxImageBytes / (1024 * 1024)}MB for now).`,
+        t("Errors.ImageTooLarge", {
+          maxImageSizeMB: chatMaxImageBytes / (1024 * 1024),
+        }),
       );
       return;
     }
@@ -354,7 +357,7 @@ export default function ChatPage() {
       await sendImage(file);
     } catch (error) {
       console.error("Failed to send image over WebRTC:", error);
-      toast.error("Failed to send image over WebRTC.");
+      toast.error(t("Errors.FailedToSendImageOverWebRTC"));
 
       setMessages((prev) => prev.filter((m) => m.id !== id));
       try {
@@ -368,13 +371,13 @@ export default function ChatPage() {
   // WebSocket message handling
   useEffect(() => {
     if (!accessToken) {
-      toast.error("Please create a user first.");
+      toast.error(t("Errors.PleaseCreateAUserFirst"));
       navigate("/");
       return;
     }
 
     if (!room) {
-      toast.error("Invalid room.");
+      toast.error(t("Errors.InvalidRoom"));
       navigate("/");
       return;
     }
@@ -385,13 +388,13 @@ export default function ChatPage() {
       ws = getWSInstance();
     } catch (error) {
       console.error("WebSocket not initialized.", error);
-      toast.error("WebSocket not initialized.");
+      toast.error(t("Errors.WsInstanceIsNotInitialized"));
       navigate("/");
       return;
     }
 
     if (ws.readyState !== WebSocket.OPEN) {
-      toast.error("Connecting… try again in a moment.");
+      toast.error(t("Errors.ConnectingDotDotDotTryAgainInAMoment"));
       navigate("/");
       return;
     }
@@ -403,7 +406,7 @@ export default function ChatPage() {
         parsed = await parseIncomingWSMessage(event.data);
       } catch (error) {
         console.error("Error parsing incoming WS message:", error);
-        toast.error("Error processing server message.");
+        toast.error(t("Errors.ErrorProcessingServerMessage"));
         return;
       }
 
@@ -547,7 +550,7 @@ export default function ChatPage() {
         if (!key) {
           append(
             isEncryptedWireMessage(wireText)
-              ? "[Protected message: E2EE not configured]"
+              ? t("Errors.E2EENotConfiguredWhenSendMSG")
               : wireText,
           );
 
@@ -565,18 +568,19 @@ export default function ChatPage() {
           userId: from || undefined,
         })
           .then((plain) => {
-            append(plain ?? "[Protected message: failed to decrypt]");
+            append(plain ?? t("Errors.E2EECanNotDecryptMessage"));
           })
           .catch(() => {
-            append("[Protected message: failed to decrypt]");
+            append(t("Errors.E2EECanNotDecryptMessage"));
           });
 
         return;
       }
 
       if (parsed.type === "general.error") {
-        const errorMsg = parsed.data.error || "Unknown error from server.";
-        toast.error(`Error: ${errorMsg}`);
+        const errorMsg =
+          parsed.data.error || t("Errors.UnknownErrorFromServer");
+        toast.error(errorMsg);
       }
     };
 
@@ -609,6 +613,7 @@ export default function ChatPage() {
     setMessages,
     setOnlineUsers,
     setTypingUsers,
+    t,
   ]);
 
   return (
@@ -620,10 +625,10 @@ export default function ChatPage() {
         <div className="flex shrink-0 flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-xl font-semibold tracking-tight">
-              Meeting Room
+              {t("Chat.MeetingRoom")}
             </h1>
             <p className="text-sm text-zinc-400">
-              Audio starts on. Enable camera or share screen.
+              {t("Chat.AudioStartsOn")} {t("Chat.EnableCameraOrShareScreen")}
             </p>
           </div>
 
@@ -635,14 +640,14 @@ export default function ChatPage() {
               aria-label="Open users"
             >
               <FiMenu />
-              Users
+              {t("Chat.Users")}
             </button>
             <span className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1 text-xs text-zinc-300">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              Connected
+              {t("Chat.Connected")}
             </span>
             <span className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1 text-xs text-zinc-300">
-              <FiUsers /> {onlineUsers.length} online
+              <FiUsers /> {onlineUsers.length} {t("Chat.Online")}
             </span>
           </div>
         </div>
@@ -678,7 +683,7 @@ export default function ChatPage() {
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <FiUsers className="text-zinc-300" />
-                  Users
+                  {t("Chat.Users")}
                   <span className="rounded-full bg-zinc-950 px-2 py-1 text-xs text-zinc-400">
                     {onlineUsers.length}
                   </span>
@@ -710,7 +715,9 @@ export default function ChatPage() {
                             {u.name}
                           </p>
                           <p className="text-xs text-zinc-500">
-                            {u.status === "idle" ? "Idle" : "Online"}
+                            {u.status === "idle"
+                              ? t("Chat.Idle")
+                              : t("Chat.Online")}
                           </p>
                         </div>
                       </div>
@@ -735,7 +742,7 @@ export default function ChatPage() {
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <FiUsers className="text-zinc-300" />
-                  Users
+                  {t("Chat.Users")}
                 </div>
                 <span className="rounded-full bg-zinc-950 px-2 py-1 text-xs text-zinc-400">
                   {onlineUsers.length}
@@ -758,7 +765,9 @@ export default function ChatPage() {
                             {u.name}
                           </p>
                           <p className="text-xs text-zinc-500">
-                            {u.status === "idle" ? "Idle" : "Online"}
+                            {u.status === "idle"
+                              ? t("Chat.Idle")
+                              : t("Chat.Online")}
                           </p>
                         </div>
                       </div>
@@ -782,11 +791,11 @@ export default function ChatPage() {
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <FiVideo className="text-zinc-300" />
-                  Stage
+                  {t("Chat.Stage")}
                 </div>
 
                 <span className="flex max-w-[60%] items-center gap-1 rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-400">
-                  Room:
+                  {t("Chat.RoomColon")}
                   <button
                     type="button"
                     onClick={() => handleCopyRoomId(rawRoomId)}
@@ -814,10 +823,10 @@ export default function ChatPage() {
                         </div>
                         <div>
                           <p className="text-sm font-medium text-zinc-100">
-                            No video yet
+                            {t("Chat.NoVideoYet")}
                           </p>
                           <p className="mt-1 text-xs text-zinc-400">
-                            Turn on camera or share screen
+                            {t("Chat.TurnOnCameraOrShareScreen")}
                           </p>
                         </div>
                       </div>
@@ -922,11 +931,11 @@ export default function ChatPage() {
               <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <FiSend className="text-zinc-300" />
-                  Chat
+                  {t("Chat.Chat")}
                 </div>
 
                 <span className="text-xs text-zinc-500">
-                  Enter to send • Shift+Enter for newline
+                  {t("Chat.EnterToSend")} • {t("Chat.ShiftPlusEnterForNewLine")}
                 </span>
               </div>
 
@@ -956,7 +965,7 @@ export default function ChatPage() {
 
                         {m.kind === "text" && (
                           <p className="mt-1 text-sm wrap-break-word whitespace-pre-wrap text-zinc-100">
-                            {safeText(m.text ?? "Invalid text")}
+                            {safeText(m.text ?? t("Chat.InvalidText"))}
                           </p>
                         )}
 
@@ -965,25 +974,29 @@ export default function ChatPage() {
                             {isSafeUrl(m.url) ? (
                               <Link
                                 to={safeText(m.url)}
-                                download={safeText(m.name ?? "Invalid name")}
+                                download={safeText(
+                                  m.name ?? t("Chat.InvalidName"),
+                                )}
                                 className="block"
                                 target="_blank"
                                 rel="noreferrer"
                               >
                                 <img
                                   src={safeText(m.url)}
-                                  alt={safeText(m.name ?? "Invalid name")}
+                                  alt={safeText(
+                                    m.name ?? t("Chat.InvalidName"),
+                                  )}
                                   className="max-h-80 w-full rounded-lg border border-zinc-800 object-contain"
                                   loading="lazy"
                                 />
                               </Link>
                             ) : (
                               <p className="text-sm text-red-500">
-                                Invalid image URL
+                                {t("Chat.InvalidImageURL")}
                               </p>
                             )}
                             <p className="mt-1 text-[11px] text-zinc-400">
-                              {safeText(m.name ?? "Invalid name")}
+                              {safeText(m.name ?? t("Chat.InvalidName"))}
                             </p>
                           </div>
                         )}
@@ -1027,14 +1040,14 @@ export default function ChatPage() {
                     >
                       <div className="flex items-center justify-between border-b border-zinc-800 px-3 py-2">
                         <p className="text-xs font-medium text-zinc-200">
-                          Emojis
+                          {t("Chat.Emojis")}
                         </p>
                         <button
                           type="button"
                           onClick={() => setEmojiOpen(false)}
                           className="rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1 text-xs text-zinc-200 transition hover:bg-zinc-800"
                         >
-                          Close
+                          {t("Chat.Close")}
                         </button>
                       </div>
                       <div className="h-85">
@@ -1073,11 +1086,13 @@ export default function ChatPage() {
                               ? "inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
                               : "inline-flex h-10 w-10 cursor-not-allowed items-center justify-center rounded-md border border-zinc-800 bg-zinc-950/40 text-zinc-500"
                           }
-                          aria-label="Attach image"
+                          aria-label={t("Chat.AttachImage")}
                           title={
                             canSendImagesToRoom
-                              ? "Attach image"
-                              : `Waiting for WebRTC connections (${connectedPeersCount}/${expectedPeersCount})`
+                              ? t("Chat.AttachImage")
+                              : t("Chat.WaitingForWebRTCConn", {
+                                  msg: `${connectedPeersCount}/${expectedPeersCount}`,
+                                })
                           }
                         >
                           <FiImage />
@@ -1092,13 +1107,15 @@ export default function ChatPage() {
                         aria-label="Send message"
                       >
                         <FiSend />
-                        <span className="hidden sm:inline">Send</span>
+                        <span className="hidden sm:inline">
+                          {t("Chat.Send")}
+                        </span>
                       </button>
                     </div>
 
                     <div>
                       <label htmlFor="message" className="sr-only">
-                        Message
+                        {t("Chat.Message")}
                       </label>
                       <textarea
                         className="max-h-48 min-h-16 w-full resize-none overflow-auto rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm leading-relaxed wrap-break-word text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
@@ -1177,8 +1194,8 @@ export default function ChatPage() {
                         }}
                         placeholder={
                           e2eeReady
-                            ? "Write a message…"
-                            : "Initializing encryption…"
+                            ? t("Chat.WriteAMessage")
+                            : t("Chat.InitializingEncryption")
                         }
                         rows={3}
                       />
@@ -1190,7 +1207,7 @@ export default function ChatPage() {
                   </div>
 
                   <p className="mt-2 text-xs text-zinc-500">
-                    Messages are sent via WebSocket. End-to-end encrypted.
+                    {t("Chat.MsgsAreSentViaWsE2EEEncryption")}
                   </p>
                 </div>
               </div>
