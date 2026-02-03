@@ -249,7 +249,7 @@ export default function ChatPage() {
     }
   };
 
-  async function handleSend() {
+  async function handleSendText() {
     if (onlineUsers.length <= 1) {
       toast.error("No one else is in the room to receive your message.");
       return;
@@ -1087,7 +1087,7 @@ export default function ChatPage() {
 
                       <button
                         type="button"
-                        onClick={() => void handleSend()}
+                        onClick={handleSendText}
                         disabled={!e2eeReady}
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 text-sm font-medium text-white transition hover:bg-indigo-500"
                         aria-label="Send message"
@@ -1172,7 +1172,8 @@ export default function ChatPage() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
-                            void handleSend();
+
+                            handleSendText();
                           }
                         }}
                         placeholder={
