@@ -58,7 +58,7 @@ export default function VideoTile({
   return (
     <div
       ref={containerRef}
-      className="group relative aspect-video min-h-40 w-full overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950/40"
+      className="group relative aspect-video min-h-40 w-full overflow-hidden rounded-xl border border-white/10 bg-zinc-950/40 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.9)]"
     >
       <video
         ref={ref}
@@ -84,12 +84,12 @@ export default function VideoTile({
 
           void el.requestFullscreen?.();
         }}
-        className="absolute right-2 bottom-2 z-30 inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/20 bg-black/70 text-zinc-100 shadow-lg backdrop-blur-sm transition hover:bg-black/80"
+        className="absolute right-3 bottom-3 z-30 inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 bg-black/55 text-zinc-100 opacity-0 shadow-lg backdrop-blur-sm transition group-hover:opacity-100 hover:bg-black/70"
         aria-label="Toggle fullscreen"
       >
         <FiMaximize className="text-sm" />
       </button>
-      <div className="absolute bottom-2 left-2 z-20 rounded-md bg-black/60 px-2 py-1 text-xs text-zinc-100">
+      <div className="absolute bottom-3 left-3 z-20 rounded-md border border-white/10 bg-black/45 px-2 py-1 text-xs text-zinc-100 backdrop-blur-sm">
         {label}
       </div>
     </div>

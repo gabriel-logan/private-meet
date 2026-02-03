@@ -806,48 +806,54 @@ export default function ChatPage() {
               </div>
 
               <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
-                <div className="relative min-h-0 flex-1 overflow-hidden rounded-lg border border-zinc-800 bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950">
-                  <div className="absolute inset-0 mask-[radial-gradient(circle_at_center,black,transparent_70%)] opacity-50">
-                    <div className="h-full w-full bg-[linear-gradient(to_right,rgba(99,102,241,0.15),transparent),linear-gradient(to_top,rgba(0,0,0,0.35),transparent)]" />
-                  </div>
-
-                  <div className="relative z-10 h-full p-3">
-                    {tiles.length === 0 ? (
-                      <div className="grid h-full place-items-center rounded-lg border border-zinc-800 bg-zinc-950/40 p-6 text-sm text-zinc-300">
-                        <div className="flex flex-col items-center gap-2 text-center">
-                          <div className="grid h-12 w-12 place-items-center rounded-full border border-zinc-800 bg-zinc-950 text-indigo-300">
-                            <FiVideo />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-zinc-100">
-                              No video yet
-                            </p>
-                            <p className="mt-1 text-xs text-zinc-400">
-                              Turn on camera or share screen
-                            </p>
-                          </div>
+                <div className="relative min-h-0 flex-1 overflow-hidden rounded-xl border border-white/10 bg-black/20 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur">
+                  {tiles.length === 0 ? (
+                    <div className="grid h-full place-items-center rounded-xl border border-white/10 bg-zinc-950/40 p-6 text-sm text-zinc-300">
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        <div className="grid h-12 w-12 place-items-center rounded-full border border-zinc-800 bg-zinc-950 text-indigo-300">
+                          <FiVideo />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-zinc-100">
+                            No video yet
+                          </p>
+                          <p className="mt-1 text-xs text-zinc-400">
+                            Turn on camera or share screen
+                          </p>
                         </div>
                       </div>
-                    ) : (
-                      <div className="grid h-full auto-rows-max grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                        {tiles.map((tile) => (
-                          <VideoTile
-                            key={tile.key}
-                            stream={tile.stream}
-                            muted
-                            label={tile.label}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <div
+                      className={(() => {
+                        if (tiles.length <= 1) {
+                          return "grid h-full min-h-0 grid-cols-1 gap-4";
+                        }
+
+                        if (tiles.length === 2) {
+                          return "grid h-full min-h-0 grid-cols-2 gap-4";
+                        }
+
+                        return "grid h-full min-h-0 grid-cols-2 grid-rows-2 gap-4";
+                      })()}
+                    >
+                      {tiles.map((tile) => (
+                        <VideoTile
+                          key={tile.key}
+                          stream={tile.stream}
+                          muted
+                          label={tile.label}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-3 rounded-xl border border-white/10 bg-zinc-950/30 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur">
                   <button
                     type="button"
                     onClick={() => setSpeakerMuted((v) => !v)}
-                    className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-950"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
                     aria-pressed={speakerMuted}
                   >
                     {speakerMuted ? (
@@ -862,8 +868,8 @@ export default function ChatPage() {
                     onClick={() => void setMicEnabled(!micEnabled)}
                     className={
                       micEnabled
-                        ? "inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
-                        : "inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-950"
+                        ? "inline-flex h-11 w-11 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-[0_10px_30px_-14px_rgba(99,102,241,0.8)] transition hover:bg-indigo-500"
+                        : "inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
                     }
                     aria-pressed={micEnabled}
                   >
@@ -875,8 +881,8 @@ export default function ChatPage() {
                     onClick={toggleCamera}
                     className={
                       cameraEnabled
-                        ? "inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
-                        : "inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-950"
+                        ? "inline-flex h-11 w-11 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-[0_10px_30px_-14px_rgba(99,102,241,0.8)] transition hover:bg-indigo-500"
+                        : "inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
                     }
                     aria-pressed={cameraEnabled}
                   >
@@ -892,8 +898,8 @@ export default function ChatPage() {
                     onClick={toggleScreenShare}
                     className={
                       screenShareEnabled
-                        ? "hidden items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-indigo-500 sm:inline-flex"
-                        : "hidden items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 text-sm text-zinc-200 transition hover:bg-zinc-950 sm:inline-flex"
+                        ? "hidden h-11 w-11 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-[0_10px_30px_-14px_rgba(99,102,241,0.8)] transition hover:bg-indigo-500 sm:inline-flex"
+                        : "hidden h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950 sm:inline-flex"
                     }
                     aria-pressed={screenShareEnabled}
                   >
@@ -902,7 +908,7 @@ export default function ChatPage() {
 
                   <button
                     type="button"
-                    className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm font-medium text-red-300 transition hover:bg-zinc-800"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-zinc-900/70 text-red-300 transition hover:bg-zinc-800"
                     onClick={handleLeaveRoom}
                   >
                     <FaSignOutAlt size={28} />
