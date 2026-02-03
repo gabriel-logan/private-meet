@@ -26,6 +26,7 @@ import { chatMaxImageBytes, maxMessageChars } from "../constants";
 import useEmoji from "../hooks/useEmoji";
 import useInitE2ee from "../hooks/useInitE2ee";
 import useMessages from "../hooks/useMessages";
+import useObjectUrl from "../hooks/useObjectUrl";
 import useOnlineUsers, { type OnlineUser } from "../hooks/useOnlineUsers";
 import useWebRTCMesh from "../hooks/useWebRTCMesh";
 import {
@@ -75,20 +76,7 @@ export default function ChatPage() {
 
   const [speakerMuted, setSpeakerMuted] = useState(true);
 
-  const objectUrlsRef = useRef<string[]>([]);
-
-  useEffect(() => {
-    return () => {
-      for (const url of objectUrlsRef.current) {
-        try {
-          URL.revokeObjectURL(url);
-        } catch (error) {
-          console.error("Failed to revoke object URL:", error);
-        }
-      }
-      objectUrlsRef.current = [];
-    };
-  }, []);
+  const { objectUrlsRef } = useObjectUrl();
 
   const handleIncomingImage = (payload: {
     peerID: string;
