@@ -1,7 +1,7 @@
 {
-  "Hello, world!": "你好，世界！",
+  "Hello, world!": "你好,世界!",
   "WelcomeMessage": "欢迎来到 <1>Private Meet</1>",
-  "IntroductionText": "Private Meet 是一个轻量且安全的即时私人会议空间。创建用户，生成房间并连接 —— 无摩擦，无干扰。",
+  "IntroductionText": "Private Meet 是一个轻量且安全的即时私人会议空间。创建用户,生成房间并连接 —— 无摩擦,无干扰。",
   "Username": "用户名",
   "EnterYourUsername": "请输入你的用户名",
   "CreateUser": "创建用户",
@@ -27,10 +27,10 @@
   "Errors": {
     "AnErrorOccurred": "发生错误。",
     "AnErrorOccurredWithMessage": "发生错误: {{message}}",
-    "SomethingWentWrong": "发生错误。",
+    "SomethingWentWrong": "出现了一些问题。",
     "FailedToCreateUser": "创建用户失败。",
     "PleaseEnterRoomID": "请输入房间ID。",
-    "RoomIDIsTooLong": "房间ID过长（最多{{maxRoomIDLength}}个字符）。",
+    "RoomIDIsTooLong": "房间ID过长(最多{{maxRoomIDLength}}个字符)。",
     "ErrorProcessingServerMessage": "处理服务器消息时出错。",
     "AudioTrackNotReady": "音频轨道未准备好。",
     "VideoTrackNotReady": "视频轨道未准备好。",
@@ -42,7 +42,7 @@
     "NoScreenShareTrackAvailable": "没有可用的屏幕共享轨道。",
     "MissingRoomID": "缺少房间ID。",
     "RefusingToCreatePeerConnToSelf": "拒绝创建到自己的对等连接。",
-    "MaxPeerConnectionsReached": "达到最大对等连接数（{{maxPeerConnections}}）。",
+    "MaxPeerConnectionsReached": "达到最大对等连接数({{maxPeerConnections}})。",
     "UseWebRTCMeshFailedToGetUserMediaAudioWhileCreatingPeer": "[useWebRTCMesh] 创建对等连接时获取 getUserMedia(audio) 失败。",
     "FailedToRevokeObjectURL": "撤销对象URL失败。",
     "FailedToInitE2EE": "初始化E2EE失败。",
@@ -58,15 +58,15 @@
     "EnryptionNotReadyYet": "加密尚未准备好。",
     "FailedToSendEncryptedMessage": "发送加密消息失败。",
     "NoOneInTheRoomToSendFile": "房间内没有其他参与者接收您的文件。",
-    "ImageSendingIsOnlyAllowedAfterWebRTCIsConnected": "只有在WebRTC与房间内所有人连接后，才允许发送图片。",
+    "ImageSendingIsOnlyAllowedAfterWebRTCIsConnected": "只有在WebRTC与房间内所有人连接后,才允许发送图片。",
     "OnlyImagesAreSupportedForNow": "目前仅支持图片。",
-    "ImageTooLarge": "图片过大（最大{{maxImageSizeMB}}MB）。",
+    "ImageTooLarge": "图片过大(最大{{maxImageSizeMB}}MB)。",
     "FailedToSendImageOverWebRTC": "通过WebRTC发送图片失败。",
     "PleaseCreateAUserFirst": "请先创建一个用户。",
     "InvalidRoom": "无效的房间。",
     "ConnectingDotDotDotTryAgainInAMoment": "连接中... 请稍后再试。",
-    "E2EENotConfiguredWhenSendMSG": "[受保护的消息：未配置E2EE]",
-    "E2EECanNotDecryptMessage": "[受保护的消息：无法解密]",
+    "E2EENotConfiguredWhenSendMSG": "[受保护的消息:未配置E2EE]",
+    "E2EECanNotDecryptMessage": "[受保护的消息:无法解密]",
     "UnknownError": "未知错误。",
     "UnknownErrorFromServer": "服务器返回未知错误。"
   },
@@ -84,17 +84,17 @@
   },
 
   "Success": {
-    "UserCreated": "用户创建成功！",
-    "RoomIDGenerated": "新房间ID已生成！"
+    "UserCreated": "用户创建成功!",
+    "RoomIDGenerated": "新房间ID已生成!"
   },
 
   "JoinMeeting": {
     "RoomID": "房间ID",
     "EnterRoomID": "请输入房间ID",
     "Passphrase": "密码",
-    "EnterPassphrase": "请输入密码（可选）",
-    "PText1": "最大长度：{{maxRoomIDLength}} 个字符。房间ID和密码均适用。",
-    "PText2": "密码用于端到端消息加密。如果留空，则使用房间ID作为密码。强烈建议使用密码以提高安全性。房间内的所有用户必须使用相同的密码才能安全通信，否则无法读取彼此的消息。",
+    "EnterPassphrase": "请输入密码(可选)",
+    "PText1": "最大长度:{{maxRoomIDLength}} 个字符。房间ID和密码均适用。",
+    "PText2": "密码用于端到端消息加密。如果留空,则使用房间ID作为密码。强烈建议使用密码以提高安全性。房间内的所有用户必须使用相同的密码才能安全通信,否则无法读取彼此的消息。",
     "JoinRoomButton": "加入房间",
     "GenerateNewRoomIDButton": "生成安全随机房间ID",
     "DeleteUserButton": "删除用户"
@@ -102,15 +102,15 @@
 
   "Chat": {
     "MeetingRoom": "会议室",
-    "AudioStartsOn": "音频开始于。",
+    "AudioStartsOn": "音频即将开始。",
     "EnableCameraOrShareScreen": "启用摄像头或共享屏幕。",
     "Users": "用户",
     "Connected": "已连接",
     "ConnectingDotDotDot": "连接中...",
     "Online": "在线",
     "Idle": "空闲",
-    "Stage": "舞台",
-    "RoomColon": "房间：",
+    "Stage": "发言中",
+    "RoomColon": "房间:",
     "NoVideoYet": "暂无视频。",
     "TurnOnCameraOrShareScreen": "启用摄像头或共享屏幕以开始视频。",
     "Chat": "聊天",
@@ -126,10 +126,10 @@
     "WriteAMessage": "写一条消息...",
     "InitializingEncryption": "初始化加密中...",
     "You": "你",
-    "YouAudio": "你（音频）",
-    "YouScreen": "你（屏幕）",
+    "YouAudio": "你(音频)",
+    "YouScreen": "你(屏幕)",
     "MsgsAreSentViaWsE2EEEncryption": "消息通过WebSocket发送。端到端加密。",
     "AttachImage": "附加图片",
-    "WaitingForWebRTCConn": "等待WebRTC连接（{{msg}}）"
+    "WaitingForWebRTCConn": "等待WebRTC连接({{msg}})"
   }
 }

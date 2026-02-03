@@ -1,7 +1,7 @@
 {
   "Hello, world!": "Hallo, Welt!",
   "WelcomeMessage": "Willkommen bei <1>Private Meet</1>",
-  "IntroductionText": "Private Meet ist ein leichter und sicherer Raum für sofortige private Treffen. Erstellen Sie einen Benutzer, generieren Sie einen Raum und verbinden Sie sich – ohne Reibung, ohne Lärm.",
+  "IntroductionText": "Private Meet ist ein leichter und sicherer Raum für sofortige private Treffen. Erstellen Sie einen Benutzer, generieren Sie einen Raum und verbinden Sie sich – ohne Reibung, ohne Störungen.",
   "Username": "Benutzername",
   "EnterYourUsername": "Geben Sie Ihren Benutzernamen ein",
   "CreateUser": "Benutzer erstellen",
@@ -13,9 +13,9 @@
   },
 
   "Footer": {
-    "PrivacyPolicy": "Datenschutz-Bestimmungen",
+    "PrivacyPolicy": "Datenschutzbestimmungen",
     "TermsOfService": "Nutzungsbedingungen",
-    "ContactUs": "Kontaktieren Sie uns",
+    "ContactUs": "Kontakt",
     "GithubRepository": "GitHub-Repository",
     "CreatedBy": "Erstellt von Gabriel Logan"
   },
@@ -41,7 +41,7 @@
     "NoMicrophoneTrackAvailable": "Keine Mikrofon-Spur verfügbar.",
     "NoScreenShareTrackAvailable": "Keine Bildschirmfreigabe-Spur verfügbar.",
     "MissingRoomID": "Raum-ID fehlt.",
-    "RefusingToCreatePeerConnToSelf": "Verweigerung, Peer-Verbindung zu sich selbst herzustellen.",
+    "RefusingToCreatePeerConnToSelf": "Verweigerung, eine Peer-Verbindung zu sich selbst herzustellen.",
     "MaxPeerConnectionsReached": "Maximale Anzahl von Peer-Verbindungen erreicht ({{maxPeerConnections}}).",
     "UseWebRTCMeshFailedToGetUserMediaAudioWhileCreatingPeer": "[useWebRTCMesh] Fehler beim Abrufen von getUserMedia(audio) beim Erstellen des Peers.",
     "FailedToRevokeObjectURL": "Fehler beim Widerrufen der Objekt-URL.",
@@ -58,7 +58,7 @@
     "EnryptionNotReadyYet": "Die Verschlüsselung ist noch nicht bereit.",
     "FailedToSendEncryptedMessage": "Fehler beim Senden der verschlüsselten Nachricht.",
     "NoOneInTheRoomToSendFile": "Kein anderer Teilnehmer im Raum, um Ihre Datei zu empfangen.",
-    "ImageSendingIsOnlyAllowedAfterWebRTCIsConnected": "Das Senden von Bildern ist nur möglich, wenn WebRTC mit allen im Raum verbunden ist.",
+    "ImageSendingIsOnlyAllowedAfterWebRTCIsConnected": "Das Senden von Bildern ist nur möglich, wenn WebRTC mit allen Teilnehmern im Raum verbunden ist.",
     "OnlyImagesAreSupportedForNow": "Derzeit werden nur Bilder unterstützt.",
     "ImageTooLarge": "Bild zu groß (maximal {{maxImageSizeMB}}MB derzeit).",
     "FailedToSendImageOverWebRTC": "Fehler beim Senden des Bildes über WebRTC.",
@@ -93,7 +93,7 @@
     "EnterRoomID": "Raum-ID eingeben",
     "Passphrase": "Passwort",
     "EnterPassphrase": "Passwort eingeben (optional)",
-    "PText1": "Maximale Länge: {{maxRoomIDLength}} Zeichen. Sowohl Raum-ID als auch Passwort.",
+    "PText1": "Maximale Länge: {{maxRoomIDLength}} Zeichen. Gilt für Raum-ID und Passwort.",
     "PText2": "Das Passwort wird verwendet, um Ihre Nachrichten Ende-zu-Ende zu verschlüsseln. Wenn Sie es leer lassen, wird die Raum-ID als Passwort verwendet. Es wird dringend empfohlen, ein Passwort für bessere Sicherheit zu verwenden. Alle Benutzer im Raum müssen dasselbe Passwort verwenden, um sicher zu kommunizieren, andernfalls können sie die Nachrichten der anderen nicht lesen.",
     "JoinRoomButton": "Raum betreten",
     "GenerateNewRoomIDButton": "Neue sichere Raum-ID generieren",
@@ -102,7 +102,7 @@
 
   "Chat": {
     "MeetingRoom": "Besprechungsraum",
-    "AudioStartsOn": "Audio startet in.",
+    "AudioStartsOn": "Audio startet in Kürze.",
     "EnableCameraOrShareScreen": "Kamera aktivieren oder Bildschirm teilen.",
     "Users": "Benutzer",
     "Connected": "Verbunden",

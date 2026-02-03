@@ -1,5 +1,5 @@
 {
-  "Hello, world!": "こんにちは、世界！",
+  "Hello, world!": "こんにちは、世界!",
   "WelcomeMessage": "<1>Private Meet</1>へようこそ",
   "IntroductionText": "Private Meetは、瞬時にプライベートなミーティングを行える、軽量で安全な空間です。ユーザーを作成し、ルームを生成して接続 — 面倒な手続きや雑音はありません。",
   "Username": "ユーザー名",
@@ -8,7 +8,7 @@
 
   "Header": {
     "Home": "ホーム",
-    "About": "約",
+    "About": "概要",
     "ChangeLanguage": "言語を変更する"
   },
 
@@ -30,7 +30,7 @@
     "SomethingWentWrong": "問題が発生しました。",
     "FailedToCreateUser": "ユーザーの作成に失敗しました。",
     "PleaseEnterRoomID": "ルームIDを入力してください。",
-    "RoomIDIsTooLong": "ルームIDが長すぎます（最大{{maxRoomIDLength}}文字）。",
+    "RoomIDIsTooLong": "ルームIDが長すぎます(最大{{maxRoomIDLength}}文字)。",
     "ErrorProcessingServerMessage": "サーバーメッセージの処理中にエラーが発生しました。",
     "AudioTrackNotReady": "オーディオトラックが準備できていません。",
     "VideoTrackNotReady": "ビデオトラックが準備できていません。",
@@ -42,7 +42,7 @@
     "NoScreenShareTrackAvailable": "画面共有トラックが利用できません。",
     "MissingRoomID": "ルームIDがありません。",
     "RefusingToCreatePeerConnToSelf": "自分自身へのピア接続の作成を拒否しています。",
-    "MaxPeerConnectionsReached": "最大ピア接続数に達しました（{{maxPeerConnections}}）。",
+    "MaxPeerConnectionsReached": "最大ピア接続数に達しました({{maxPeerConnections}})。",
     "UseWebRTCMeshFailedToGetUserMediaAudioWhileCreatingPeer": "[useWebRTCMesh] ピア作成時にgetUserMedia(audio)の取得に失敗しました。",
     "FailedToRevokeObjectURL": "オブジェクトURLの取り消しに失敗しました。",
     "FailedToInitE2EE": "E2EEの初期化に失敗しました。",
@@ -60,7 +60,7 @@
     "NoOneInTheRoomToSendFile": "ルームに他の参加者がいません。ファイルを送信できません。",
     "ImageSendingIsOnlyAllowedAfterWebRTCIsConnected": "画像の送信は、WebRTCがルーム内の全員と接続された後にのみ許可されます。",
     "OnlyImagesAreSupportedForNow": "現在は画像のみサポートされています。",
-    "ImageTooLarge": "画像が大きすぎます（最大{{maxImageSizeMB}}MBまで）。",
+    "ImageTooLarge": "画像が大きすぎます(最大{{maxImageSizeMB}}MBまで)。",
     "FailedToSendImageOverWebRTC": "WebRTC経由での画像送信に失敗しました。",
     "PleaseCreateAUserFirst": "まずユーザーを作成してください。",
     "InvalidRoom": "無効なルームです。",
@@ -84,15 +84,15 @@
   },
 
   "Success": {
-    "UserCreated": "ユーザーが正常に作成されました！",
-    "RoomIDGenerated": "新しいルームIDが生成されました！"
+    "UserCreated": "ユーザーが正常に作成されました!",
+    "RoomIDGenerated": "新しいルームIDが生成されました!"
   },
 
   "JoinMeeting": {
     "RoomID": "ルームID",
     "EnterRoomID": "ルームIDを入力してください",
     "Passphrase": "パスフレーズ",
-    "EnterPassphrase": "パスフレーズを入力してください（任意）",
+    "EnterPassphrase": "パスフレーズを入力してください(任意)",
     "PText1": "最大長: {{maxRoomIDLength}} 文字。ルームIDとパスフレーズの両方に適用されます。",
     "PText2": "パスフレーズはエンドツーエンドのメッセージ暗号化に使用されます。空白の場合、ルームIDがパスフレーズとして使用されます。セキュリティ向上のためにパスフレーズの使用を強く推奨します。ルーム内のすべてのユーザーは安全に通信するために同じパスフレーズを使用する必要があります。そうしないと、お互いのメッセージを読むことができません。",
     "JoinRoomButton": "ルームに参加",
@@ -102,14 +102,14 @@
 
   "Chat": {
     "MeetingRoom": "ミーティングルーム",
-    "AudioStartsOn": "オーディオが開始されます。",
+    "AudioStartsOn": "まもなくオーディオが開始されます。",
     "EnableCameraOrShareScreen": "カメラを有効にするか、画面を共有してください。",
     "Users": "ユーザー",
     "Connected": "接続済み",
     "ConnectingDotDotDot": "接続中...",
     "Online": "オンライン",
     "Idle": "アイドル",
-    "Stage": "ステージ",
+    "Stage": "ステージ(発言中)",
     "RoomColon": "ルーム: ",
     "NoVideoYet": "まだビデオがありません。",
     "TurnOnCameraOrShareScreen": "ビデオを開始するにはカメラを有効にするか、画面を共有してください。",
@@ -126,10 +126,10 @@
     "WriteAMessage": "メッセージを入力してください...",
     "InitializingEncryption": "暗号化を初期化しています...",
     "You": "あなた",
-    "YouAudio": "あなた（オーディオ）",
-    "YouScreen": "あなた（画面）",
+    "YouAudio": "あなた(オーディオ)",
+    "YouScreen": "あなた(画面)",
     "MsgsAreSentViaWsE2EEEncryption": "メッセージはWebSocket経由で送信されます。エンドツーエンドの暗号化。",
     "AttachImage": "画像を添付",
-    "WaitingForWebRTCConn": "WebRTC接続を待っています（{{msg}}）"
+    "WaitingForWebRTCConn": "WebRTC接続を待っています({{msg}})"
   }
 }
