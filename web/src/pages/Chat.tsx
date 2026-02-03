@@ -609,6 +609,7 @@ export default function ChatPage() {
     room,
     setMessages,
     setOnlineUsers,
+    setTypingUsers,
   ]);
 
   return (
