@@ -57,7 +57,7 @@ export default function JoinMeeting() {
 
         if (type === "utils.generateRoomID") {
           setRoomId(data.roomID);
-          toast.success(t("JoinMeeting.GenerateNewRoomIDButton"), {
+          toast.success(t("Success.RoomIDGenerated"), {
             autoClose: 1000,
           });
         }
@@ -115,7 +115,9 @@ export default function JoinMeeting() {
           className="w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
         />
 
-        <p className="mb-1 text-xs text-zinc-500">{t("JoinMeeting.PText1")}</p>
+        <p className="mb-1 text-xs text-zinc-500">
+          {t("JoinMeeting.PText1", { maxRoomIDLength })}
+        </p>
 
         <p className="mb-1 text-xs text-zinc-500">{t("JoinMeeting.PText2")}</p>
       </div>

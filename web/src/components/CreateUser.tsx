@@ -29,11 +29,11 @@ export default function CreateUser() {
 
       setUsername("");
 
-      toast.success("User created successfully!", { autoClose: 1000 });
+      toast.success(t("Success.UserCreated"), { autoClose: 1000 });
     } catch (error) {
       const errorMessage = getAxiosErrorMessage(
         error,
-        "Failed to create user.",
+        t("Errors.FailedToCreateUser"),
       );
 
       console.error("Error creating user:", error);
