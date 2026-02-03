@@ -9,6 +9,7 @@ import { maxRoomIDLength } from "../constants";
 import { getWSInstance } from "../lib/wsInstance";
 import { parseIncomingWSMessage } from "../protocol/ws";
 import { useAuthStore } from "../stores/authStore";
+import { useSecretStore } from "../stores/secretStore";
 
 export default function JoinMeeting() {
   const navigate = useNavigate();
@@ -16,6 +17,8 @@ export default function JoinMeeting() {
   const revokeAccessToken = useAuthStore((s) => s.revokeAccessToken);
 
   const [roomId, setRoomId] = useState("");
+
+  const { passphrase, setPassphrase, clearPassphrase } = useSecretStore();
 
   function handleJoinRoom() {
     const normalized = roomId.trim();
@@ -30,6 +33,10 @@ export default function JoinMeeting() {
         `Room ID is too long (maximum is ${maxRoomIDLength} characters).`,
       );
       return;
+    }
+
+    if (!passphrase || passphrase.length === 0) {
+      clearPassphrase();
     }
 
     navigate(`/chat?room=${encodeURIComponent(normalized)}`);
@@ -82,10 +89,40 @@ export default function JoinMeeting() {
           type="text"
           name="roomId"
           placeholder="Enter the room ID"
+          maxLength={128}
           value={roomId}
           onChange={(e) => setRoomId(e.target.value)}
           className="w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
         />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label htmlFor="passphrase" className="text-sm text-zinc-300">
+          Passphrase
+        </label>
+
+        <input
+          id="passphrase"
+          type="password"
+          name="passphrase"
+          maxLength={128}
+          placeholder="Enter the passphrase (optional)"
+          value={passphrase ?? ""}
+          onChange={(e) => setPassphrase(e.target.value)}
+          className="w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-zinc-100 placeholder-zinc-500 transition focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
+        />
+
+        <p className="mb-1 text-xs text-zinc-500">
+          Max length: 128 characters. Both Room ID and Passphrase.
+        </p>
+
+        <p className="mb-1 text-xs text-zinc-500">
+          The passphrase is used to encrypt your messages end-to-end. If you
+          leave it blank, the room id will be used as the passphrase. It's
+          really recommended to use a passphrase for better security. All the
+          users in the room must use the same passphrase to communicate
+          securely, otherwise they won't be able to read each other's messages.
+        </p>
       </div>
 
       <button

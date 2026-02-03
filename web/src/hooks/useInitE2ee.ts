@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
 import { initE2EE } from "../lib/e2ee";
+import { useSecretStore } from "../stores/secretStore";
 
 interface UseInitE2eeProps {
   rawRoomId: string | null;
@@ -11,6 +12,8 @@ export default function useInitE2ee({ rawRoomId }: UseInitE2eeProps) {
   const e2eeKeyRef = useRef<CryptoKey | null>(null);
 
   const [e2eeReady, setE2eeReady] = useState(false);
+
+  const passphrase = useSecretStore((state) => state.passphrase);
 
   useEffect(() => {
     let cancelled = false;
@@ -23,8 +26,8 @@ export default function useInitE2ee({ rawRoomId }: UseInitE2eeProps) {
 
     (async () => {
       try {
-        // I'm using roomId as secret here for simplicity. In real world use cases, use a proper secret exchange.
-        const key = await initE2EE(rawRoomId, rawRoomId);
+        // Use the passphrase from the store if available; otherwise, fall back to rawRoomId
+        const key = await initE2EE(passphrase ?? rawRoomId, rawRoomId);
 
         if (cancelled) {
           return;
@@ -47,7 +50,7 @@ export default function useInitE2ee({ rawRoomId }: UseInitE2eeProps) {
       setE2eeReady(false);
       e2eeKeyRef.current = null;
     };
-  }, [rawRoomId]);
+  }, [passphrase, rawRoomId]);
 
   return { e2eeKeyRef, e2eeReady };
 }

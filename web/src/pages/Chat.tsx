@@ -567,8 +567,7 @@ export default function ChatPage() {
           .then((plain) => {
             append(plain ?? "[Protected message: failed to decrypt]");
           })
-          .catch((error) => {
-            console.error("Failed to decrypt message:", error);
+          .catch(() => {
             append("[Protected message: failed to decrypt]");
           });
 
