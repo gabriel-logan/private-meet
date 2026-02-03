@@ -55,9 +55,16 @@ func (c *Client) readPump() { // nosonar
 	}()
 
 	c.conn.SetReadLimit(maxWSMessageBytes)
-	c.conn.SetReadDeadline(time.Now().Add(pongWait))
+	if err := c.conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+		log.Println("WebSocket set read deadline error:", err)
+		return
+	}
 	c.conn.SetPongHandler(func(string) error {
-		c.conn.SetReadDeadline(time.Now().Add(pongWait))
+		if err := c.conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+			log.Println("WebSocket set read deadline error:", err)
+			return err
+		}
+
 		return nil
 	})
 
