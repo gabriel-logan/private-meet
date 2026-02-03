@@ -409,7 +409,7 @@
       },
       "Q2": {
         "Q": "Is this end-to-end encrypted?",
-        "A": "Chat messages can be client-side encrypted. The current key derivation is room-id based (simple/dev approach) and will evolve toward a safer key exchange."
+        "A": "Chat messages can be client-side encrypted when participants choose the same passphrase (shared secret). Today the key is derived locally (PBKDF2 + room id salt); longer-term the project will evolve toward a safer key exchange and better UX."
       },
       "Q3": {
         "Q": "Why do calls fail on some networks?",
