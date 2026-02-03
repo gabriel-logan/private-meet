@@ -43,6 +43,7 @@ import {
 import { useAuthStore } from "../stores/authStore";
 import {
   getTimeLabel,
+  handleCopyRoomId,
   hasVideo,
   isSafeUrl,
   isString,
@@ -59,6 +60,9 @@ export default function ChatPage() {
   const rawRoomId = (searchParams.get("room") ?? "").trim();
   const room = rawRoomId ? normalizeRoomId(rawRoomId) : "";
   const me = parseJwt(accessToken);
+
+  // Initialize E2EE - Should be the first useEffect
+  const { e2eeReady, e2eeKeyRef } = useInitE2ee({ rawRoomId });
 
   const { emojiOpen, setEmojiOpen, emojiButtonRef, emojiMenuRef } = useEmoji();
 
@@ -149,9 +153,6 @@ export default function ChatPage() {
   const typingTimeoutRef = useRef<number | null>(null);
   const typingSentRef = useRef(false);
 
-  // Initialize E2EE - Should be the first useEffect
-  const { e2eeReady, e2eeKeyRef } = useInitE2ee({ rawRoomId });
-
   const messageCharCount = Array.from(message).length;
 
   const canSendImagesToRoom = expectedPeersCount > 0 && canSendImages;
@@ -215,21 +216,6 @@ export default function ChatPage() {
 
   function trigger(ref: React.RefObject<HTMLInputElement | null>) {
     ref.current?.click();
-  }
-
-  async function handleCopyRoomId() {
-    if (!rawRoomId.trim()) {
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(rawRoomId);
-
-      toast.success("Room ID copied!");
-    } catch (error) {
-      console.error("Failed to copy room id:", error);
-      toast.error("Failed to copy room ID.");
-    }
   }
 
   function handleLeaveRoom() {
@@ -833,7 +819,7 @@ export default function ChatPage() {
                   Room:
                   <button
                     type="button"
-                    onClick={handleCopyRoomId}
+                    onClick={() => handleCopyRoomId(rawRoomId)}
                     disabled={!rawRoomId}
                     className={`min-w-0 truncate ${
                       rawRoomId

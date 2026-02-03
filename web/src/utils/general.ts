@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import axios from "axios";
 
 import { roomIDPrefix } from "../constants";
@@ -62,4 +63,19 @@ export function safeText(input: unknown): string {
 
 export function hasVideo(stream: MediaStream | null | undefined): boolean {
   return Boolean(stream && stream.getVideoTracks().length > 0);
+}
+
+export async function handleCopyRoomId(rawRoomId: string) {
+  if (!rawRoomId.trim()) {
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(rawRoomId);
+
+    toast.success("Room ID copied!");
+  } catch (error) {
+    console.error("Failed to copy room id:", error);
+    toast.error("Failed to copy room ID.");
+  }
 }
