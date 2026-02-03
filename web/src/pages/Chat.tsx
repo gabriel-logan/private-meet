@@ -28,6 +28,7 @@ import useInitE2ee from "../hooks/useInitE2ee";
 import useMessages from "../hooks/useMessages";
 import useObjectUrl from "../hooks/useObjectUrl";
 import useOnlineUsers, { type OnlineUser } from "../hooks/useOnlineUsers";
+import useTypingUsers from "../hooks/useTypingUsers";
 import useWebRTCMesh from "../hooks/useWebRTCMesh";
 import {
   decryptWireToText,
@@ -137,9 +138,8 @@ export default function ChatPage() {
 
   const imageInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [typingUsers, setTypingUsers] = useState<Record<string, string>>({});
-  const typingTimeoutRef = useRef<number | null>(null);
-  const typingSentRef = useRef(false);
+  const { typingLabel, setTypingUsers, typingTimeoutRef, typingSentRef } =
+    useTypingUsers();
 
   const messageCharCount = Array.from(message).length;
 
@@ -364,24 +364,6 @@ export default function ChatPage() {
       }
     }
   }
-
-  const typingLabel = (() => {
-    const names = Object.values(typingUsers);
-
-    if (names.length === 0) {
-      return "";
-    }
-
-    if (names.length === 1) {
-      return `${names[0]} is typing…`;
-    }
-
-    if (names.length === 2) {
-      return `${names[0]} and ${names[1]} are typing…`;
-    }
-
-    return `${names[0]} and ${names.length - 1} others are typing…`;
-  })();
 
   // WebSocket message handling
   useEffect(() => {
