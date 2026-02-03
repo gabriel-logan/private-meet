@@ -53,7 +53,8 @@ export default defineConfig({
         manualChunks: {
           react: ["react", "react-dom"],
           router: ["react-router"],
-          ui: ["react-icons", "emoji-picker-react", "motion", "react-toastify"],
+          ui1: ["react-icons", "emoji-picker-react"],
+          ui2: ["motion", "react-toastify"],
         },
       },
     },
