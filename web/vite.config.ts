@@ -55,6 +55,7 @@ export default defineConfig({
           router: ["react-router"],
           ui1: ["react-icons", "emoji-picker-react"],
           ui2: ["motion", "react-toastify"],
+          i18next: ["i18next", "react-i18next"],
         },
       },
     },
