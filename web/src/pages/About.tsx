@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from "react-i18next";
 import {
   FiArrowRight,
   FiClock,
@@ -20,133 +21,11 @@ import {
 import { Link } from "react-router";
 import { motion } from "motion/react";
 
-const roadmapCards = [
-  {
-    title: "Better E2EE key exchange (next)",
-    description:
-      "Today E2EE is passphrase-based (shared secret). Next step is a safer key agreement / exchange + better UX so users don't have to manually coordinate secrets.",
-    icon: FiLock,
-  },
-  {
-    title: "Temporary messages (next)",
-    description:
-      "Ephemeral messages with expiration policies so chats don't live forever by default.",
-    icon: FiClock,
-  },
-  {
-    title: "More file types (next)",
-    description:
-      "Generalize file sharing beyond images, with clear limits, previews, and privacy-first defaults.",
-    icon: FiFile,
-  },
-  {
-    title: "TURN + reliability (next)",
-    description:
-      "TURN can be enabled in the web client via env config, but the next step is production-grade TURN setup + better diagnostics and UX for unreliable networks.",
-    icon: FiVideo,
-  },
-] as const;
-
-const currentCards = [
-  {
-    title: "Rooms + real-time text chat",
-    description:
-      "Join a room and exchange messages in real time over WebSocket with a responsive UI.",
-    icon: FiMessageCircle,
-  },
-  {
-    title: "Presence + typing",
-    description: "See who's online in the room and when someone is typing.",
-    icon: FiShield,
-  },
-  {
-    title: "Client-side encrypted chat (E2EE)",
-    description:
-      "Chat messages are end-to-end encrypted in the browser when participants choose the same passphrase (Web Crypto API). The server only relays encrypted payloads.",
-    icon: FiLock,
-  },
-  {
-    title: "WebRTC voice/video/screen share",
-    description:
-      "Peer-to-peer media with WebRTC (mesh). Signaling is handled over WebSocket (currently capped at ~8 peer connections per client).",
-    icon: FiVideo,
-  },
-  {
-    title: "Image sharing (WebRTC data channel)",
-    description:
-      "Send images directly peer-to-peer in chat. Sending is enabled only when WebRTC is connected with all peers in the room.",
-    icon: FiFile,
-  },
-] as const;
-
-const howItWorksCards = [
-  {
-    title: "Sign-in → JWT → WebSocket",
-    description:
-      "Clients get an access token from /auth/sign-in and use it to connect to /ws?token=<jwt>. Room events and WebRTC signaling travel over this socket.",
-    icon: FiKey,
-  },
-  {
-    title: "Room state is server-owned",
-    description:
-      "The server is the single source of truth for room membership. Clients join/leave rooms and the server broadcasts a room.users snapshot.",
-    icon: FiUsers,
-  },
-  {
-    title: "Media is peer-to-peer",
-    description:
-      "Voice/video/screen share flow directly between peers via WebRTC. The server relays signaling only (SDP + ICE).",
-    icon: FiVideo,
-  },
-  {
-    title: "Images via RTCDataChannel",
-    description:
-      "Images are shared peer-to-peer using a WebRTC data channel (images only). The UI gates sending until peers are connected.",
-    icon: FiFile,
-  },
-] as const;
-
-const securityCards = [
-  {
-    title: "E2EE for chat (client-side)",
-    description:
-      "Messages can be encrypted in the browser using the Web Crypto API (AES-GCM). The server relays encrypted payloads without needing to decrypt.",
-    icon: FiLock,
-  },
-  {
-    title: "Current key model (passphrase-based)",
-    description:
-      "A key is derived locally from the passphrase using PBKDF2 (salted with the room id). Everyone in the room must use the same passphrase to decrypt messages.",
-    icon: FiShield,
-  },
-  {
-    title: "Auth boundary",
-    description:
-      "WebSocket connections require a valid JWT. In production, the server validates the WS Origin against ALLOWED_ORIGIN.",
-    icon: FiKey,
-  },
-] as const;
-
-const tradeoffsCards = [
-  {
-    title: "Mesh scalability",
-    description:
-      "WebRTC mesh means each participant connects to every other participant. This is capped in the client (~8 peers) to keep CPU/bandwidth manageable.",
-    icon: FiCpu,
-  },
-  {
-    title: "NAT traversal",
-    description:
-      "Without TURN, some networks/NATs won't connect reliably. TURN can be configured in env variables; production-grade TURN is a roadmap item.",
-    icon: FiGlobe,
-  },
-  {
-    title: "Backpressure + robustness",
-    description:
-      "The server applies backpressure and may drop messages if overloaded to keep connections responsive. Clients can retry WS connection.",
-    icon: FiZap,
-  },
-] as const;
+type AboutCardItem = Readonly<{
+  title: string;
+  description: string;
+  icon: React.ComponentType;
+}>;
 
 function SectionHeader({
   id,
@@ -206,6 +85,137 @@ function CardGrid<
 }
 
 export default function AboutPage() {
+  const { t } = useTranslation();
+
+  const roadmapCards: readonly AboutCardItem[] = [
+    {
+      title: t("About.Roadmap.Cards.E2EE.Title"),
+      description: t("About.Roadmap.Cards.E2EE.Description"),
+      icon: FiLock,
+    },
+    {
+      title: t("About.Roadmap.Cards.Ephemeral.Title"),
+      description: t("About.Roadmap.Cards.Ephemeral.Description"),
+      icon: FiClock,
+    },
+    {
+      title: t("About.Roadmap.Cards.Files.Title"),
+      description: t("About.Roadmap.Cards.Files.Description"),
+      icon: FiFile,
+    },
+    {
+      title: t("About.Roadmap.Cards.Turn.Title"),
+      description: t("About.Roadmap.Cards.Turn.Description"),
+      icon: FiVideo,
+    },
+  ];
+
+  const currentCards: readonly AboutCardItem[] = [
+    {
+      title: t("About.CurrentCards.Rooms.Title"),
+      description: t("About.CurrentCards.Rooms.Description"),
+      icon: FiMessageCircle,
+    },
+    {
+      title: t("About.CurrentCards.Presence.Title"),
+      description: t("About.CurrentCards.Presence.Description"),
+      icon: FiShield,
+    },
+    {
+      title: t("About.CurrentCards.E2EE.Title"),
+      description: t("About.CurrentCards.E2EE.Description"),
+      icon: FiLock,
+    },
+    {
+      title: t("About.CurrentCards.WebRTC.Title"),
+      description: t("About.CurrentCards.WebRTC.Description"),
+      icon: FiVideo,
+    },
+    {
+      title: t("About.CurrentCards.Images.Title"),
+      description: t("About.CurrentCards.Images.Description"),
+      icon: FiFile,
+    },
+  ];
+
+  const howItWorksCards: readonly AboutCardItem[] = [
+    {
+      title: t("About.HowItWorksCards.Auth.Title"),
+      description: t("About.HowItWorksCards.Auth.Description"),
+      icon: FiKey,
+    },
+    {
+      title: t("About.HowItWorksCards.RoomState.Title"),
+      description: t("About.HowItWorksCards.RoomState.Description"),
+      icon: FiUsers,
+    },
+    {
+      title: t("About.HowItWorksCards.Media.Title"),
+      description: t("About.HowItWorksCards.Media.Description"),
+      icon: FiVideo,
+    },
+    {
+      title: t("About.HowItWorksCards.Images.Title"),
+      description: t("About.HowItWorksCards.Images.Description"),
+      icon: FiFile,
+    },
+  ];
+
+  const securityCards: readonly AboutCardItem[] = [
+    {
+      title: t("About.SecurityCards.E2EE.Title"),
+      description: t("About.SecurityCards.E2EE.Description"),
+      icon: FiLock,
+    },
+    {
+      title: t("About.SecurityCards.KeyModel.Title"),
+      description: t("About.SecurityCards.KeyModel.Description"),
+      icon: FiShield,
+    },
+    {
+      title: t("About.SecurityCards.Auth.Title"),
+      description: t("About.SecurityCards.Auth.Description"),
+      icon: FiKey,
+    },
+  ];
+
+  const tradeoffsCards: readonly AboutCardItem[] = [
+    {
+      title: t("About.TradeoffsCards.Mesh.Title"),
+      description: t("About.TradeoffsCards.Mesh.Description"),
+      icon: FiCpu,
+    },
+    {
+      title: t("About.TradeoffsCards.Nat.Title"),
+      description: t("About.TradeoffsCards.Nat.Description"),
+      icon: FiGlobe,
+    },
+    {
+      title: t("About.TradeoffsCards.Backpressure.Title"),
+      description: t("About.TradeoffsCards.Backpressure.Description"),
+      icon: FiZap,
+    },
+  ];
+
+  const faqItems = [
+    {
+      q: t("About.FaqItems.Q1.Q"),
+      a: t("About.FaqItems.Q1.A"),
+    },
+    {
+      q: t("About.FaqItems.Q2.Q"),
+      a: t("About.FaqItems.Q2.A"),
+    },
+    {
+      q: t("About.FaqItems.Q3.Q"),
+      a: t("About.FaqItems.Q3.A"),
+    },
+    {
+      q: t("About.FaqItems.Q4.Q"),
+      a: t("About.FaqItems.Q4.A"),
+    },
+  ];
+
   return (
     <main className="min-h-screen bg-linear-to-br from-zinc-950 via-zinc-900 to-zinc-950 px-4 py-10 text-zinc-100 sm:px-6">
       <div className="mx-auto w-full max-w-6xl">
@@ -227,31 +237,36 @@ export default function AboutPage() {
               </p>
 
               <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-                Private meetings, minimal friction.
+                {t("About.HeroTitle")}
               </h1>
 
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-300 sm:text-base">
-                Private Meet is a lightweight real-time chat + meeting
-                experience. It already supports client-side encrypted chat,
-                WebRTC media, and image sharing over WebRTC data channels. Next,
-                the focus is improving reliability and polishing the privacy
-                model.
+                {t("About.HeroDescription")}
               </p>
 
               <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950/30 p-4">
                 <p className="text-xs font-medium text-zinc-200">
-                  On this page
+                  {t("About.OnThisPage")}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {[
-                    { id: "today", label: "What exists today" },
-                    { id: "how", label: "How it works" },
-                    { id: "protocol", label: "API & WS protocol" },
-                    { id: "security", label: "Security & privacy" },
-                    { id: "limits", label: "Limits & tradeoffs" },
-                    { id: "config", label: "Config cheatsheet" },
-                    { id: "deploy", label: "Deploy notes" },
-                    { id: "faq", label: "FAQ" },
+                    {
+                      id: "today",
+                      label: t("About.OnThisPageLinks.Today"),
+                    },
+                    { id: "how", label: t("About.OnThisPageLinks.How") },
+                    {
+                      id: "protocol",
+                      label: t("About.OnThisPageLinks.Protocol"),
+                    },
+                    {
+                      id: "security",
+                      label: t("About.OnThisPageLinks.Security"),
+                    },
+                    { id: "limits", label: t("About.OnThisPageLinks.Limits") },
+                    { id: "config", label: t("About.OnThisPageLinks.Config") },
+                    { id: "deploy", label: t("About.OnThisPageLinks.Deploy") },
+                    { id: "faq", label: t("About.OnThisPageLinks.Faq") },
                   ].map((x) => (
                     <a
                       key={x.id}
@@ -270,34 +285,40 @@ export default function AboutPage() {
                   to="/"
                   className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
                 >
-                  Get started <FiArrowRight />
+                  {t("About.CtaGetStarted")} <FiArrowRight />
                 </Link>
 
                 <Link
                   to="/chat"
                   className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/50 px-4 py-2 text-sm text-zinc-100 transition hover:bg-zinc-950"
                 >
-                  Open chat
+                  {t("About.CtaOpenChat")}
                 </Link>
               </div>
 
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
                 <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-                  <p className="text-xs text-zinc-500">Stack</p>
+                  <p className="text-xs text-zinc-500">
+                    {t("About.Meta.StackLabel")}
+                  </p>
                   <p className="mt-1 text-sm text-zinc-200">
-                    React + WebSocket + WebRTC + Go
+                    {t("About.Meta.StackValue")}
                   </p>
                 </div>
                 <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-                  <p className="text-xs text-zinc-500">Goal</p>
+                  <p className="text-xs text-zinc-500">
+                    {t("About.Meta.GoalLabel")}
+                  </p>
                   <p className="mt-1 text-sm text-zinc-200">
-                    Privacy-first defaults
+                    {t("About.Meta.GoalValue")}
                   </p>
                 </div>
                 <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-                  <p className="text-xs text-zinc-500">Roadmap</p>
+                  <p className="text-xs text-zinc-500">
+                    {t("About.Meta.RoadmapLabel")}
+                  </p>
                   <p className="mt-1 text-sm text-zinc-200">
-                    Better E2EE, ephemeral, files, reliability
+                    {t("About.Meta.RoadmapValue")}
                   </p>
                 </div>
               </div>
@@ -313,8 +334,8 @@ export default function AboutPage() {
         >
           <SectionHeader
             id="today"
-            title="What exists today"
-            subtitle="These features are already available in the current version."
+            title={t("About.Sections.Today.Title")}
+            subtitle={t("About.Sections.Today.Subtitle")}
           />
           <CardGrid items={currentCards} />
         </motion.section>
@@ -327,8 +348,8 @@ export default function AboutPage() {
         >
           <SectionHeader
             id="how"
-            title="How it works"
-            subtitle="A practical view of the moving parts and where data flows."
+            title={t("About.Sections.How.Title")}
+            subtitle={t("About.Sections.How.Subtitle")}
           />
 
           <CardGrid items={howItWorksCards} />
@@ -340,15 +361,15 @@ export default function AboutPage() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-zinc-100">
-                  High-level flow
+                  {t("About.HighLevelFlow.Title")}
                 </h3>
                 <ol className="mt-2 space-y-1 text-sm text-zinc-400">
-                  <li>1) Sign-in → receive JWT</li>
-                  <li>2) Connect to WebSocket with the JWT</li>
-                  <li>3) Join a room → receive a room.users snapshot</li>
-                  <li>4) Chat/typing events flow via WS</li>
-                  <li>5) WebRTC offer/answer/ICE exchanged via WS</li>
-                  <li>6) Media + image transfer happens peer-to-peer</li>
+                  <li>{t("About.HighLevelFlow.Steps.Step1")}</li>
+                  <li>{t("About.HighLevelFlow.Steps.Step2")}</li>
+                  <li>{t("About.HighLevelFlow.Steps.Step3")}</li>
+                  <li>{t("About.HighLevelFlow.Steps.Step4")}</li>
+                  <li>{t("About.HighLevelFlow.Steps.Step5")}</li>
+                  <li>{t("About.HighLevelFlow.Steps.Step6")}</li>
                 </ol>
               </div>
             </div>
@@ -362,11 +383,10 @@ export default function AboutPage() {
           className="mt-10"
         >
           <h2 className="text-lg font-semibold tracking-tight text-zinc-100">
-            Where this is going
+            {t("About.Roadmap.Title")}
           </h2>
           <p className="mt-1 text-sm text-zinc-400">
-            The next milestones to turn this into a fully private meeting
-            experience.
+            {t("About.Roadmap.Subtitle")}
           </p>
 
           <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -406,8 +426,8 @@ export default function AboutPage() {
         >
           <SectionHeader
             id="protocol"
-            title="API & WS protocol"
-            subtitle="Endpoints, message types, and what to expect over the wire."
+            title={t("About.Sections.Protocol.Title")}
+            subtitle={t("About.Sections.Protocol.Subtitle")}
           />
 
           <div className="mt-4 grid gap-4 lg:grid-cols-3">
@@ -417,17 +437,39 @@ export default function AboutPage() {
                   <FiServer />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-zinc-100">REST</h3>
+                  <h3 className="text-sm font-semibold text-zinc-100">
+                    {t("About.ProtocolCards.Rest.Title")}
+                  </h3>
                   <ul className="mt-2 space-y-1 text-sm text-zinc-400">
                     <li>
-                      <span className="text-zinc-200">GET</span> /health → OK
+                      <Trans
+                        i18nKey="About.ProtocolCards.Rest.GetHealth"
+                        t={t}
+                        components={[
+                          <span
+                            className="text-zinc-200"
+                            key="rest-get-health"
+                          />,
+                        ]}
+                        key="rest-get-health"
+                      />
                     </li>
                     <li>
-                      <span className="text-zinc-200">POST</span> /auth/sign-in
+                      <Trans
+                        i18nKey="About.ProtocolCards.Rest.PostSignIn"
+                        t={t}
+                        components={[
+                          <span
+                            className="text-zinc-200"
+                            key="rest-post-signin"
+                          />,
+                        ]}
+                        key="rest-post-signin"
+                      />
                     </li>
                   </ul>
                   <p className="mt-2 text-xs text-zinc-500">
-                    /auth/sign-in returns an access token used for WS auth.
+                    {t("About.ProtocolCards.Rest.Note")}
                   </p>
                 </div>
               </div>
@@ -440,18 +482,22 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-zinc-100">
-                    WebSocket
+                    {t("About.ProtocolCards.WebSocket.Title")}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                    Connect to <span className="text-zinc-200">/ws</span> with a
-                    query token. Messages are JSON with
-                    <span className="text-zinc-200"> type</span>, optional
-                    <span className="text-zinc-200"> room</span>, and
-                    <span className="text-zinc-200"> data</span>.
+                    <Trans
+                      i18nKey="About.ProtocolCards.WebSocket.Description"
+                      t={t}
+                      components={[
+                        <span className="text-zinc-200" key="ws-desc-1" />,
+                        <span className="text-zinc-200" key="ws-desc-2" />,
+                        <span className="text-zinc-200" key="ws-desc-3" />,
+                        <span className="text-zinc-200" key="ws-desc-4" />,
+                      ]}
+                    />
                   </p>
                   <p className="mt-2 text-xs text-zinc-500">
-                    In dev, origin checks are permissive; in prod, Origin must
-                    match ALLOWED_ORIGIN.
+                    {t("About.ProtocolCards.WebSocket.Note")}
                   </p>
                 </div>
               </div>
@@ -464,19 +510,18 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-zinc-100">
-                    Message types
+                    {t("About.ProtocolCards.MessageTypes.Title")}
                   </h3>
                   <ul className="mt-2 space-y-1 text-sm text-zinc-400">
-                    <li>chat.join / chat.leave</li>
-                    <li>chat.message / chat.typing</li>
-                    <li>room.users (server snapshot)</li>
-                    <li>utils.generateRoomID</li>
-                    <li>webrtc.offer / webrtc.answer</li>
-                    <li>webrtc.iceCandidate</li>
+                    <li>{t("About.ProtocolCards.MessageTypes.Types.T1")}</li>
+                    <li>{t("About.ProtocolCards.MessageTypes.Types.T2")}</li>
+                    <li>{t("About.ProtocolCards.MessageTypes.Types.T3")}</li>
+                    <li>{t("About.ProtocolCards.MessageTypes.Types.T4")}</li>
+                    <li>{t("About.ProtocolCards.MessageTypes.Types.T5")}</li>
+                    <li>{t("About.ProtocolCards.MessageTypes.Types.T6")}</li>
                   </ul>
                   <p className="mt-2 text-xs text-zinc-500">
-                    The frontend type definitions are the best place to explore
-                    the schema.
+                    {t("About.ProtocolCards.MessageTypes.Note")}
                   </p>
                 </div>
               </div>
@@ -492,8 +537,8 @@ export default function AboutPage() {
         >
           <SectionHeader
             id="security"
-            title="Security & privacy (high-level)"
-            subtitle="What the project does today, and what it explicitly does not promise yet."
+            title={t("About.Sections.Security.Title")}
+            subtitle={t("About.Sections.Security.Subtitle")}
           />
 
           <CardGrid items={securityCards} />
@@ -505,21 +550,17 @@ export default function AboutPage() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-zinc-100">
-                  Important note
+                  {t("About.ImportantNote.Title")}
                 </h3>
                 <p className="mt-1 text-sm leading-relaxed text-zinc-300">
-                  Private Meet is privacy-first, but it is still evolving.
-                  Today&apos;s E2EE setup is intentionally simple (shared
-                  passphrase + local key derivation) and is not positioned as a
-                  mature, audited secure messaging protocol.
+                  {t("About.ImportantNote.Body")}
                 </p>
               </div>
             </div>
           </div>
 
           <p className="mt-4 text-xs leading-relaxed text-zinc-500">
-            Note: Private Meet is still evolving. Some privacy and reliability
-            improvements are planned.
+            {t("About.ImportantNote.Footer")}
           </p>
         </motion.section>
 
@@ -531,8 +572,8 @@ export default function AboutPage() {
         >
           <SectionHeader
             id="limits"
-            title="Limits & tradeoffs"
-            subtitle="Practical constraints that matter in real usage."
+            title={t("About.Sections.Limits.Title")}
+            subtitle={t("About.Sections.Limits.Subtitle")}
           />
 
           <CardGrid items={tradeoffsCards} />
@@ -540,33 +581,32 @@ export default function AboutPage() {
           <div className="mt-4 grid gap-4 lg:grid-cols-3">
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-5">
               <h3 className="text-sm font-semibold text-zinc-100">
-                Current caps (client)
+                {t("About.Caps.Client.Title")}
               </h3>
               <ul className="mt-2 space-y-1 text-sm text-zinc-400">
-                <li>Message UI cap: 1500 chars</li>
-                <li>WebRTC peers: ~8</li>
-                <li>Image size: 12MB</li>
+                <li>{t("About.Caps.Client.MsgCap")}</li>
+                <li>{t("About.Caps.Client.WebRtcPeers")}</li>
+                <li>{t("About.Caps.Client.ImageSize")}</li>
               </ul>
             </div>
 
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-5">
               <h3 className="text-sm font-semibold text-zinc-100">
-                Current caps (server)
+                {t("About.Caps.Server.Title")}
               </h3>
               <ul className="mt-2 space-y-1 text-sm text-zinc-400">
-                <li>Room ID length: up to 128 chars</li>
-                <li>Chat payload: up to 5000 runes</li>
-                <li>WS read limit: 64KB per message</li>
+                <li>{t("About.Caps.Server.RoomId")}</li>
+                <li>{t("About.Caps.Server.ChatPayload")}</li>
+                <li>{t("About.Caps.Server.WsRead")}</li>
               </ul>
             </div>
 
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-5">
               <h3 className="text-sm font-semibold text-zinc-100">
-                What to expect
+                {t("About.Caps.Expect.Title")}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                Small rooms work best. For bigger rooms or hostile networks,
-                TURN and/or an SFU architecture are the typical next steps.
+                {t("About.Caps.Expect.Body")}
               </p>
             </div>
           </div>
@@ -580,8 +620,8 @@ export default function AboutPage() {
         >
           <SectionHeader
             id="config"
-            title="Config cheatsheet"
-            subtitle="Quick mental model for the root .env used by server + web."
+            title={t("About.Sections.Config.Title")}
+            subtitle={t("About.Sections.Config.Subtitle")}
           />
 
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
@@ -592,20 +632,25 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-zinc-100">
-                    Backend (.env)
+                    {t("About.ConfigCards.Backend.Title")}
                   </h3>
                   <ul className="mt-2 space-y-1 text-sm text-zinc-400">
-                    <li>GO_ENV (development / production)</li>
-                    <li>USE_LOCAL_TLS (true / false)</li>
-                    <li>SERVER_PORT</li>
-                    <li>ALLOWED_ORIGIN</li>
-                    <li>JWT_SECRET + JWT_EXPIRATION</li>
-                    <li>CONTEXT_TIMEOUT</li>
+                    <li>{t("About.ConfigCards.Backend.Vars.V1")}</li>
+                    <li>{t("About.ConfigCards.Backend.Vars.V2")}</li>
+                    <li>{t("About.ConfigCards.Backend.Vars.V3")}</li>
+                    <li>{t("About.ConfigCards.Backend.Vars.V4")}</li>
+                    <li>{t("About.ConfigCards.Backend.Vars.V5")}</li>
+                    <li>{t("About.ConfigCards.Backend.Vars.V6")}</li>
                   </ul>
                   <p className="mt-2 text-xs text-zinc-500">
-                    The server loads{" "}
-                    <span className="text-zinc-200">../.env</span>
-                    relative to <span className="text-zinc-200">server/</span>.
+                    <Trans
+                      i18nKey="About.ConfigCards.Backend.Note"
+                      t={t}
+                      components={[
+                        <span className="text-zinc-200" key="backend-note-1" />,
+                        <span className="text-zinc-200" key="backend-note-2" />,
+                      ]}
+                    />
                   </p>
                 </div>
               </div>
@@ -618,18 +663,18 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-zinc-100">
-                    Web (Vite)
+                    {t("About.ConfigCards.Web.Title")}
                   </h3>
                   <ul className="mt-2 space-y-1 text-sm text-zinc-400">
-                    <li>VITE_HTTP_API_URL</li>
-                    <li>VITE_WS_API_URL</li>
-                    <li>VITE_HAS_TURN_SERVER</li>
-                    <li>VITE_TURN_SERVER_URL</li>
-                    <li>VITE_TURN_SERVER_USERNAME</li>
-                    <li>VITE_TURN_SERVER_CREDENTIAL</li>
+                    <li>{t("About.ConfigCards.Web.Vars.V1")}</li>
+                    <li>{t("About.ConfigCards.Web.Vars.V2")}</li>
+                    <li>{t("About.ConfigCards.Web.Vars.V3")}</li>
+                    <li>{t("About.ConfigCards.Web.Vars.V4")}</li>
+                    <li>{t("About.ConfigCards.Web.Vars.V5")}</li>
+                    <li>{t("About.ConfigCards.Web.Vars.V6")}</li>
                   </ul>
                   <p className="mt-2 text-xs text-zinc-500">
-                    TURN is optional. If disabled, the app uses STUN only.
+                    {t("About.ConfigCards.Web.Note")}
                   </p>
                 </div>
               </div>
@@ -643,12 +688,10 @@ export default function AboutPage() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-zinc-100">
-                  Secure context for WebRTC
+                  {t("About.ConfigCards.SecureContext.Title")}
                 </h3>
                 <p className="mt-1 text-sm leading-relaxed text-zinc-400">
-                  Browsers require HTTPS for certain WebRTC/media capabilities
-                  when not on localhost. The Vite dev server is set up with
-                  HTTPS using local cert files.
+                  {t("About.ConfigCards.SecureContext.Body")}
                 </p>
               </div>
             </div>
@@ -663,38 +706,39 @@ export default function AboutPage() {
         >
           <SectionHeader
             id="deploy"
-            title="Deploy notes"
-            subtitle="What a production deployment looks like for this repo today."
+            title={t("About.Sections.Deploy.Title")}
+            subtitle={t("About.Sections.Deploy.Subtitle")}
           />
 
           <div className="mt-4 grid gap-4 lg:grid-cols-3">
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-5">
-              <h3 className="text-sm font-semibold text-zinc-100">Build</h3>
+              <h3 className="text-sm font-semibold text-zinc-100">
+                {t("About.DeployCards.Build.Title")}
+              </h3>
               <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                The repo builds a Go binary and a static web bundle.
+                {t("About.DeployCards.Build.Body")}
               </p>
               <ul className="mt-2 space-y-1 text-sm text-zinc-400">
-                <li>Server binary: server/bin/server</li>
-                <li>Web assets: web/dist</li>
+                <li>{t("About.DeployCards.Build.ServerBinary")}</li>
+                <li>{t("About.DeployCards.Build.WebAssets")}</li>
               </ul>
             </div>
 
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-5">
               <h3 className="text-sm font-semibold text-zinc-100">
-                Serving the SPA
+                {t("About.DeployCards.Spa.Title")}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                The Go server serves the SPA from web/dist and falls back to
-                index.html for client-side routes.
+                {t("About.DeployCards.Spa.Body")}
               </p>
             </div>
 
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-5">
               <h3 className="text-sm font-semibold text-zinc-100">
-                Health checks
+                {t("About.DeployCards.Health.Title")}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                /health returns OK and is used by platforms like Render.
+                {t("About.DeployCards.Health.Body")}
               </p>
             </div>
           </div>
@@ -708,29 +752,12 @@ export default function AboutPage() {
         >
           <SectionHeader
             id="faq"
-            title="FAQ"
-            subtitle="Quick answers to the most common questions."
+            title={t("About.Sections.Faq.Title")}
+            subtitle={t("About.Sections.Faq.Subtitle")}
           />
 
           <div className="mt-4 grid gap-4">
-            {[
-              {
-                q: "Do I need an account?",
-                a: "No. The current model issues a short-lived token on sign-in and lets you join rooms without user registration.",
-              },
-              {
-                q: "Is this end-to-end encrypted?",
-                a: "Chat messages can be client-side encrypted. The current key derivation is room-id based (simple/dev approach) and will evolve toward a safer key exchange.",
-              },
-              {
-                q: "Why do calls fail on some networks?",
-                a: "Some NAT/firewall setups require TURN. You can enable TURN in env, but a robust production TURN setup is still part of the roadmap.",
-              },
-              {
-                q: "Why cap the room size / peer connections?",
-                a: "Mesh WebRTC grows quadratically with participants. The cap avoids melting CPUs and uplinks.",
-              },
-            ].map((item) => (
+            {faqItems.map((item) => (
               <div
                 key={item.q}
                 className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-5"
@@ -756,10 +783,10 @@ export default function AboutPage() {
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/70 px-6 py-5">
           <div>
             <p className="text-sm font-medium text-zinc-100">
-              Want to help shape the roadmap?
+              {t("About.Footer.Title")}
             </p>
             <p className="mt-1 text-sm text-zinc-400">
-              Iterate on UX, encryption, and WebRTC features.
+              {t("About.Footer.Subtitle")}
             </p>
 
             <div className="mt-3 flex flex-wrap gap-2">
@@ -769,7 +796,7 @@ export default function AboutPage() {
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-xs text-zinc-100 transition hover:bg-zinc-950"
               >
-                <FiGithub /> Repo
+                <FiGithub /> {t("About.Footer.Repo")}
               </a>
 
               <a
@@ -778,7 +805,7 @@ export default function AboutPage() {
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-xs text-zinc-100 transition hover:bg-zinc-950"
               >
-                <FiCode /> WebRTC notes
+                <FiCode /> {t("About.Footer.WebRTCNotes")}
               </a>
             </div>
           </div>
@@ -787,7 +814,7 @@ export default function AboutPage() {
             to="/"
             className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/50 px-4 py-2 text-sm text-zinc-100 transition hover:bg-zinc-950"
           >
-            Back to Home <FiArrowRight />
+            {t("About.Footer.BackToHome")} <FiArrowRight />
           </Link>
         </div>
       </div>
