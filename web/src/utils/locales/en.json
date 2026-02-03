@@ -11,5 +11,47 @@
     "About": "About",
     "ChangeLanguage": "Change Language"
   },
-  "wdoiawdoiawd": "This is a test string for coverage calculation."
+
+  "Footer": {
+    "PrivacyPolicy": "Privacy Policy",
+    "TermsOfService": "Terms of Service",
+    "ContactUs": "Contact Us",
+    "GithubRepository": "GitHub Repository",
+    "CreatedBy": "Created by Gabriel Logan"
+  },
+
+  "Loading": {
+    "LoadingDotDotDot": "Loading..."
+  },
+
+  "Errors": {
+    "AnErrorOccurred": "An error occurred.",
+    "AnErrorOccurredWithMessage": "An error occurred: {{message}}",
+    "SomethingWentWrong": "Something went wrong.",
+    "FailedToCreateUser": "Failed to create user.",
+    "PleaseEnterRoomID": "Please enter a Room ID.",
+    "RoomIDIsTooLong": "Room ID is too long (maximum is {{maxRoomIDLength}} characters).",
+    "ErrorProcessingServerMessage": "Error processing server message."
+  },
+
+  "Infos": {
+    "UserDeletedSuccessfully": "User deleted. Please create a new user to continue."
+  },
+
+  "Success": {
+    "UserCreated": "User created successfully!",
+    "RoomIDGenerated": "Generated a new Room ID!"
+  },
+
+  "JoinMeeting": {
+    "RoomID": "Room ID",
+    "EnterRoomID": "Enter the room ID",
+    "Passphrase": "Passphrase",
+    "EnterPassphrase": "Enter the passphrase (optional)",
+    "PText1": "Max length: {{maxRoomIDLength}} characters. Both Room ID and Passphrase.",
+    "PText2": "The passphrase is used to encrypt your messages end-to-end. If you leave it blank, the room id will be used as the passphrase. It's really recommended to use a passphrase for better security. All the users in the room must use the same passphrase to communicate securely, otherwise they won't be able to read each other's messages.",
+    "JoinRoomButton": "Join Room",
+    "GenerateNewRoomIDButton": "Generate Random Secure Room ID",
+    "DeleteUserButton": "Delete User"
+  }
 }
