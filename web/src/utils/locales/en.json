@@ -121,5 +121,302 @@
     "InitializingEncryption": "Initializing encryption...",
     "You": "You",
     "MsgsAreSentViaWsE2EEEncryption": "Messages are sent via WebSocket. End-to-end encrypted."
+  },
+
+  "About": {
+    "HeroTitle": "Private meetings, minimal friction.",
+    "HeroDescription": "Private Meet is a lightweight real-time chat + meeting experience. It already supports client-side encrypted chat, WebRTC media, and image sharing over WebRTC data channels. Next, the focus is improving reliability and polishing the privacy model.",
+
+    "OnThisPage": "On this page",
+    "OnThisPageLinks": {
+      "Today": "What exists today",
+      "How": "How it works",
+      "Protocol": "API & WS protocol",
+      "Security": "Security & privacy",
+      "Limits": "Limits & tradeoffs",
+      "Config": "Config cheatsheet",
+      "Deploy": "Deploy notes",
+      "Faq": "FAQ"
+    },
+
+    "CtaGetStarted": "Get started",
+    "CtaOpenChat": "Open chat",
+
+    "Meta": {
+      "StackLabel": "Stack",
+      "StackValue": "React + WebSocket + WebRTC + Go",
+      "GoalLabel": "Goal",
+      "GoalValue": "Privacy-first defaults",
+      "RoadmapLabel": "Roadmap",
+      "RoadmapValue": "Better E2EE, ephemeral, files, reliability"
+    },
+
+    "Sections": {
+      "Today": {
+        "Title": "What exists today",
+        "Subtitle": "These features are already available in the current version."
+      },
+      "How": {
+        "Title": "How it works",
+        "Subtitle": "A practical view of the moving parts and where data flows."
+      },
+      "Protocol": {
+        "Title": "API & WS protocol",
+        "Subtitle": "Endpoints, message types, and what to expect over the wire."
+      },
+      "Security": {
+        "Title": "Security & privacy (high-level)",
+        "Subtitle": "What the project does today, and what it explicitly does not promise yet."
+      },
+      "Limits": {
+        "Title": "Limits & tradeoffs",
+        "Subtitle": "Practical constraints that matter in real usage."
+      },
+      "Config": {
+        "Title": "Config cheatsheet",
+        "Subtitle": "Quick mental model for the root .env used by server + web."
+      },
+      "Deploy": {
+        "Title": "Deploy notes",
+        "Subtitle": "What a production deployment looks like for this repo today."
+      },
+      "Faq": {
+        "Title": "FAQ",
+        "Subtitle": "Quick answers to the most common questions."
+      }
+    },
+
+    "CurrentCards": {
+      "Rooms": {
+        "Title": "Rooms + real-time text chat",
+        "Description": "Join a room and exchange messages in real time over WebSocket with a responsive UI."
+      },
+      "Presence": {
+        "Title": "Presence + typing",
+        "Description": "See who's online in the room and when someone is typing."
+      },
+      "E2EE": {
+        "Title": "Client-side encrypted chat (E2EE)",
+        "Description": "Chat messages are end-to-end encrypted in the browser when participants choose the same passphrase (Web Crypto API). The server only relays encrypted payloads."
+      },
+      "WebRTC": {
+        "Title": "WebRTC voice/video/screen share",
+        "Description": "Peer-to-peer media with WebRTC (mesh). Signaling is handled over WebSocket (currently capped at ~8 peer connections per client)."
+      },
+      "Images": {
+        "Title": "Image sharing (WebRTC data channel)",
+        "Description": "Send images directly peer-to-peer in chat. Sending is enabled only when WebRTC is connected with all peers in the room."
+      }
+    },
+
+    "HowItWorksCards": {
+      "Auth": {
+        "Title": "Sign-in → JWT → WebSocket",
+        "Description": "Clients get an access token from /auth/sign-in and use it to connect to /ws?token=<jwt>. Room events and WebRTC signaling travel over this socket."
+      },
+      "RoomState": {
+        "Title": "Room state is server-owned",
+        "Description": "The server is the single source of truth for room membership. Clients join/leave rooms and the server broadcasts a room.users snapshot."
+      },
+      "Media": {
+        "Title": "Media is peer-to-peer",
+        "Description": "Voice/video/screen share flow directly between peers via WebRTC. The server relays signaling only (SDP + ICE)."
+      },
+      "Images": {
+        "Title": "Images via RTCDataChannel",
+        "Description": "Images are shared peer-to-peer using a WebRTC data channel (images only). The UI gates sending until peers are connected."
+      }
+    },
+
+    "HighLevelFlow": {
+      "Title": "High-level flow",
+      "Steps": {
+        "Step1": "1) Sign-in → receive JWT",
+        "Step2": "2) Connect to WebSocket with the JWT",
+        "Step3": "3) Join a room → receive a room.users snapshot",
+        "Step4": "4) Chat/typing events flow via WS",
+        "Step5": "5) WebRTC offer/answer/ICE exchanged via WS",
+        "Step6": "6) Media + image transfer happens peer-to-peer"
+      }
+    },
+
+    "Roadmap": {
+      "Title": "Where this is going",
+      "Subtitle": "The next milestones to turn this into a fully private meeting experience.",
+      "Cards": {
+        "E2EE": {
+          "Title": "Better E2EE key exchange (next)",
+          "Description": "Today E2EE is passphrase-based (shared secret). Next step is a safer key agreement / exchange + better UX so users don't have to manually coordinate secrets."
+        },
+        "Ephemeral": {
+          "Title": "Temporary messages (next)",
+          "Description": "Ephemeral messages with expiration policies so chats don't live forever by default."
+        },
+        "Files": {
+          "Title": "More file types (next)",
+          "Description": "Generalize file sharing beyond images, with clear limits, previews, and privacy-first defaults."
+        },
+        "Turn": {
+          "Title": "TURN + reliability (next)",
+          "Description": "TURN can be enabled in the web client via env config, but the next step is production-grade TURN setup + better diagnostics and UX for unreliable networks."
+        }
+      }
+    },
+
+    "ProtocolCards": {
+      "Rest": {
+        "Title": "REST",
+        "GetHealth": "GET /health → OK",
+        "PostSignIn": "POST /auth/sign-in",
+        "Note": "/auth/sign-in returns an access token used for WS auth."
+      },
+      "WebSocket": {
+        "Title": "WebSocket",
+        "Description": "Connect to /ws with a query token. Messages are JSON with type, optional room, and data.",
+        "Note": "In dev, origin checks are permissive; in prod, Origin must match ALLOWED_ORIGIN."
+      },
+      "MessageTypes": {
+        "Title": "Message types",
+        "Types": {
+          "T1": "chat.join / chat.leave",
+          "T2": "chat.message / chat.typing",
+          "T3": "room.users (server snapshot)",
+          "T4": "utils.generateRoomID",
+          "T5": "webrtc.offer / webrtc.answer",
+          "T6": "webrtc.iceCandidate"
+        },
+        "Note": "The frontend type definitions are the best place to explore the schema."
+      }
+    },
+
+    "SecurityCards": {
+      "E2EE": {
+        "Title": "E2EE for chat (client-side)",
+        "Description": "Messages can be encrypted in the browser using the Web Crypto API (AES-GCM). The server relays encrypted payloads without needing to decrypt."
+      },
+      "KeyModel": {
+        "Title": "Current key model (passphrase-based)",
+        "Description": "A key is derived locally from the passphrase using PBKDF2 (salted with the room id). Everyone in the room must use the same passphrase to decrypt messages."
+      },
+      "Auth": {
+        "Title": "Auth boundary",
+        "Description": "WebSocket connections require a valid JWT. In production, the server validates the WS Origin against ALLOWED_ORIGIN."
+      }
+    },
+
+    "ImportantNote": {
+      "Title": "Important note",
+      "Body": "Private Meet is privacy-first, but it is still evolving. Today's E2EE setup is intentionally simple (shared passphrase + local key derivation) and is not positioned as a mature, audited secure messaging protocol.",
+      "Footer": "Note: Private Meet is still evolving. Some privacy and reliability improvements are planned."
+    },
+
+    "TradeoffsCards": {
+      "Mesh": {
+        "Title": "Mesh scalability",
+        "Description": "WebRTC mesh means each participant connects to every other participant. This is capped in the client (~8 peers) to keep CPU/bandwidth manageable."
+      },
+      "Nat": {
+        "Title": "NAT traversal",
+        "Description": "Without TURN, some networks/NATs won't connect reliably. TURN can be configured in env variables; production-grade TURN is a roadmap item."
+      },
+      "Backpressure": {
+        "Title": "Backpressure + robustness",
+        "Description": "The server applies backpressure and may drop messages if overloaded to keep connections responsive. Clients can retry WS connection."
+      }
+    },
+
+    "Caps": {
+      "Client": {
+        "Title": "Current caps (client)",
+        "MsgCap": "Message UI cap: 1500 chars",
+        "WebRtcPeers": "WebRTC peers: ~8",
+        "ImageSize": "Image size: 12MB"
+      },
+      "Server": {
+        "Title": "Current caps (server)",
+        "RoomId": "Room ID length: up to 128 chars",
+        "ChatPayload": "Chat payload: up to 5000 runes",
+        "WsRead": "WS read limit: 64KB per message"
+      },
+      "Expect": {
+        "Title": "What to expect",
+        "Body": "Small rooms work best. For bigger rooms or hostile networks, TURN and/or an SFU architecture are the typical next steps."
+      }
+    },
+
+    "ConfigCards": {
+      "Backend": {
+        "Title": "Backend (.env)",
+        "Vars": {
+          "V1": "GO_ENV (development / production)",
+          "V2": "USE_LOCAL_TLS (true / false)",
+          "V3": "SERVER_PORT",
+          "V4": "ALLOWED_ORIGIN",
+          "V5": "JWT_SECRET + JWT_EXPIRATION",
+          "V6": "CONTEXT_TIMEOUT"
+        },
+        "Note": "The server loads ../.env relative to server/."
+      },
+      "Web": {
+        "Title": "Web (Vite)",
+        "Vars": {
+          "V1": "VITE_HTTP_API_URL",
+          "V2": "VITE_WS_API_URL",
+          "V3": "VITE_HAS_TURN_SERVER",
+          "V4": "VITE_TURN_SERVER_URL",
+          "V5": "VITE_TURN_SERVER_USERNAME",
+          "V6": "VITE_TURN_SERVER_CREDENTIAL"
+        },
+        "Note": "TURN is optional. If disabled, the app uses STUN only."
+      },
+      "SecureContext": {
+        "Title": "Secure context for WebRTC",
+        "Body": "Browsers require HTTPS for certain WebRTC/media capabilities when not on localhost. The Vite dev server is set up with HTTPS using local cert files."
+      }
+    },
+
+    "DeployCards": {
+      "Build": {
+        "Title": "Build",
+        "Body": "The repo builds a Go binary and a static web bundle.",
+        "ServerBinary": "Server binary: server/bin/server",
+        "WebAssets": "Web assets: web/dist"
+      },
+      "Spa": {
+        "Title": "Serving the SPA",
+        "Body": "The Go server serves the SPA from web/dist and falls back to index.html for client-side routes."
+      },
+      "Health": {
+        "Title": "Health checks",
+        "Body": "/health returns OK and is used by platforms like Render."
+      }
+    },
+
+    "FaqItems": {
+      "Q1": {
+        "Q": "Do I need an account?",
+        "A": "No. The current model issues a short-lived token on sign-in and lets you join rooms without user registration."
+      },
+      "Q2": {
+        "Q": "Is this end-to-end encrypted?",
+        "A": "Chat messages can be client-side encrypted. The current key derivation is room-id based (simple/dev approach) and will evolve toward a safer key exchange."
+      },
+      "Q3": {
+        "Q": "Why do calls fail on some networks?",
+        "A": "Some NAT/firewall setups require TURN. You can enable TURN in env, but a robust production TURN setup is still part of the roadmap."
+      },
+      "Q4": {
+        "Q": "Why cap the room size / peer connections?",
+        "A": "Mesh WebRTC grows quadratically with participants. The cap avoids melting CPUs and uplinks."
+      }
+    },
+
+    "Footer": {
+      "Title": "Want to help shape the roadmap?",
+      "Subtitle": "Iterate on UX, encryption, and WebRTC features.",
+      "Repo": "Repo",
+      "WebRTCNotes": "WebRTC notes",
+      "BackToHome": "Back to Home"
+    }
   }
 }
