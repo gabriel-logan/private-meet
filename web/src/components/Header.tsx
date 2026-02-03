@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router";
 import { motion } from "motion/react";
 
 import { useUserStore } from "../stores/userStore";
+import type { Locale } from "../types";
 import { resources } from "../utils/i18n";
 
 type AnyRecord = Record<string, unknown>;
@@ -27,7 +28,10 @@ function flattenStrings(obj: AnyRecord, prefix = ""): Record<string, string> {
 }
 
 const enFlat = flattenStrings(resources.en.translation as AnyRecord);
+const deFlat = flattenStrings(resources.de.translation as AnyRecord);
+const jaFlat = flattenStrings(resources.ja.translation as AnyRecord);
 const ptFlat = flattenStrings(resources.pt.translation as AnyRecord);
+const zhFlat = flattenStrings(resources.zh.translation as AnyRecord);
 
 const totalEnKeys = Object.keys(enFlat).length;
 
@@ -91,16 +95,20 @@ export default function Header() {
             <select
               value={locale}
               onChange={(e) => {
-                const newLocale = e.target.value as "en" | "pt";
+                const newLocale = e.target.value as Locale;
 
                 i18n.changeLanguage(newLocale);
+
                 setLocale(newLocale);
               }}
               className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-100 transition outline-none focus:ring-1 focus:ring-indigo-500/50"
               aria-label={t("Header.ChangeLanguage")}
             >
               <option value="en">English (100%)</option>
+              <option value="de">Deutsch ({lngCoveragePct(deFlat)}%)</option>
+              <option value="ja">日本語 ({lngCoveragePct(jaFlat)}%)</option>
               <option value="pt">Português ({lngCoveragePct(ptFlat)}%)</option>
+              <option value="zh">中文 ({lngCoveragePct(zhFlat)}%)</option>
             </select>
           </div>
           {navLinks.map((link) => (

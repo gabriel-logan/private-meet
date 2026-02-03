@@ -2,20 +2,20 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import { userStorageKey } from "../constants";
-import type { locale } from "../types";
+import type { Locale } from "../types";
 
 interface UserStore {
-  locale: locale;
+  locale: Locale;
   isLoading: boolean;
 
-  setLocale: (locale: locale) => void;
+  setLocale: (locale: Locale) => void;
   setIsLoading: (isLoading: boolean) => void;
 }
 
 export const useUserStore = create<UserStore>()(
   persist(
     (set) => ({
-      locale: (globalThis.navigator.language as locale) || "en",
+      locale: (globalThis.navigator.language as Locale) || "en",
       isLoading: false,
 
       setLocale: (locale) =>
