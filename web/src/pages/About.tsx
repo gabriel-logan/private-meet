@@ -24,7 +24,7 @@ const roadmapCards = [
   {
     title: "Better E2EE key exchange (next)",
     description:
-      "Today E2EE uses a simple room-based secret. Next step is a safer key exchange and UX for shared secrets.",
+      "Today E2EE is passphrase-based (shared secret). Next step is a safer key agreement / exchange + better UX so users don't have to manually coordinate secrets.",
     icon: FiLock,
   },
   {
@@ -62,7 +62,7 @@ const currentCards = [
   {
     title: "Client-side encrypted chat (E2EE)",
     description:
-      "Chat messages can be encrypted client-side using the Web Crypto API (current key setup is simple and will be improved).",
+      "Chat messages are end-to-end encrypted in the browser when participants choose the same passphrase (Web Crypto API). The server only relays encrypted payloads.",
     icon: FiLock,
   },
   {
@@ -114,9 +114,9 @@ const securityCards = [
     icon: FiLock,
   },
   {
-    title: "Current key model (simple by design)",
+    title: "Current key model (passphrase-based)",
     description:
-      "Right now the encryption key is derived from the room id (PBKDF2). This is a pragmatic/dev approach and will be upgraded to a safer key exchange + UX.",
+      "A key is derived locally from the passphrase using PBKDF2 (salted with the room id). Everyone in the room must use the same passphrase to decrypt messages.",
     icon: FiShield,
   },
   {
@@ -509,9 +509,9 @@ export default function AboutPage() {
                 </h3>
                 <p className="mt-1 text-sm leading-relaxed text-zinc-300">
                   Private Meet is privacy-first, but it is still evolving.
-                  Today&apos;s E2EE setup is intentionally simple (room-id
-                  derived secret) and is not positioned as a mature, audited
-                  secure messaging protocol.
+                  Today&apos;s E2EE setup is intentionally simple (shared
+                  passphrase + local key derivation) and is not positioned as a
+                  mature, audited secure messaging protocol.
                 </p>
               </div>
             </div>

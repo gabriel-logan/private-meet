@@ -60,3 +60,7 @@ pnpm preview
 
 - WebRTC connectivity depends on STUN/TURN and network conditions.
 - Image sharing in chat uses a WebRTC `RTCDataChannel` (images only).
+- Chat messages support E2EE via a shared passphrase (optional).
+  - Participants must enter the same passphrase to decrypt messages.
+  - The passphrase is kept client-side (not sent to the server).
+  - The passphrase is stored in-memory (not persisted). Refreshing the page may require re-entering it.

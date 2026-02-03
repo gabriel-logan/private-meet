@@ -27,6 +27,14 @@ Current stack (high level): Go + WebSocket/WebRTC signaling (server), React + Ty
 
 - [MDN: Web Crypto API](https://developer.mozilla.org/docs/Web/API/Web_Crypto_API)
 - [AES-GCM (MDN)](https://developer.mozilla.org/docs/Web/API/SubtleCrypto/encrypt)
+- [PBKDF2 (MDN)](https://developer.mozilla.org/docs/Web/API/SubtleCrypto/deriveKey)
+
+Notes (Private Meet):
+
+- Chat E2EE is **passphrase-based**: participants enter the same passphrase when joining a room.
+- The passphrase is never sent to the server; a key is derived locally in the browser.
+- The passphrase is stored in-memory (not persisted across refresh by default).
+- If a user joins with the wrong passphrase, they can still connect, but they won't be able to decrypt protected messages.
 
 ## React + TypeScript + Vite
 
@@ -65,6 +73,7 @@ Current stack (high level): Go + WebSocket/WebRTC signaling (server), React + Ty
 - Private Meet uses WebSocket for room events (presence/typing/chat) and WebRTC signaling.
 - Media (voice/video/screen share) flows peer-to-peer via WebRTC.
 - Images in chat are transferred peer-to-peer via an RTCDataChannel (images only).
+- Chat text is end-to-end encrypted when participants use the same passphrase.
 
 ## Presentation
 

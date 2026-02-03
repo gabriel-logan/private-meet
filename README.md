@@ -23,10 +23,23 @@ We are using free instances, so performance may vary.
 - No accounts required — create or join a room instantly.
 - Real-time text chat + typing indicators + presence.
 - Client-side encrypted chat messages (E2EE) using the Web Crypto API.
-   - Note: the current key is derived from the room id (simple/dev approach).
+   - **E2EE is enabled by choosing a shared passphrase** when joining a room.
+   - All participants must use the same passphrase to read each other's messages.
+   - The passphrase is never sent to the server (it stays in the browser).
+   - If you leave it blank, the app falls back to using the Room ID as the passphrase (convenient, but **not recommended** for security).
 - WebRTC mesh for voice, video, and screen sharing.
 - Image sharing in chat via WebRTC data channel (images only).
    - Sending is enabled only after WebRTC is connected with all peers in the room.
+
+### Using E2EE (Passphrase)
+
+1. Choose a strong passphrase and share it out-of-band with participants.
+2. Join the same Room ID and enter the same passphrase.
+3. If the passphrase doesn't match, messages will show as protected and won't decrypt.
+
+Important:
+
+- The passphrase is stored in-memory in the browser. If you refresh the page, open a new tab, or lose state, you may need to re-enter it before joining again.
 
 Limitations (current)
 
@@ -134,6 +147,17 @@ make test
 - Endpoint: `GET /ws?token=<jwt>`
 - The WS connection requires a valid JWT (issued by `/auth/sign-in`).
 - Payloads are JSON messages with shape `{ type, room?, data, from? }`.
+
+#### Chat encryption (E2EE)
+
+- Chat messages (`chat.message`) are sent as an **opaque encrypted envelope** (clients encrypt/decrypt).
+- The server does not decrypt messages; it only relays them.
+- If a participant joins with a different passphrase, they'll see protected messages that fail to decrypt.
+
+Security note:
+
+- E2EE confidentiality depends on the passphrase being secret and shared out-of-band.
+- Using the Room ID as a passphrase makes it possible for anyone who knows/guesses the Room ID to decrypt messages.
 
 Current message types include:
 
