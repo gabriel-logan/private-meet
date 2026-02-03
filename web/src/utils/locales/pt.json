@@ -10,5 +10,423 @@
     "Home": "Home",
     "About": "Sobre",
     "ChangeLanguage": "Mudar idioma"
+  },
+
+  "Footer": {
+    "PrivacyPolicy": "Política de Privacidade",
+    "TermsOfService": "Termos de Serviço",
+    "ContactUs": "Contate-Nos",
+    "GithubRepository": "Repositório GitHub",
+    "CreatedBy": "Criado por Gabriel Logan"
+  },
+
+  "Loading": {
+    "LoadingDotDotDot": "Carregando..."
+  },
+
+  "Errors": {
+    "AnErrorOccurred": "Ocorreu um erro.",
+    "AnErrorOccurredWithMessage": "Ocorreu um erro: {{message}}",
+    "SomethingWentWrong": "Algo deu errado.",
+    "FailedToCreateUser": "Falha ao criar usuário.",
+    "PleaseEnterRoomID": "Por favor, insira um ID de sala.",
+    "RoomIDIsTooLong": "O ID da sala é muito longo (o máximo é {{maxRoomIDLength}} caracteres).",
+    "ErrorProcessingServerMessage": "Erro ao processar mensagem do servidor.",
+    "AudioTrackNotReady": "Faixa de áudio não está pronta.",
+    "VideoTrackNotReady": "Faixa de vídeo não está pronta.",
+    "OnlyImageFilesAllowed": "Apenas arquivos de imagem são permitidos.",
+    "NoPeersInRoom": "Nenhum participante na sala.",
+    "WebRTCNotFullyConnectedWithAllPeers": "WebRTC não está totalmente conectado com todos os participantes.",
+    "NoCameraTrackAvailable": "Nenhuma faixa de câmera disponível.",
+    "NoMicrophoneTrackAvailable": "Nenhuma faixa de microfone disponível.",
+    "NoScreenShareTrackAvailable": "Nenhuma faixa de compartilhamento de tela disponível.",
+    "MissingRoomID": "ID da sala ausente.",
+    "RefusingToCreatePeerConnToSelf": "Recusando criar conexão peer para si mesmo.",
+    "MaxPeerConnectionsReached": "Número máximo de conexões peer atingido ({{maxPeerConnections}}).",
+    "UseWebRTCMeshFailedToGetUserMediaAudioWhileCreatingPeer": "[useWebRTCMesh] Falha ao obter getUserMedia(audio) ao criar peer.",
+    "FailedToRevokeObjectURL": "Falha ao revogar URL do objeto.",
+    "FailedToInitE2EE": "Falha ao inicializar E2EE.",
+    "WsIsNotConnected": "WebSocket não está conectado.",
+    "NotConnectedYetTryAgainInASecond": "Ainda não conectado. Tente novamente em um segundo.",
+    "WsConnFailed": "Falha na conexão WebSocket.",
+    "WsInstanceIsNotInitialized": "Instância WebSocket não está inicializada.",
+    "FailedToConnectToWsServer": "Falha ao conectar ao WebSocket.",
+    "FailedToAccessCamera": "Falha ao acessar a câmera.",
+    "FailedToAccessMicrophone": "Falha ao acessar o microfone.",
+    "NoOneInTheRoomToReceiveMessage": "Nenhum outro participante na sala para receber sua mensagem.",
+    "PleaseEnterAMessage": "Por favor, insira uma mensagem.",
+    "EnryptionNotReadyYet": "A criptografia ainda não está pronta.",
+    "FailedToSendEncryptedMessage": "Falha ao enviar mensagem criptografada.",
+    "NoOneInTheRoomToSendFile": "Nenhum outro participante na sala para enviar seu arquivo.",
+    "ImageSendingIsOnlyAllowedAfterWebRTCIsConnected": "O envio de imagens só está disponível após o WebRTC estar conectado com todos na sala.",
+    "OnlyImagesAreSupportedForNow": "Apenas imagens são suportadas por enquanto.",
+    "ImageTooLarge": "Imagem muito grande (máximo {{maxImageSizeMB}}MB por enquanto).",
+    "FailedToSendImageOverWebRTC": "Falha ao enviar imagem via WebRTC.",
+    "PleaseCreateAUserFirst": "Por favor, crie um usuário primeiro.",
+    "InvalidRoom": "Sala inválida.",
+    "ConnectingDotDotDotTryAgainInAMoment": "Conectando... Tente novamente em um momento.",
+    "E2EENotConfiguredWhenSendMSG": "[Mensagem protegida: E2EE não configurado]",
+    "E2EECanNotDecryptMessage": "[Mensagem protegida: Incapaz de descriptografar]",
+    "UnknownError": "Erro desconhecido.",
+    "UnknownErrorFromServer": "Erro desconhecido do servidor."
+  },
+
+  "NotFound": {
+    "PageNotFoundTitle": "404 - Página Não Encontrada",
+    "PageNotFoundMessage": "A página que você está procurando não existe."
+  },
+
+  "Infos": {
+    "UserDeletedSuccessfully": "Usuário excluído. Por favor, crie um novo usuário para continuar.",
+    "UserIsTypingDotDotDot": "{{username}} está digitando...",
+    "TwoUsersAreTypingDotDotDot": "{{username1}} e {{username2}} estão digitando...",
+    "MultipleUsersAreTypingDotDotDot": "{{username1}}, {{username2}} e mais {{count}} estão digitando..."
+  },
+
+  "Success": {
+    "UserCreated": "Usuário criado com sucesso!",
+    "RoomIDGenerated": "Novo ID da sala gerado!"
+  },
+
+  "JoinMeeting": {
+    "RoomID": "ID da sala",
+    "EnterRoomID": "Insira o ID da sala",
+    "Passphrase": "Senha",
+    "EnterPassphrase": "Insira a senha (opcional)",
+    "PText1": "Comprimento máximo: {{maxRoomIDLength}} caracteres. Tanto o ID da sala quanto a senha.",
+    "PText2": "A senha é usada para criptografar suas mensagens de ponta a ponta. Se você deixá-la em branco, o ID da sala será usado como senha. É altamente recomendado usar uma senha para melhor segurança. Todos os usuários na sala devem usar a mesma senha para se comunicarem com segurança, caso contrário, não poderão ler as mensagens uns dos outros.",
+    "JoinRoomButton": "Entrar na sala",
+    "GenerateNewRoomIDButton": "Gerar ID de sala seguro aleatório",
+    "DeleteUserButton": "Excluir usuário"
+  },
+
+  "Chat": {
+    "MeetingRoom": "Sala de Reunião",
+    "AudioStartsOn": "Áudio inicia em.",
+    "EnableCameraOrShareScreen": "Ativar câmera ou compartilhar tela.",
+    "Users": "Usuários",
+    "Connected": "Conectado",
+    "ConnectingDotDotDot": "Conectando...",
+    "Online": "Online",
+    "Idle": "Ocioso",
+    "Stage": "Palco",
+    "RoomColon": "Sala: ",
+    "NoVideoYet": "Sem vídeo ainda.",
+    "TurnOnCameraOrShareScreen": "Ative a câmera ou compartilhe a tela para iniciar o vídeo.",
+    "Chat": "Chat",
+    "EnterToSend": "Pressione Enter para enviar",
+    "ShiftPlusEnterForNewLine": "Shift+Enter para nova linha",
+    "InvalidImageURL": "URL da imagem inválida.",
+    "InvalidText": "Texto inválido.",
+    "InvalidName": "Nome inválido.",
+    "Emojis": "Emojis",
+    "Close": "Fechar",
+    "Send": "Enviar",
+    "Message": "Mensagem",
+    "WriteAMessage": "Escreva uma mensagem...",
+    "InitializingEncryption": "Inicializando criptografia...",
+    "You": "Você",
+    "YouAudio": "Você (áudio)",
+    "YouScreen": "Você (tela)",
+    "MsgsAreSentViaWsE2EEEncryption": "As mensagens são enviadas via WebSocket. Criptografia de ponta a ponta.",
+    "AttachImage": "Anexar imagem",
+    "WaitingForWebRTCConn": "Aguardando conexões WebRTC ({{msg}})"
+  },
+
+  "About": {
+    "HeroTitle": "Reuniões privadas, atrito mínimo.",
+    "HeroDescription": "O Private Meet é uma experiência leve de bate-papo e reuniões em tempo real. Ele já oferece suporte a bate-papo criptografado no lado do cliente, mídia WebRTC e compartilhamento de imagens por meio de canais de dados WebRTC. O próximo passo é aprimorar a confiabilidade e refinar o modelo de privacidade.",
+
+    "OnThisPage": "Nesta página",
+    "OnThisPageLinks": {
+      "Today": "O que existe hoje",
+      "How": "Como funciona",
+      "Protocol": "API & protocolo WS",
+      "Security": "Segurança & privacidade",
+      "Limits": "Limites & compensações",
+      "Config": "Resumo da configuração",
+      "Deploy": "Notas de implantação",
+      "Faq": "FAQ"
+    },
+
+    "CtaGetStarted": "Começar",
+    "CtaOpenChat": "Abrir chat",
+
+    "Meta": {
+      "StackLabel": "Stack",
+      "StackValue": "React + WebSocket + WebRTC + Go",
+      "GoalLabel": "Objetivo",
+      "GoalValue": "Configurações padrão com foco na privacidade",
+      "RoadmapLabel": "Roteiro",
+      "RoadmapValue": "Melhor E2EE, efêmero, arquivos, confiabilidade"
+    },
+
+    "Sections": {
+      "Today": {
+        "Title": "O que existe hoje",
+        "Subtitle": "Esses recursos já estão disponíveis na versão atual."
+      },
+      "How": {
+        "Title": "Como funciona",
+        "Subtitle": "Uma visão prática das partes móveis e para onde os dados fluem."
+      },
+      "Protocol": {
+        "Title": "API & protocolo WS",
+        "Subtitle": "Endpoints, tipos de mensagens e o que esperar na transmissão."
+      },
+      "Security": {
+        "Title": "Segurança & privacidade (nível alto)",
+        "Subtitle": "O que o projeto faz hoje, e o que ele explicitamente ainda não promete."
+      },
+      "Limits": {
+        "Title": "Limites & compensações",
+        "Subtitle": "Restrições práticas que importam no uso real."
+      },
+      "Config": {
+        "Title": "Resumo da configuração",
+        "Subtitle": "Modelo mental rápido para o .env raiz usado pelo servidor + web."
+      },
+      "Deploy": {
+        "Title": "Notas de implantação",
+        "Subtitle": "Como é um deploy de produção para este repositório hoje."
+      },
+      "Faq": {
+        "Title": "FAQ",
+        "Subtitle": "Respostas rápidas para as perguntas mais comuns."
+      }
+    },
+
+    "CurrentCards": {
+      "Rooms": {
+        "Title": "Salas + chat de texto em tempo real",
+        "Description": "Entre em uma sala e troque mensagens em tempo real via WebSocket com uma interface responsiva."
+      },
+      "Presence": {
+        "Title": "Presença + digitação",
+        "Description": "Veja quem está online na sala e quando alguém está digitando."
+      },
+      "E2EE": {
+        "Title": "Chat criptografado no lado do cliente (E2EE)",
+        "Description": "As mensagens do chat são criptografadas de ponta a ponta no navegador quando os participantes escolhem a mesma frase secreta (Web Crypto API). O servidor apenas retransmite os dados criptografados."
+      },
+      "WebRTC": {
+        "Title": "Compartilhamento de voz/vídeo/tela via WebRTC",
+        "Description": "Mídia peer-to-peer com WebRTC (mesh). A sinalização é feita via WebSocket (atualmente limitada a ~8 conexões peer por cliente)."
+      },
+      "Images": {
+        "Title": "Compartilhamento de imagens (canal de dados WebRTC)",
+        "Description": "Envie imagens diretamente peer-to-peer no chat. O envio é habilitado apenas quando o WebRTC está conectado com todos os peers na sala."
+      }
+    },
+
+    "HowItWorksCards": {
+      "Auth": {
+        "Title": "Entrar → JWT → WebSocket",
+        "Description": "Os clientes obtêm um token de acesso de /auth/sign-in e o usam para se conectar a /ws?token=<jwt>. Eventos da sala e sinalização WebRTC viajam por este socket."
+      },
+      "RoomState": {
+        "Title": "O estado da sala é controlado pelo servidor",
+        "Description": "O servidor é a única fonte de verdade para a associação à sala. Os clientes entram/saem das salas e o servidor transmite um instantâneo de room.users."
+      },
+      "Media": {
+        "Title": "Mídia peer-to-peer",
+        "Description": "O compartilhamento de voz/vídeo/tela acontece diretamente entre os peers via WebRTC. O servidor apenas retransmite a sinalização (SDP + ICE)."
+      },
+      "Images": {
+        "Title": "Imagens via RTCDataChannel",
+        "Description": "As imagens são compartilhadas peer-to-peer usando um canal de dados WebRTC (apenas imagens). A interface bloqueia o envio até que os peers estejam conectados."
+      }
+    },
+
+    "HighLevelFlow": {
+      "Title": "Fluxo de alto nível",
+      "Steps": {
+        "Step1": "1) Entrar → receber JWT",
+        "Step2": "2) Conectar ao WebSocket com o JWT",
+        "Step3": "3) Entrar em uma sala → receber um instantâneo de room.users",
+        "Step4": "4) Eventos de chat/digitação via WS",
+        "Step5": "5) Oferta/resposta/ICE do WebRTC trocados via WS",
+        "Step6": "6) Mídia + transferência de imagens acontece peer-to-peer"
+      }
+    },
+
+    "Roadmap": {
+      "Title": "Para onde isso está indo",
+      "Subtitle": "Os próximos marcos para transformar isso em uma experiência de reunião totalmente privada.",
+      "Cards": {
+        "E2EE": {
+          "Title": "Melhor troca de chave E2EE (próximo)",
+          "Description": "Hoje, o E2EE é baseado em frase secreta (segredo compartilhado). O próximo passo é um acordo/troca de chave mais seguro + melhor UX para que os usuários não precisem coordenar manualmente os segredos."
+        },
+        "Ephemeral": {
+          "Title": "Mensagens temporárias (próximo)",
+          "Description": "Mensagens efêmeras com políticas de expiração para que os chats não durem para sempre por padrão."
+        },
+        "Files": {
+          "Title": "Mais tipos de arquivos (próximo)",
+          "Description": "Generalizar o compartilhamento de arquivos além de imagens, com limites claros, pré-visualizações e padrões de privacidade em primeiro lugar."
+        },
+        "Turn": {
+          "Title": "TURN + confiabilidade (próximo)",
+          "Description": "O TURN pode ser habilitado no cliente web via configuração de ambiente, mas o próximo passo é uma configuração TURN de nível de produção + melhores diagnósticos e UX para redes não confiáveis."
+        }
+      }
+    },
+
+    "ProtocolCards": {
+      "Rest": {
+        "Title": "REST",
+        "GetHealth": "GET /health → OK",
+        "PostSignIn": "POST /auth/sign-in",
+        "Note": "/auth/sign-in retorna um token de acesso usado para autenticação WS."
+      },
+      "WebSocket": {
+        "Title": "WebSocket",
+        "Description": "Conecte-se a /ws com um token de consulta. As mensagens são JSON com tipo, sala opcional e dados.",
+        "Note": "No desenvolvimento, as verificações de origem são permissivas; em produção, a Origem deve corresponder a ALLOWED_ORIGIN."
+      },
+      "MessageTypes": {
+        "Title": "Tipos de mensagem WS",
+        "Types": {
+          "T1": "chat.join / chat.leave",
+          "T2": "chat.message / chat.typing",
+          "T3": "room.users (server snapshot)",
+          "T4": "utils.generateRoomID",
+          "T5": "webrtc.offer / webrtc.answer",
+          "T6": "webrtc.iceCandidate"
+        },
+        "Note": "As definições de tipo do frontend são o melhor lugar para explorar o esquema."
+      }
+    },
+
+    "SecurityCards": {
+      "E2EE": {
+        "Title": "E2EE para chat (lado do cliente)",
+        "Description": "As mensagens podem ser criptografadas no navegador usando a Web Crypto API (AES-GCM). O servidor retransmite cargas criptografadas sem precisar descriptografar."
+      },
+      "KeyModel": {
+        "Title": "Modelo de chave atual (baseado em frase secreta)",
+        "Description": "Uma chave é derivada localmente da frase secreta usando PBKDF2 (com sal baseado no ID da sala). Todos na sala devem usar a mesma frase secreta para descriptografar as mensagens."
+      },
+      "Auth": {
+        "Title": "Limite de autenticação",
+        "Description": "As conexões WebSocket exigem um JWT válido. Em produção, o servidor valida a Origem WS contra ALLOWED_ORIGIN."
+      }
+    },
+
+    "ImportantNote": {
+      "Title": "Nota importante",
+      "Body": "Private Meet é focado em privacidade, mas ainda está em evolução. A configuração E2EE atual é intencionalmente simples (frase secreta compartilhada + derivação local de chave) e não é posicionada como um protocolo de mensagens seguro maduro e auditado.",
+      "Footer": "Nota: Private Meet ainda está em evolução. Algumas melhorias de privacidade e confiabilidade estão planejadas."
+    },
+
+    "TradeoffsCards": {
+      "Mesh": {
+        "Title": "Escalabilidade Mesh",
+        "Description": "A malha WebRTC significa que cada participante se conecta a todos os outros participantes. Isso é limitado no cliente (~8 pares) para manter a CPU/largura de banda gerenciável."
+      },
+      "Nat": {
+        "Title": "Travessia NAT",
+        "Description": "Sem TURN, algumas redes/NATs não se conectam de forma confiável. O TURN pode ser configurado em variáveis de ambiente; TURN de nível de produção é um item do roteiro."
+      },
+      "Backpressure": {
+        "Title": "Backpressure + robustez",
+        "Description": "O servidor aplica backpressure e pode descartar mensagens se estiver sobrecarregado para manter as conexões responsivas. Os clientes podem tentar reconectar WS."
+      }
+    },
+
+    "Caps": {
+      "Client": {
+        "Title": "Capacidades atuais (cliente)",
+        "MsgCap": "Limite de UI de mensagem: 1500 caracteres",
+        "WebRtcPeers": "Pares WebRTC: ~8",
+        "ImageSize": "Tamanho da imagem: 12MB"
+      },
+      "Server": {
+        "Title": "Capacidades atuais (servidor)",
+        "RoomId": "Comprimento do ID da sala: até 128 caracteres",
+        "ChatPayload": "Carga útil do chat: até 5000 runas",
+        "WsRead": "Limite de leitura WS: 64KB por mensagem"
+      },
+      "Expect": {
+        "Title": "O que esperar",
+        "Body": "Salas pequenas funcionam melhor. Para salas maiores ou redes hostis, TURN e/ou uma arquitetura SFU são os próximos passos típicos."
+      }
+    },
+
+    "ConfigCards": {
+      "Backend": {
+        "Title": "Backend (.env)",
+        "Vars": {
+          "V1": "GO_ENV (development / production)",
+          "V2": "USE_LOCAL_TLS (true / false)",
+          "V3": "SERVER_PORT",
+          "V4": "ALLOWED_ORIGIN",
+          "V5": "JWT_SECRET + JWT_EXPIRATION",
+          "V6": "CONTEXT_TIMEOUT"
+        },
+        "Note": "O servidor carrega ../.env relativo a server/."
+      },
+      "Web": {
+        "Title": "Web (Vite)",
+        "Vars": {
+          "V1": "VITE_HTTP_API_URL",
+          "V2": "VITE_WS_API_URL",
+          "V3": "VITE_HAS_TURN_SERVER",
+          "V4": "VITE_TURN_SERVER_URL",
+          "V5": "VITE_TURN_SERVER_USERNAME",
+          "V6": "VITE_TURN_SERVER_CREDENTIAL"
+        },
+        "Note": "TURN é opcional. Se desativado, o aplicativo usa apenas STUN."
+      },
+      "SecureContext": {
+        "Title": "Contexto seguro para WebRTC",
+        "Body": "Os navegadores exigem HTTPS para certas capacidades WebRTC/mídia quando não estão no localhost. O servidor de desenvolvimento Vite está configurado com HTTPS usando arquivos de certificado local."
+      }
+    },
+
+    "DeployCards": {
+      "Build": {
+        "Title": "Build",
+        "Body": "O repositório compila um binário Go e um pacote web estático.",
+        "ServerBinary": "Binário do servidor: server/bin/server",
+        "WebAssets": "Recursos web: web/dist"
+      },
+      "Spa": {
+        "Title": "Servindo o SPA",
+        "Body": "O servidor Go serve o SPA de web/dist e recua para index.html para rotas do lado do cliente."
+      },
+      "Health": {
+        "Title": "Verificações de integridade",
+        "Body": "/health retorna OK e é usado por plataformas como Render."
+      }
+    },
+
+    "FaqItems": {
+      "Q1": {
+        "Q": "Preciso de uma conta?",
+        "A": "Não. O modelo atual emite um token de curta duração ao entrar e permite que você entre em salas sem registro de usuário."
+      },
+      "Q2": {
+        "Q": "Isso é criptografado de ponta a ponta?",
+        "A": "As mensagens de chat podem ser criptografadas no lado do cliente. A derivação de chave atual é baseada no ID da sala (abordagem simples/dev) e evoluirá para uma troca de chave mais segura."
+      },
+      "Q3": {
+        "Q": "Por que as chamadas falham em algumas redes?",
+        "A": "Algumas configurações de NAT/firewall exigem TURN. Você pode ativar TURN no env, mas uma configuração robusta de TURN para produção ainda faz parte do roteiro."
+      },
+      "Q4": {
+        "Q": "Por que limitar o tamanho da sala / conexões de pares?",
+        "A": "Mesh WebRTC cresce quadraticamente com os participantes. O limite evita sobrecarregar CPUs e uplinks."
+      }
+    },
+
+    "Footer": {
+      "Title": "Quer ajudar a moldar o roteiro?",
+      "Subtitle": "Iterar sobre UX, criptografia e recursos WebRTC.",
+      "Repo": "Repositório",
+      "WebRTCNotes": "Notas do WebRTC",
+      "BackToHome": "Voltar para Início"
+    }
   }
 }
