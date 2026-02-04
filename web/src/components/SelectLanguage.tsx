@@ -74,11 +74,11 @@ export default function SelectLanguage({
       }}
       className={className}
     >
-      <option value="en">English (100%)</option>
-      <option value="de">Deutsch ({lngCoveragePct(deFlat)}%)</option>
-      <option value="ja">日本語 ({lngCoveragePct(jaFlat)}%)</option>
-      <option value="pt">Português ({lngCoveragePct(ptFlat)}%)</option>
-      <option value="zh">中文 ({lngCoveragePct(zhFlat)}%)</option>
+      <option value="en">EN - English (100%)</option>
+      <option value="de">DE - Deutsch ({lngCoveragePct(deFlat)}%)</option>
+      <option value="ja">JA - 日本語 ({lngCoveragePct(jaFlat)}%)</option>
+      <option value="pt">PT - Português ({lngCoveragePct(ptFlat)}%)</option>
+      <option value="zh">ZH - 中文 ({lngCoveragePct(zhFlat)}%)</option>
     </select>
   );
 }
