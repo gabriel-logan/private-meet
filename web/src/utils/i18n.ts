@@ -18,19 +18,16 @@ export const resources = {
 
 const language = useUserStore.getState().locale;
 
-const normalizedLanguage = language.split("-")[0];
-
-if (!Object.keys(resources).includes(normalizedLanguage)) {
+if (!Object.keys(resources).includes(language)) {
   console.warn(`Unsupported language "${language}", falling back to "en".`);
 }
 
 console.log("i18n language:", language);
-console.log("i18n normalized language:", normalizedLanguage);
 
 i18next.use(initReactI18next).init({
   resources,
 
-  lng: normalizedLanguage,
+  lng: language,
 
   fallbackLng: "en",
 
