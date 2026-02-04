@@ -4,7 +4,7 @@ import { persist } from "zustand/middleware";
 import { userStorageKey } from "../constants";
 import type { Locale } from "../types";
 
-function safeLocale(locale: Locale): Locale {
+function safeLocale(locale: string): Locale {
   return locale.split("-")[0] as Locale;
 }
 
@@ -19,7 +19,7 @@ interface UserStore {
 export const useUserStore = create<UserStore>()(
   persist(
     (set) => ({
-      locale: safeLocale(globalThis.navigator.language as Locale) || "en",
+      locale: safeLocale(globalThis.navigator.language) || "en",
       isLoading: false,
 
       setLocale: (locale) =>
