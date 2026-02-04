@@ -1,4 +1,5 @@
 import { type ReactElement, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ToastContainer } from "react-toastify";
 
 import ErrorPage from "./components/Error";
@@ -8,6 +9,8 @@ import Router from "./Router";
 import { useAuthStore } from "./stores/authStore";
 
 export default function App() {
+  const { t } = useTranslation();
+
   const accessToken = useAuthStore((state) => state.accessToken);
 
   const [ready, setReady] = useState(false);
@@ -67,7 +70,7 @@ export default function App() {
 
   if (accessToken) {
     if (error) {
-      content = <ErrorPage message="Failed to connect to WebSocket." />;
+      content = <ErrorPage message={t("Errors.FailedToConnectToWsServer")} />;
     } else if (ready) {
       content = <Router />;
     } else {
@@ -79,6 +82,7 @@ export default function App() {
 
   return (
     <>
+      <title>{t("SEO.Title")}</title>
       <ToastContainer autoClose={3000} />
       {content}
     </>
