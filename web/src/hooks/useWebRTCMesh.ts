@@ -228,7 +228,9 @@ export default function useWebRTCMesh({
 
       try {
         const offer = await createOffer(pc);
+
         const sdp = pc.localDescription?.sdp ?? offer.sdp;
+
         if (!sdp) {
           return;
         }
@@ -356,6 +358,7 @@ export default function useWebRTCMesh({
               }
 
               const blob = new Blob(transfer.chunks, { type: transfer.mime });
+
               const url = URL.createObjectURL(blob);
 
               onImageReceivedRef.current?.({
@@ -457,6 +460,7 @@ export default function useWebRTCMesh({
       }
 
       const expected = roomUserIdsRef.current;
+
       if (expected.size === 0) {
         throw new Error(t("Errors.NoPeersInRoom"));
       }
@@ -465,6 +469,7 @@ export default function useWebRTCMesh({
 
       for (const peerID of expected) {
         const entry = peersRef.current.get(peerID);
+
         const ch = entry?.fileChannel;
 
         if (
@@ -502,11 +507,14 @@ export default function useWebRTCMesh({
 
       while (offset < file.size) {
         const slice = file.slice(offset, offset + webRTCImageChunkSizeBytes);
+
         const buf = await slice.arrayBuffer();
 
         for (const peerID of expected) {
           const ch = peersRef.current.get(peerID)!.fileChannel!;
+
           await waitForBufferedLow(ch);
+
           ch.send(buf);
         }
 
@@ -514,6 +522,7 @@ export default function useWebRTCMesh({
       }
 
       const endMsg = JSON.stringify({ t: "img-end", id: transferId });
+
       for (const peerID of expected) {
         peersRef.current.get(peerID)!.fileChannel!.send(endMsg);
       }
@@ -743,6 +752,7 @@ export default function useWebRTCMesh({
       }
 
       peersRef.current.delete(peerID);
+
       incomingTransfersRef.current.delete(peerID);
 
       bumpRender((v) => v + 1);
@@ -774,10 +784,12 @@ export default function useWebRTCMesh({
       }
 
       const pending = creatingPeersRef.current.get(peerID);
+
       if (pending) {
         console.log(
           `[useWebRTCMesh] Peer ${peerID} already being created, waiting`,
         );
+
         return pending;
       }
 
@@ -790,6 +802,7 @@ export default function useWebRTCMesh({
       }
 
       const totalPeers = peersRef.current.size + creatingPeersRef.current.size;
+
       if (totalPeers >= webRTCMaxPeerConnections) {
         throw new Error(
           t("Errors.MaxPeerConnectionsReached", {
@@ -839,6 +852,7 @@ export default function useWebRTCMesh({
 
         pc.ondatachannel = (event) => {
           const ch = event.channel;
+
           if (ch?.label !== webRTCFileChannelLabel) {
             return;
           }
@@ -959,6 +973,7 @@ export default function useWebRTCMesh({
       }
 
       const ids = new Set(users.map((u) => u.userID).filter(Boolean));
+
       ids.delete(myID);
 
       const userListKey = Array.from(ids)
@@ -969,6 +984,7 @@ export default function useWebRTCMesh({
         console.log(
           "[useWebRTCMesh] Ignoring duplicate syncPeersFromRoomUsers call",
         );
+
         return;
       }
 
@@ -989,6 +1005,7 @@ export default function useWebRTCMesh({
             console.log(
               `[useWebRTCMesh] Closing peer ${existingID} (left room)`,
             );
+
             closePeer(existingID);
           }
         }
@@ -1014,6 +1031,7 @@ export default function useWebRTCMesh({
     }
 
     const pending = entry.pendingIce;
+
     entry.pendingIce = [];
 
     for (const c of pending) {
@@ -1062,6 +1080,7 @@ export default function useWebRTCMesh({
         }
 
         const entry = await createPeer(from);
+
         const pc = entry.pc;
 
         if (msg.type === "webrtc.iceCandidate") {
@@ -1080,6 +1099,7 @@ export default function useWebRTCMesh({
         if (msg.type === "webrtc.offer") {
           const offerCollision =
             pc.signalingState !== "stable" || entry.makingOffer;
+
           entry.ignoreOffer = !entry.polite && offerCollision;
 
           if (entry.ignoreOffer) {
