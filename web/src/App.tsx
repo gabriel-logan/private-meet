@@ -5,11 +5,14 @@ import { ToastContainer } from "react-toastify";
 import ErrorPage from "./components/Error";
 import Loading from "./components/Loading";
 import useInitWsConn from "./hooks/useInitWsConn";
+import useLocalizedSeo from "./hooks/useLocalizedSeo";
 import Router from "./Router";
 import { useAuthStore } from "./stores/authStore";
 
 export default function App() {
   const { t } = useTranslation();
+
+  useLocalizedSeo();
 
   const accessToken = useAuthStore((state) => state.accessToken);
 
@@ -31,7 +34,6 @@ export default function App() {
 
   return (
     <>
-      <title>{t("SEO.Title")}</title>
       <ToastContainer autoClose={3000} />
       {content}
     </>
