@@ -6,6 +6,13 @@
   "EnterYourUsername": "ユーザー名を入力してください",
   "CreateUser": "ユーザーを作成",
 
+  "SEO": {
+    "Title": "Private Meet — プライベートチャット & WebRTCミーティング",
+    "Description": "Private Meet は、プライバシーを最優先にしたリアルタイムのチャットおよびミーティングアプリです。ロードマップには、エンドツーエンド暗号化された一時的なメッセージ、ファイル共有、WebRTC 音声・ビデオ通話が含まれています。",
+    "OgAndTwitterDescription": "プライバシー重視のリアルタイムチャット。ロードマップ:エンドツーエンド暗号化、消えるメッセージ、ファイル共有、WebRTC 音声・ビデオ通話。",
+    "NonScriptMsg": "このアプリを実行するには JavaScript を有効にする必要があります。"
+  },
+  
   "Header": {
     "Home": "ホーム",
     "About": "概要",

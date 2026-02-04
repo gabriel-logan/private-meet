@@ -6,6 +6,13 @@
   "EnterYourUsername": "Digite seu nome de usuário",
   "CreateUser": "Criar usuário",
 
+  "SEO": {
+    "Title": "Private Meet — Chat Privado & Reuniões WebRTC",
+    "Description": "Private Meet é um aplicativo de chat e reuniões em tempo real com foco em privacidade. O roadmap inclui mensagens temporárias com criptografia de ponta a ponta, compartilhamento de arquivos e chamadas de voz e vídeo via WebRTC.",
+    "OgAndTwitterDescription": "Chat em tempo real com foco em privacidade. Roadmap: criptografia de ponta a ponta, mensagens temporárias, compartilhamento de arquivos e chamadas de voz e vídeo via WebRTC.",
+    "NonScriptMsg": "Você precisa ativar o JavaScript para executar este aplicativo."
+  },
+  
   "Header": {
     "Home": "Home",
     "About": "Sobre",

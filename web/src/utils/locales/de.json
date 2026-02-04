@@ -6,6 +6,13 @@
   "EnterYourUsername": "Geben Sie Ihren Benutzernamen ein",
   "CreateUser": "Benutzer erstellen",
 
+  "SEO": {
+    "Title": "Private Meet — Privater Chat & WebRTC Meetings",
+    "Description": "Private Meet ist eine datenschutzorientierte App für Echtzeit-Chats und Meetings. Die Roadmap umfasst temporäre Ende-zu-Ende-verschlüsselte Nachrichten, Dateifreigabe sowie WebRTC-Sprach- und Videoanrufe.",
+    "OgAndTwitterDescription": "Datenschutzorientierter Echtzeit-Chat. Roadmap: Ende-zu-Ende-Verschlüsselung, vergängliche Nachrichten, Dateifreigabe sowie WebRTC-Sprach- und Videoanrufe.",
+    "NonScriptMsg": "Sie müssen JavaScript aktivieren, um diese App auszuführen."
+  },
+  
   "Header": {
     "Home": "Startseite",
     "About": "Über",

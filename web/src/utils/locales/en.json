@@ -6,6 +6,13 @@
   "EnterYourUsername": "Enter your username",
   "CreateUser": "Create User",
 
+  "SEO": {
+    "Title": "Private Meet — Private Chat & WebRTC Meetings",
+    "Description": "Private Meet is a privacy-first real-time chat and meeting app. Roadmap includes end-to-end encrypted temporary messages, file sharing, and WebRTC voice/video.",
+    "OgAndTwitterDescription": "Privacy-first real-time chat. Roadmap: end-to-end encryption, ephemeral messages, file sharing, and WebRTC voice/video.",
+    "NonScriptMsg": "You need to enable JavaScript to run this app."
+  },
+
   "Header": {
     "Home": "Home",
     "About": "About",

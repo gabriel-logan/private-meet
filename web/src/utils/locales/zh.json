@@ -6,6 +6,13 @@
   "EnterYourUsername": "请输入你的用户名",
   "CreateUser": "创建用户",
 
+  "SEO": {
+    "Title": "Private Meet — 私密聊天与 WebRTC 会议",
+    "Description": "Private Meet 是一款以隐私优先的实时聊天和会议应用。产品路线图包括端到端加密的临时消息、文件共享以及 WebRTC 语音和视频通话。",
+    "OgAndTwitterDescription": "以隐私为先的实时聊天。路线图:端到端加密、阅后即焚消息、文件共享，以及 WebRTC 语音和视频通话。",
+    "NonScriptMsg": "您需要启用 JavaScript 才能运行此应用。"
+  },
+  
   "Header": {
     "Home": "主页",
     "About": "关于",
