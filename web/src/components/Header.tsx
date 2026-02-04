@@ -4,61 +4,10 @@ import { FiGlobe, FiHome, FiInfo, FiMenu, FiX } from "react-icons/fi";
 import { Link, useLocation } from "react-router";
 import { AnimatePresence, motion } from "motion/react";
 
-import { useUserStore } from "../stores/userStore";
-import type { Locale } from "../types";
-import { resources } from "../utils/i18n";
-
-type AnyRecord = Record<string, unknown>;
-
-function flattenStrings(obj: AnyRecord, prefix = ""): Record<string, string> {
-  const out: Record<string, string> = {};
-
-  for (const [key, value] of Object.entries(obj)) {
-    const nextKey = prefix ? `${prefix}.${key}` : key;
-
-    if (typeof value === "string") {
-      out[nextKey] = value;
-      continue;
-    }
-
-    if (value && typeof value === "object" && !Array.isArray(value)) {
-      Object.assign(out, flattenStrings(value as AnyRecord, nextKey));
-    }
-  }
-
-  return out;
-}
-
-const enFlat = flattenStrings(resources.en.translation as AnyRecord);
-const deFlat = flattenStrings(resources.de.translation as AnyRecord);
-const jaFlat = flattenStrings(resources.ja.translation as AnyRecord);
-const ptFlat = flattenStrings(resources.pt.translation as AnyRecord);
-const zhFlat = flattenStrings(resources.zh.translation as AnyRecord);
-
-const totalEnKeys = Object.keys(enFlat).length;
-
-const lngCoveragePct = (lngFlat: AnyRecord) => {
-  if (totalEnKeys === 0) {
-    return 100;
-  }
-
-  let covered = 0;
-
-  for (const key of Object.keys(enFlat)) {
-    const v = lngFlat[key];
-
-    if (typeof v === "string" && v.trim().length > 0) {
-      covered++;
-    }
-  }
-
-  return Math.round((covered / totalEnKeys) * 100);
-};
+import SelectLanguage from "./SelectLanguage";
 
 export default function Header() {
-  const { t, i18n } = useTranslation();
-
-  const { locale, setLocale } = useUserStore();
+  const { t } = useTranslation();
 
   const location = useLocation();
 
@@ -101,23 +50,7 @@ export default function Header() {
         <nav className="hidden items-center gap-6 md:flex">
           <div className="flex items-center gap-2">
             <FiGlobe className="text-zinc-400" />
-            <select
-              value={locale}
-              onChange={(e) => {
-                const newLocale = e.target.value as Locale;
-
-                i18n.changeLanguage(newLocale);
-
-                setLocale(newLocale);
-              }}
-              className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-100 outline-none focus:ring-1 focus:ring-indigo-500/50"
-            >
-              <option value="en">English (100%)</option>
-              <option value="de">Deutsch ({lngCoveragePct(deFlat)}%)</option>
-              <option value="ja">日本語 ({lngCoveragePct(jaFlat)}%)</option>
-              <option value="pt">Português ({lngCoveragePct(ptFlat)}%)</option>
-              <option value="zh">中文 ({lngCoveragePct(zhFlat)}%)</option>
-            </select>
+            <SelectLanguage className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-100 outline-none focus:ring-1 focus:ring-indigo-500/50" />
           </div>
 
           {navLinks.map(({ href, name, icon: Icon }) => (
@@ -173,23 +106,7 @@ export default function Header() {
 
               <div className="mt-2 flex items-center gap-2">
                 <FiGlobe className="text-zinc-400" />
-                <select
-                  value={locale}
-                  onChange={(e) => {
-                    const newLocale = e.target.value as Locale;
-
-                    i18n.changeLanguage(newLocale);
-
-                    setLocale(newLocale);
-                  }}
-                  className="flex-1 rounded-md border border-zinc-800 bg-zinc-950 px-2 py-2 text-sm text-zinc-100 outline-none"
-                >
-                  <option value="en">English</option>
-                  <option value="de">Deutsch</option>
-                  <option value="ja">日本語</option>
-                  <option value="pt">Português</option>
-                  <option value="zh">中文</option>
-                </select>
+                <SelectLanguage className="flex-1 rounded-md border border-zinc-800 bg-zinc-950 px-2 py-2 text-sm text-zinc-100 outline-none" />
               </div>
             </div>
           </motion.nav>
