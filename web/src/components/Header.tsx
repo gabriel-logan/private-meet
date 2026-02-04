@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiGlobe, FiHome, FiInfo, FiMenu, FiX } from "react-icons/fi";
+import { FiHome, FiInfo, FiMenu, FiX } from "react-icons/fi";
 import { Link, useLocation } from "react-router";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -48,11 +48,6 @@ export default function Header() {
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          <div className="flex items-center gap-2">
-            <FiGlobe className="text-zinc-400" />
-            <SelectLanguage className="rounded-md border border-zinc-800 bg-zinc-950 px-2 py-1 text-xs text-zinc-100 outline-none focus:ring-1 focus:ring-indigo-500/50" />
-          </div>
-
           {navLinks.map(({ href, name, icon: Icon }) => (
             <Link
               key={href}
@@ -67,6 +62,10 @@ export default function Header() {
               {name}
             </Link>
           ))}
+
+          <div className="flex items-center gap-2">
+            <SelectLanguage className="rounded-md bg-zinc-950 px-2 py-1 text-xs text-zinc-100 outline-none focus:ring-1 focus:ring-indigo-500/50" />
+          </div>
         </nav>
 
         <button
@@ -105,8 +104,7 @@ export default function Header() {
               ))}
 
               <div className="mt-2 flex items-center gap-2">
-                <FiGlobe className="text-zinc-400" />
-                <SelectLanguage className="flex-1 rounded-md border border-zinc-800 bg-zinc-950 px-2 py-2 text-sm text-zinc-100 outline-none" />
+                <SelectLanguage className="flex-1 rounded-md bg-zinc-950 px-2 py-2 text-sm text-zinc-100 outline-none" />
               </div>
             </div>
           </motion.nav>
