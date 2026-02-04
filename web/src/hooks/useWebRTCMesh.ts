@@ -137,12 +137,7 @@ export default function useWebRTCMesh({
     Map<string, Map<string, IncomingImageTransfer>>
   >(new Map());
 
-  const [, setPeerReadiness] = useState<
-    Record<
-      string,
-      { pc: RTCPeerConnectionState; dc: RTCDataChannelState | null }
-    >
-  >({});
+  const [, bumpRender] = useState(0); // nosonar
 
   const [canSendImages, setCanSendImages] = useState(false);
   const [expectedPeersCount, setExpectedPeersCount] = useState(0);
@@ -299,13 +294,9 @@ export default function useWebRTCMesh({
       ch.binaryType = "arraybuffer";
 
       const updateState = () => {
-        const pcState = entry.connectionState;
         const dcState = ch.readyState;
 
-        setPeerReadiness((prev) => ({
-          ...prev,
-          [peerID]: { pc: pcState, dc: dcState },
-        }));
+        bumpRender((v) => v + 1);
 
         entry.fileChannelOpen = dcState === "open";
 
@@ -754,17 +745,7 @@ export default function useWebRTCMesh({
       peersRef.current.delete(peerID);
       incomingTransfersRef.current.delete(peerID);
 
-      setPeerReadiness((prev) => {
-        if (!(peerID in prev)) {
-          return prev;
-        }
-
-        const next = { ...prev };
-
-        delete next[peerID];
-
-        return next;
-      });
+      bumpRender((v) => v + 1);
 
       recomputeCanSendImages();
 
@@ -850,13 +831,9 @@ export default function useWebRTCMesh({
 
         pc.onconnectionstatechange = () => {
           entry.connectionState = pc.connectionState;
-          setPeerReadiness((prev) => ({
-            ...prev,
-            [peerID]: {
-              pc: entry.connectionState,
-              dc: entry.fileChannel?.readyState ?? null,
-            },
-          }));
+
+          bumpRender((v) => v + 1);
+
           recomputeCanSendImages();
         };
 
@@ -948,13 +925,8 @@ export default function useWebRTCMesh({
 
         await updatePeerSenders(entry);
 
-        setPeerReadiness((prev) => ({
-          ...prev,
-          [peerID]: {
-            pc: entry.connectionState,
-            dc: entry.fileChannel?.readyState ?? null,
-          },
-        }));
+        bumpRender((v) => v + 1);
+
         recomputeCanSendImages();
 
         return entry;
