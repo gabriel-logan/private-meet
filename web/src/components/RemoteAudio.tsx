@@ -1,9 +1,14 @@
 import { useEffect, useRef } from "react";
 
+interface RemoteAudioProps {
+  stream: MediaStream;
+  muted: boolean;
+}
+
 export default function RemoteAudio({
   stream,
   muted,
-}: Readonly<{ stream: MediaStream; muted: boolean }>) {
+}: Readonly<RemoteAudioProps>) {
   const ref = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -30,5 +35,9 @@ export default function RemoteAudio({
     });
   }, [muted, stream]);
 
-  return <audio ref={ref} autoPlay />;
+  return (
+    <audio ref={ref} autoPlay>
+      <track kind="captions" />
+    </audio>
+  );
 }

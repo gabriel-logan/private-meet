@@ -4,7 +4,11 @@ import { FiAlertCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { motion } from "motion/react";
 
-export default function ErrorPage({ message }: Readonly<{ message: string }>) {
+interface ErrorPageProps {
+  message: string;
+}
+
+export default function ErrorPage({ message }: Readonly<ErrorPageProps>) {
   const { t } = useTranslation();
 
   useEffect(() => {

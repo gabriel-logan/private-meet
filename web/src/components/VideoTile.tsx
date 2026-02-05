@@ -1,11 +1,17 @@
 import { useEffect, useRef } from "react";
 import { FiMaximize } from "react-icons/fi";
 
+interface VideoTileProps {
+  stream: MediaStream;
+  muted: boolean;
+  label: string;
+}
+
 export default function VideoTile({
   stream,
   muted,
   label,
-}: Readonly<{ stream: MediaStream; muted: boolean; label: string }>) {
+}: Readonly<VideoTileProps>) {
   const ref = useRef<HTMLVideoElement | null>(null);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
