@@ -137,6 +137,7 @@ export default function useWebRTCMesh({
     Map<string, Map<string, IncomingImageTransfer>>
   >(new Map());
 
+  // Trigger re-render when needed.
   const [, bumpRender] = useState(0); // nosonar
 
   const [canSendImages, setCanSendImages] = useState(false);
@@ -600,6 +601,8 @@ export default function useWebRTCMesh({
   }, [micEnabled, syncLocalPreviewStreams, t, updatePeerSenders]);
 
   useEffect(() => {
+    console.log("[useWebRTCMesh] Updating ensureAudioTrackRef");
+
     ensureAudioTrackRef.current = ensureAudioTrack;
   }, [ensureAudioTrack]);
 
@@ -1143,6 +1146,8 @@ export default function useWebRTCMesh({
   );
 
   useEffect(() => {
+    console.log("[useWebRTCMesh] Ensuring audio track on room enter");
+
     if (!room || !myID) {
       return;
     }
@@ -1160,6 +1165,8 @@ export default function useWebRTCMesh({
   }, [micEnabled, myID, room]);
 
   useEffect(() => {
+    console.log("[useWebRTCMesh] Cleanup on unmount");
+
     const peers = peersRef.current;
     const transfers = incomingTransfersRef.current;
 
