@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiLogIn, FiShuffle, FiTrash2 } from "react-icons/fi";
 import { useNavigate } from "react-router";
-import { toast } from "react-toastify";
 import { motion } from "motion/react";
 
+import handleDeleteUser from "../actions/handleDeleteUser";
 import handleGenerateRoomIdClick from "../actions/handleGenerateRoomIdClick";
+import handleJoinRoom from "../actions/handleJoinRoom";
 import { maxRoomIDLength } from "../constants";
-import { getWSInstance } from "../lib/wsInstance";
-import { parseIncomingWSMessage } from "../protocol/ws";
+import useGenerateRoomID from "../hooks/useGenerateRoomID";
 import { useAuthStore } from "../stores/authStore";
 import { useSecretStore } from "../stores/secretStore";
 
@@ -19,60 +18,9 @@ export default function JoinMeeting() {
 
   const revokeAccessToken = useAuthStore((s) => s.revokeAccessToken);
 
-  const [roomId, setRoomId] = useState("");
-
   const { passphrase, setPassphrase, clearPassphrase } = useSecretStore();
 
-  function handleJoinRoom() {
-    const normalized = roomId.trim();
-
-    if (!normalized) {
-      toast.error(t("Errors.PleaseEnterRoomID"));
-      return;
-    }
-
-    if (normalized.length > maxRoomIDLength) {
-      toast.error(t("Errors.RoomIDIsTooLong", { maxRoomIDLength }));
-      return;
-    }
-
-    if (!passphrase || passphrase.length === 0) {
-      clearPassphrase();
-    }
-
-    navigate(`/chat?room=${encodeURIComponent(normalized)}`);
-  }
-
-  function handleDeleteUser() {
-    revokeAccessToken();
-    toast.info(t("Infos.UserDeletedSuccessfully"));
-  }
-
-  useEffect(() => {
-    const ws = getWSInstance();
-
-    const onMessage = async (event: MessageEvent) => {
-      try {
-        const { type, data } = await parseIncomingWSMessage(event.data);
-
-        if (type === "utils.generateRoomID") {
-          setRoomId(data.roomID);
-          toast.success(t("Success.RoomIDGenerated"), {
-            autoClose: 1000,
-          });
-        }
-      } catch (error) {
-        console.error("Error handling WebSocket message:", error);
-        toast.error(t("Errors.ErrorProcessingServerMessage"));
-      }
-    };
-
-    ws.addEventListener("message", onMessage);
-
-    return () => {
-      ws.removeEventListener("message", onMessage);
-    };
-  }, [t]);
+  const { roomId, setRoomId } = useGenerateRoomID();
 
   return (
     <motion.div
@@ -124,7 +72,9 @@ export default function JoinMeeting() {
 
       <button
         type="button"
-        onClick={handleJoinRoom}
+        onClick={() =>
+          handleJoinRoom({ roomId, passphrase, clearPassphrase, navigate })
+        }
         className="flex items-center justify-center gap-2 rounded-md bg-indigo-600 py-2 text-sm font-medium transition hover:bg-indigo-500"
       >
         <FiLogIn />
@@ -142,7 +92,7 @@ export default function JoinMeeting() {
 
       <button
         type="button"
-        onClick={handleDeleteUser}
+        onClick={() => handleDeleteUser({ revokeAccessToken })}
         className="flex items-center justify-center gap-2 rounded-md border border-zinc-800 bg-zinc-900 py-2 text-sm font-medium text-red-400 transition hover:bg-zinc-800"
       >
         <FiTrash2 />
