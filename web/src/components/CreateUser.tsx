@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiUser } from "react-icons/fi";
-import { toast } from "react-toastify";
 import { motion } from "motion/react";
 
-import apiInstance from "../lib/apiInstance";
+import handleCreateUser from "../actions/handleCreateUser";
 import { useAuthStore } from "../stores/authStore";
-import getAxiosErrorMessage from "../utils/general";
 
 export default function CreateUser() {
   const { t } = useTranslation();
@@ -15,30 +13,14 @@ export default function CreateUser() {
 
   const [username, setUsername] = useState("");
 
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    try {
-      const response = await apiInstance.post("/auth/sign-in", {
-        username: username.trim(),
-      });
-
-      const accessToken = response.data.accessToken;
-
-      setAccessToken(accessToken);
-
-      setUsername("");
-
-      toast.success(t("Success.UserCreated"), { autoClose: 1000 });
-    } catch (error) {
-      const errorMessage = getAxiosErrorMessage(
-        error,
-        t("Errors.FailedToCreateUser"),
-      );
-
-      console.error("Error creating user:", error);
-      toast.error(errorMessage);
-    }
+    handleCreateUser({
+      username,
+      setUsername,
+      setAccessToken,
+    });
   }
 
   return (
