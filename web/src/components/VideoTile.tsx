@@ -75,6 +75,7 @@ export default function VideoTile({
       >
         <track kind="captions" />
       </video>
+
       <button
         type="button"
         onClick={() => {
@@ -95,6 +96,7 @@ export default function VideoTile({
       >
         <FiMaximize className="text-sm" />
       </button>
+
       <div className="absolute bottom-3 left-3 z-20 rounded-md border border-white/10 bg-black/45 px-2 py-1 text-xs text-zinc-100 backdrop-blur-sm">
         {label}
       </div>
