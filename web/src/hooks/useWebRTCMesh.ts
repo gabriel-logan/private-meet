@@ -20,6 +20,7 @@ import {
   type RoomUser,
   type WSIncomingMessage,
 } from "../protocol/ws";
+import type { IncomingFileTransferProgress } from "../types";
 
 type PeerEntry = {
   peerID: string;
@@ -136,6 +137,10 @@ export default function useWebRTCMesh({
   const incomingTransfersRef = useRef<
     Map<string, Map<string, IncomingImageTransfer>>
   >(new Map());
+
+  const [incomingFileTransfers, setIncomingFileTransfers] = useState<
+    IncomingFileTransferProgress[]
+  >([]);
 
   // Trigger re-render when needed.
   const [, bumpRender] = useState(0); // nosonar
@@ -346,6 +351,23 @@ export default function useWebRTCMesh({
                 chunks: [],
               });
 
+              setIncomingFileTransfers((prev) => {
+                const next = prev.filter(
+                  (t) => !(t.peerID === peerID && t.id === parsed.id),
+                );
+
+                next.push({
+                  peerID,
+                  id: parsed.id,
+                  name: parsed.name,
+                  mime: parsed.mime,
+                  size: parsed.size,
+                  receivedBytes: 0,
+                });
+
+                return next;
+              });
+
               return;
             }
 
@@ -369,6 +391,12 @@ export default function useWebRTCMesh({
                 name: transfer.name,
                 size: transfer.size,
               });
+
+              setIncomingFileTransfers((prev) =>
+                prev.filter(
+                  (t) => !(t.peerID === peerID && t.id === parsed.id),
+                ),
+              );
 
               byId?.delete(parsed.id);
               return;
@@ -394,6 +422,19 @@ export default function useWebRTCMesh({
             transfer.receivedChunks += 1;
             transfer.receivedBytes += data.byteLength;
 
+            setIncomingFileTransfers((prev) =>
+              prev.map((t) => {
+                if (t.peerID !== peerID || t.id !== transfer.id) {
+                  return t;
+                }
+
+                return {
+                  ...t,
+                  receivedBytes: transfer.receivedBytes,
+                };
+              }),
+            );
+
             if (
               transfer.receivedChunks >= transfer.totalChunks ||
               transfer.receivedBytes >= transfer.size
@@ -408,6 +449,12 @@ export default function useWebRTCMesh({
                 name: transfer.name,
                 size: transfer.size,
               });
+
+              setIncomingFileTransfers((prev) =>
+                prev.filter(
+                  (t) => !(t.peerID === peerID && t.id === transfer.id),
+                ),
+              );
 
               byId.clear();
             }
@@ -757,6 +804,10 @@ export default function useWebRTCMesh({
       peersRef.current.delete(peerID);
 
       incomingTransfersRef.current.delete(peerID);
+
+      setIncomingFileTransfers((prev) =>
+        prev.filter((t) => t.peerID !== peerID),
+      );
 
       bumpRender((v) => v + 1);
 
@@ -1195,6 +1246,8 @@ export default function useWebRTCMesh({
 
       transfers.clear();
 
+      setIncomingFileTransfers([]);
+
       if (localAudioTrackRef.current) {
         try {
           localAudioTrackRef.current.stop();
@@ -1231,6 +1284,8 @@ export default function useWebRTCMesh({
     localCameraStream,
     localScreenStream,
     remotePeers,
+
+    incomingFileTransfers,
 
     micEnabled,
     setMicEnabled: setMicEnabledAsync,

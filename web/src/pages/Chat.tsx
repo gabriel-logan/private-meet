@@ -21,6 +21,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
+import FileTransferProgressBar from "../components/FileTransferProgressBar";
 import RemoteAudio from "../components/RemoteAudio";
 import VideoTile from "../components/VideoTile";
 import { chatMaxImageBytes, maxMessageChars } from "../constants";
@@ -124,6 +125,7 @@ export default function ChatPage() {
     stopScreenShare,
     handleSignal,
     syncPeersFromRoomUsers,
+    incomingFileTransfers,
     canSendImages,
     expectedPeersCount,
     connectedPeersCount,
@@ -815,6 +817,10 @@ export default function ChatPage() {
 
               <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
                 <div className="relative min-h-0 flex-1 overflow-hidden rounded-xl border border-white/10 bg-black/20 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur">
+                  <FileTransferProgressBar
+                    incomingFileTransfers={incomingFileTransfers}
+                  />
+
                   {tiles.length === 0 ? (
                     <div className="grid h-full place-items-center rounded-xl border border-white/10 bg-zinc-950/40 p-6 text-sm text-zinc-300">
                       <div className="flex flex-col items-center gap-2 text-center">
