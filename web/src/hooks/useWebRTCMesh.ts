@@ -34,6 +34,7 @@ type PeerEntry = {
     audio?: RTCRtpSender;
     camera?: RTCRtpSender;
     screen?: RTCRtpSender;
+    screenAudio?: RTCRtpSender;
   };
   fileChannel?: RTCDataChannel;
   fileChannelOpen: boolean;
@@ -153,6 +154,7 @@ export default function useWebRTCMesh({
   const localAudioTrackRef = useRef<MediaStreamTrack | null>(null);
   const localCameraTrackRef = useRef<MediaStreamTrack | null>(null);
   const localScreenTrackRef = useRef<MediaStreamTrack | null>(null);
+  const localScreenAudioTrackRef = useRef<MediaStreamTrack | null>(null);
 
   const localCameraStreamRef = useRef<MediaStream>(new MediaStream());
   const localScreenStreamRef = useRef<MediaStream>(new MediaStream());
@@ -205,6 +207,10 @@ export default function useWebRTCMesh({
 
     if (localScreenTrackRef.current) {
       desiredScreenTracks.add(localScreenTrackRef.current);
+    }
+
+    if (localScreenAudioTrackRef.current) {
+      desiredScreenTracks.add(localScreenAudioTrackRef.current);
     }
 
     for (const existing of screenStream.getTracks()) {
@@ -586,6 +592,7 @@ export default function useWebRTCMesh({
       const audioTrack = localAudioTrackRef.current;
       const cameraTrack = localCameraTrackRef.current;
       const screenTrack = localScreenTrackRef.current;
+      const screenAudioTrack = localScreenAudioTrackRef.current;
 
       if (audioTrack) {
         if (entry.senders.audio) {
@@ -615,6 +622,19 @@ export default function useWebRTCMesh({
         }
       } else if (entry.senders.screen) {
         await entry.senders.screen.replaceTrack(null);
+      }
+
+      if (screenAudioTrack) {
+        if (entry.senders.screenAudio) {
+          await entry.senders.screenAudio.replaceTrack(screenAudioTrack);
+        } else {
+          entry.senders.screenAudio = pc.addTrack(
+            screenAudioTrack,
+            localScreenStream,
+          );
+        }
+      } else if (entry.senders.screenAudio) {
+        await entry.senders.screenAudio.replaceTrack(null);
       }
     },
     [localCameraStream, localScreenStream],
@@ -732,7 +752,19 @@ export default function useWebRTCMesh({
       }
     }
 
+    if (localScreenAudioTrackRef.current) {
+      try {
+        localScreenAudioTrackRef.current.stop();
+      } catch (error) {
+        console.error(
+          "[useWebRTCMesh] Failed to stop screen audio track",
+          error,
+        );
+      }
+    }
+
     localScreenTrackRef.current = null;
+    localScreenAudioTrackRef.current = null;
     setScreenShareEnabled(false);
     syncLocalPreviewStreams();
 
@@ -746,10 +778,11 @@ export default function useWebRTCMesh({
   const startScreenShare = useCallback(async () => {
     const stream = await navigator.mediaDevices.getDisplayMedia({
       video: true,
-      audio: false,
+      audio: true,
     });
 
     const [track] = stream.getVideoTracks();
+    const [audioTrack] = stream.getAudioTracks();
 
     if (!track) {
       throw new Error(t("Errors.NoScreenShareTrackAvailable"));
@@ -764,13 +797,27 @@ export default function useWebRTCMesh({
     );
 
     localScreenTrackRef.current = track;
+    localScreenAudioTrackRef.current = audioTrack ?? null;
+
+    if (audioTrack) {
+      audioTrack.enabled = true;
+    }
+
     setScreenShareEnabled(true);
     syncLocalPreviewStreams();
 
     for (const [, entry] of peersRef.current) {
       await updatePeerSenders(entry);
+
+      void negotiate(entry);
     }
-  }, [stopScreenShare, syncLocalPreviewStreams, t, updatePeerSenders]);
+  }, [
+    negotiate,
+    stopScreenShare,
+    syncLocalPreviewStreams,
+    t,
+    updatePeerSenders,
+  ]);
 
   const closePeer = useCallback(
     (peerID: string) => {
@@ -925,11 +972,9 @@ export default function useWebRTCMesh({
           const track = event.track;
 
           if (track.kind === "audio") {
-            for (const t of entry.remoteCameraStream.getAudioTracks()) {
-              entry.remoteCameraStream.removeTrack(t);
+            if (!entry.remoteCameraStream.getAudioTracks().includes(track)) {
+              entry.remoteCameraStream.addTrack(track);
             }
-
-            entry.remoteCameraStream.addTrack(track);
           } else if (track.kind === "video") {
             const isScreen = looksLikeScreenTrack(track);
 
@@ -1273,9 +1318,21 @@ export default function useWebRTCMesh({
         }
       }
 
+      if (localScreenAudioTrackRef.current) {
+        try {
+          localScreenAudioTrackRef.current.stop();
+        } catch (error) {
+          console.error(
+            "[useWebRTCMesh] Failed to stop screen audio track",
+            error,
+          );
+        }
+      }
+
       localAudioTrackRef.current = null;
       localCameraTrackRef.current = null;
       localScreenTrackRef.current = null;
+      localScreenAudioTrackRef.current = null;
 
       setRemoteStreams({});
     };
