@@ -1,13 +1,45 @@
-import { useEffect, useRef } from "react";
-import { FiMaximize } from "react-icons/fi";
+import { type JSX, useEffect, useRef, useState } from "react";
+import {
+  FiColumns,
+  FiMaximize,
+  FiMaximize2,
+  FiMinimize2,
+} from "react-icons/fi";
 
 import { debugHandle } from "../utils/general";
+
+type VideoResizeMode = "contain" | "cover" | "fill";
 
 interface VideoTileProps {
   stream: MediaStream;
   muted: boolean;
   label: string;
 }
+
+const ResizeModeConfig: Record<
+  VideoResizeMode,
+  {
+    next: VideoResizeMode;
+    icon: JSX.Element;
+    label: string;
+  }
+> = {
+  contain: {
+    next: "cover",
+    icon: <FiMinimize2 className="h-4 w-4" />,
+    label: "Adjust video (contain)",
+  },
+  cover: {
+    next: "fill",
+    icon: <FiMaximize2 className="h-4 w-4" />,
+    label: "Adjust video (fill)",
+  },
+  fill: {
+    next: "contain",
+    icon: <FiColumns className="h-4 w-4" />,
+    label: "Adjust video (cover)",
+  },
+};
 
 export default function VideoTile({
   stream,
@@ -17,6 +49,10 @@ export default function VideoTile({
   const ref = useRef<HTMLVideoElement | null>(null);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const [resizeMode, setResizeMode] = useState<VideoResizeMode>("contain");
+
+  const resizeConfig = ResizeModeConfig[resizeMode];
 
   useEffect(() => {
     const el = ref.current;
@@ -47,7 +83,7 @@ export default function VideoTile({
           return;
         }
 
-        console.error("Failed to play video element:", error);
+        debugHandle("Failed to play video element:", error);
       }
     };
 
@@ -75,10 +111,20 @@ export default function VideoTile({
         autoPlay
         playsInline
         muted={muted}
-        className="absolute inset-0 z-0 h-full w-full object-cover"
+        className={`absolute inset-0 z-0 h-full w-full object-${resizeMode}`}
       >
         <track kind="captions" />
       </video>
+
+      <button
+        type="button"
+        onClick={() => setResizeMode(resizeConfig.next)}
+        className="absolute top-3 right-3 z-30 inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 bg-black/55 text-zinc-100 opacity-0 shadow-lg backdrop-blur-sm transition group-hover:opacity-100 hover:bg-black/70"
+        aria-label={resizeConfig.label}
+        title={resizeConfig.label}
+      >
+        {resizeConfig.icon}
+      </button>
 
       <button
         type="button"
