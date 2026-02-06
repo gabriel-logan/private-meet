@@ -22,6 +22,9 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      "no-console": "warn",
+    }
   },
   {
     plugins: { "simple-import-sort": simpleImportSort },

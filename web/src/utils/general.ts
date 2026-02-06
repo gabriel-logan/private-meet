@@ -11,7 +11,7 @@ export default function getAxiosErrorMessage(
   error: unknown,
   fallbackMessage = "Something went wrong. Please try again.",
 ): string {
-  console.error("Error occurred:", error);
+  debugHandle("Error occurred:", error);
 
   if (axios.isAxiosError<string>(error)) {
     const axiosError = error;
@@ -75,11 +75,12 @@ export async function handleCopyRoomId(rawRoomId: string) {
 
     toast.success("Room ID copied!");
   } catch (error) {
-    console.error("Failed to copy room id:", error);
+    debugHandle("Failed to copy room id:", error);
     toast.error("Failed to copy room ID.");
   }
 }
 
 export function debugHandle(...args: unknown[]) {
+  // eslint-disable-next-line no-console
   console.log(...args);
 }
