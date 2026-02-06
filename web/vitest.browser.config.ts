@@ -12,6 +12,7 @@ export default defineConfig({
 
   plugins: [react()],
   test: {
+    dir: "./tests/browser",
     browser: {
       enabled: true,
       provider: playwright(),
