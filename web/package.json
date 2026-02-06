@@ -12,7 +12,8 @@
     "format:check": "prettier --check **/*.{js,ts,tsx,json,css,md,html}",
     "generate-404byindex": "cp ./dist/index.html ./dist/404.html",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest --run",
+    "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
     "test:browser": "vitest --config=vitest.browser.config.ts"
   },
