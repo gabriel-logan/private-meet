@@ -7,6 +7,7 @@ import {
   FiMic,
   FiMicOff,
   FiMonitor,
+  FiRefreshCw,
   FiSend,
   FiSmile,
   FiUser,
@@ -121,6 +122,8 @@ export default function ChatPage() {
     cameraEnabled,
     startCamera,
     stopCamera,
+    canSwitchCamera,
+    switchCamera,
     screenShareEnabled,
     startScreenShare,
     stopScreenShare,
@@ -913,6 +916,18 @@ export default function ChatPage() {
                       <FiVideoOff size={28} />
                     )}
                   </button>
+
+                  {cameraEnabled && canSwitchCamera ? (
+                    <button
+                      type="button"
+                      onClick={() => void switchCamera()}
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-zinc-950/60 text-zinc-200 transition hover:bg-zinc-950"
+                      aria-label="Switch camera"
+                      title="Switch camera"
+                    >
+                      <FiRefreshCw size={26} />
+                    </button>
+                  ) : null}
 
                   <button
                     type="button"

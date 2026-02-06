@@ -156,6 +156,10 @@ export default function useWebRTCMesh({
   const localScreenTrackRef = useRef<MediaStreamTrack | null>(null);
   const localScreenAudioTrackRef = useRef<MediaStreamTrack | null>(null);
 
+  const [cameraDevices, setCameraDevices] = useState<MediaDeviceInfo[]>([]);
+  const cameraDevicesRef = useRef<MediaDeviceInfo[]>([]);
+  const cameraDeviceIdRef = useRef<string | null>(null);
+
   const localCameraStreamRef = useRef<MediaStream>(new MediaStream());
   const localScreenStreamRef = useRef<MediaStream>(new MediaStream());
   const ensureAudioTrackRef = useRef<() => Promise<MediaStreamTrack>>(
@@ -177,6 +181,62 @@ export default function useWebRTCMesh({
       { peerID, kind: "screen", stream: streams.screen },
     ],
   );
+
+  const refreshCameraDevices = useCallback(async () => {
+    const media = navigator.mediaDevices;
+
+    if (!media?.enumerateDevices) {
+      return;
+    }
+
+    try {
+      const devices = await media.enumerateDevices();
+
+      const videos = devices.filter((d) => d.kind === "videoinput");
+
+      cameraDevicesRef.current = videos;
+
+      setCameraDevices(videos);
+
+      const fromTrack =
+        localCameraTrackRef.current?.getSettings().deviceId ?? null;
+
+      const preferred = cameraDeviceIdRef.current ?? fromTrack;
+
+      if (preferred && videos.some((d) => d.deviceId === preferred)) {
+        cameraDeviceIdRef.current = preferred;
+      } else if (!cameraDeviceIdRef.current && videos[0]?.deviceId) {
+        cameraDeviceIdRef.current = videos[0].deviceId;
+      }
+    } catch (error) {
+      console.error(
+        "[useWebRTCMesh] Failed to enumerate camera devices",
+        error,
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    debugHandle("[useWebRTCMesh] Setting up device change listener");
+
+    const media = navigator.mediaDevices;
+
+    if (!media?.addEventListener) {
+      return;
+    }
+
+    const onChange = () => {
+      void refreshCameraDevices();
+    };
+
+    media.addEventListener("devicechange", onChange);
+
+    void refreshCameraDevices();
+
+    return () => {
+      media.removeEventListener("devicechange", onChange);
+    };
+  }, [refreshCameraDevices]);
 
   const syncLocalPreviewStreams = useCallback(() => {
     const cameraStream = localCameraStreamRef.current;
@@ -693,42 +753,123 @@ export default function useWebRTCMesh({
     [ensureAudioTrack],
   );
 
-  const startCamera = useCallback(async () => {
-    if (localCameraTrackRef.current) {
-      localCameraTrackRef.current.enabled = true;
+  const startCamera = useCallback(
+    async (deviceId?: string) => {
+      const wantsDevice = Boolean(deviceId);
+
+      if (localCameraTrackRef.current && !wantsDevice) {
+        localCameraTrackRef.current.enabled = true;
+
+        setCameraEnabled(true);
+
+        syncLocalPreviewStreams();
+
+        for (const [, entry] of peersRef.current) {
+          await updatePeerSenders(entry);
+        }
+
+        void refreshCameraDevices();
+
+        return;
+      }
+
+      const currentDeviceId =
+        localCameraTrackRef.current?.getSettings().deviceId ??
+        cameraDeviceIdRef.current;
+
+      if (localCameraTrackRef.current && wantsDevice) {
+        if (currentDeviceId && currentDeviceId === deviceId) {
+          localCameraTrackRef.current.enabled = true;
+          setCameraEnabled(true);
+          syncLocalPreviewStreams();
+
+          for (const [, entry] of peersRef.current) {
+            await updatePeerSenders(entry);
+          }
+
+          void refreshCameraDevices();
+
+          return;
+        }
+
+        try {
+          localCameraTrackRef.current.stop();
+        } catch (error) {
+          console.error("[useWebRTCMesh] Failed to stop camera track", error);
+        }
+
+        localCameraTrackRef.current = null;
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: wantsDevice
+          ? {
+              deviceId: {
+                exact: deviceId,
+              },
+            }
+          : true,
+      });
+
+      const [track] = stream.getVideoTracks();
+
+      if (!track) {
+        throw new Error(t("Errors.NoCameraTrackAvailable"));
+      }
+
+      localCameraTrackRef.current = track;
+      track.enabled = true;
+
+      cameraDeviceIdRef.current =
+        track.getSettings().deviceId ?? deviceId ?? null;
 
       setCameraEnabled(true);
-
       syncLocalPreviewStreams();
 
       for (const [, entry] of peersRef.current) {
         await updatePeerSenders(entry);
       }
 
+      void refreshCameraDevices();
+    },
+    [refreshCameraDevices, syncLocalPreviewStreams, t, updatePeerSenders],
+  );
+
+  const canSwitchCamera = cameraDevices.length > 1;
+
+  const switchCamera = useCallback(async () => {
+    const media = navigator.mediaDevices;
+
+    if (!media?.enumerateDevices) {
       return;
     }
 
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: false,
-      video: true,
-    });
+    const devices = await media.enumerateDevices();
+    const videos = devices.filter((d) => d.kind === "videoinput");
 
-    const [track] = stream.getVideoTracks();
-
-    if (!track) {
-      throw new Error(t("Errors.NoCameraTrackAvailable"));
+    if (videos.length < 2) {
+      return;
     }
 
-    localCameraTrackRef.current = track;
-    track.enabled = true;
+    const current =
+      cameraDeviceIdRef.current ??
+      localCameraTrackRef.current?.getSettings().deviceId ??
+      videos[0]?.deviceId;
 
-    setCameraEnabled(true);
-    syncLocalPreviewStreams();
-
-    for (const [, entry] of peersRef.current) {
-      await updatePeerSenders(entry);
+    if (!current) {
+      return;
     }
-  }, [syncLocalPreviewStreams, t, updatePeerSenders]);
+
+    const idx = videos.findIndex((d) => d.deviceId === current);
+    const next = videos[(idx >= 0 ? idx + 1 : 0) % videos.length]?.deviceId;
+
+    if (!next || next === current) {
+      return;
+    }
+
+    await startCamera(next);
+  }, [startCamera]);
 
   const stopCamera = useCallback(async () => {
     if (localCameraTrackRef.current) {
@@ -1351,6 +1492,9 @@ export default function useWebRTCMesh({
     cameraEnabled,
     startCamera,
     stopCamera,
+
+    canSwitchCamera,
+    switchCamera,
 
     screenShareEnabled,
     startScreenShare,
