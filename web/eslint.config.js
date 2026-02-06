@@ -24,7 +24,7 @@ export default defineConfig([
     },
     rules: {
       "no-console": "warn",
-    }
+    },
   },
   {
     plugins: { "simple-import-sort": simpleImportSort },

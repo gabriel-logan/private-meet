@@ -15,7 +15,8 @@
     "test": "vitest --run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
-    "test:browser": "vitest --config=vitest.browser.config.ts"
+    "test:browser": "vitest --config=vitest.browser.config.ts",
+    "pre-pr": "pnpm format && pnpm lint:fix && pnpm test && pnpm build"
   },
   "dependencies": {
     "axios": "^1.13.4",
