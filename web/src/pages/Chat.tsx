@@ -21,7 +21,6 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
-import debugHandle from "../actions/debugHandle";
 import FileTransferProgressBar from "../components/FileTransferProgressBar";
 import RemoteAudio from "../components/RemoteAudio";
 import VideoTile from "../components/VideoTile";
@@ -47,6 +46,7 @@ import {
 } from "../protocol/ws";
 import { useAuthStore } from "../stores/authStore";
 import {
+  debugHandle,
   getTimeLabel,
   handleCopyRoomId,
   hasVideo,

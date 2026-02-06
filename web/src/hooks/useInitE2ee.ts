@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
-import debugHandle from "../actions/debugHandle";
 import { initE2EE } from "../lib/e2ee";
 import { useSecretStore } from "../stores/secretStore";
+import { debugHandle } from "../utils/general";
 
 interface UseInitE2eeProps {
   rawRoomId: string | null;

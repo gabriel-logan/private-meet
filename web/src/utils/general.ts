@@ -79,3 +79,7 @@ export async function handleCopyRoomId(rawRoomId: string) {
     toast.error("Failed to copy room ID.");
   }
 }
+
+export function debugHandle(...args: unknown[]) {
+  console.log(...args);
+}

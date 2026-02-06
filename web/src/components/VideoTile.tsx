@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { FiMaximize } from "react-icons/fi";
 
-import debugHandle from "../actions/debugHandle";
+import { debugHandle } from "../utils/general";
 
 interface VideoTileProps {
   stream: MediaStream;

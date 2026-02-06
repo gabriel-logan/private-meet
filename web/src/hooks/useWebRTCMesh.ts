@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import debugHandle from "../actions/debugHandle";
 import {
   webRTCFileChannelLabel,
   webRTCFileChannelMaxBufferedAmountBytes,
@@ -22,6 +21,7 @@ import {
   type WSIncomingMessage,
 } from "../protocol/ws";
 import type { IncomingFileTransferProgress } from "../types";
+import { debugHandle } from "../utils/general";
 
 type PeerEntry = {
   peerID: string;

@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-import debugHandle from "../actions/debugHandle";
 import { getWSInstance } from "../lib/wsInstance";
 import { parseIncomingWSMessage } from "../protocol/ws";
+import { debugHandle } from "../utils/general";
 
 export default function useGenerateRoomID() {
   const { t } = useTranslation();

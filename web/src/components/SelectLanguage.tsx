@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { FiCheck, FiChevronDown, FiGlobe } from "react-icons/fi";
 import { AnimatePresence, motion } from "motion/react";
 
-import debugHandle from "../actions/debugHandle";
 import { useUserStore } from "../stores/userStore";
 import type { Locale } from "../types";
+import { debugHandle } from "../utils/general";
 import { resources } from "../utils/i18n";
 
 type AnyRecord = Record<string, unknown>;
