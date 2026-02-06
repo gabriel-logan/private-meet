@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
+import debugHandle from "../actions/debugHandle";
 import { getWSInstance } from "../lib/wsInstance";
 import { parseIncomingWSMessage } from "../protocol/ws";
 
@@ -11,6 +12,8 @@ export default function useGenerateRoomID() {
   const [roomId, setRoomId] = useState("");
 
   useEffect(() => {
+    debugHandle("useGenerateRoomID exec useEffect");
+
     let ws: WebSocket;
 
     try {

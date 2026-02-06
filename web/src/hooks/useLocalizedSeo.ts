@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
+import debugHandle from "../actions/debugHandle";
+
 function setMetaByName(name: string, content: string) {
   const el = document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
 
@@ -27,6 +29,8 @@ export default function useLocalizedSeo() {
   const { t, i18n } = useTranslation();
 
   useEffect(() => {
+    debugHandle("useLocalizedSeo exec useEffect");
+
     const resolved = i18n.resolvedLanguage ?? i18n.language ?? "en";
 
     const lang = resolved.split("-")[0] ?? "en";

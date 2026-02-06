@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import debugHandle from "../actions/debugHandle";
 import { closeWSInstance, updateWSInstanceToken } from "../lib/wsInstance";
 import { useAuthStore } from "../stores/authStore";
 
@@ -10,6 +11,8 @@ export default function useInitWsConn() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    debugHandle("useInitWsConn exec useEffect");
+
     let cancelled = false;
 
     if (!accessToken) {

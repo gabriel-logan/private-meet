@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import debugHandle from "../actions/debugHandle";
 import {
   webRTCFileChannelLabel,
   webRTCFileChannelMaxBufferedAmountBytes,
@@ -648,7 +649,7 @@ export default function useWebRTCMesh({
   }, [micEnabled, syncLocalPreviewStreams, t, updatePeerSenders]);
 
   useEffect(() => {
-    console.log("[useWebRTCMesh] Updating ensureAudioTrackRef");
+    debugHandle("[useWebRTCMesh] Updating ensureAudioTrackRef");
 
     ensureAudioTrackRef.current = ensureAudioTrack;
   }, [ensureAudioTrack]);
@@ -1197,7 +1198,7 @@ export default function useWebRTCMesh({
   );
 
   useEffect(() => {
-    console.log("[useWebRTCMesh] Ensuring audio track on room enter");
+    debugHandle("[useWebRTCMesh] Ensuring audio track on room enter");
 
     if (!room || !myID) {
       return;
@@ -1216,7 +1217,7 @@ export default function useWebRTCMesh({
   }, [micEnabled, myID, room]);
 
   useEffect(() => {
-    console.log("[useWebRTCMesh] Cleanup on unmount");
+    debugHandle("[useWebRTCMesh] Cleanup on unmount");
 
     const peers = peersRef.current;
     const transfers = incomingTransfersRef.current;

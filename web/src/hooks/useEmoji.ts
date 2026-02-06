@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
+import debugHandle from "../actions/debugHandle";
+
 export default function useEmoji() {
   const [emojiOpen, setEmojiOpen] = useState(false);
 
@@ -8,6 +10,8 @@ export default function useEmoji() {
 
   // Close emoji menu when clicking outside
   useEffect(() => {
+    debugHandle("useEmoji exec useEffect: ", { emojiOpen });
+
     if (!emojiOpen) {
       return;
     }

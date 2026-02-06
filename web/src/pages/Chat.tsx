@@ -21,6 +21,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
+import debugHandle from "../actions/debugHandle";
 import FileTransferProgressBar from "../components/FileTransferProgressBar";
 import RemoteAudio from "../components/RemoteAudio";
 import VideoTile from "../components/VideoTile";
@@ -138,6 +139,8 @@ export default function ChatPage() {
 
   const syncPeersRef = useRef(syncPeersFromRoomUsers);
   useEffect(() => {
+    debugHandle("ChatPage exec useEffect to update syncPeersRef");
+
     syncPeersRef.current = syncPeersFromRoomUsers;
   }, [syncPeersFromRoomUsers]);
 
@@ -372,6 +375,10 @@ export default function ChatPage() {
 
   // WebSocket message handling
   useEffect(() => {
+    debugHandle(
+      "ChatPage exec useEffect for WebSocket connection and message handling",
+    );
+
     if (!accessToken) {
       toast.error(t("Errors.PleaseCreateAUserFirst"));
       navigate("/");

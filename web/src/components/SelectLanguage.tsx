@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FiCheck, FiChevronDown, FiGlobe } from "react-icons/fi";
 import { AnimatePresence, motion } from "motion/react";
 
+import debugHandle from "../actions/debugHandle";
 import { useUserStore } from "../stores/userStore";
 import type { Locale } from "../types";
 import { resources } from "../utils/i18n";
@@ -70,6 +71,8 @@ export default function SelectLanguage({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    debugHandle("SelectLanguage exec useEffect");
+
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);

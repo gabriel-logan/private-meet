@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
+import debugHandle from "../actions/debugHandle";
 import { initE2EE } from "../lib/e2ee";
 import { useSecretStore } from "../stores/secretStore";
 
@@ -16,6 +17,8 @@ export default function useInitE2ee({ rawRoomId }: UseInitE2eeProps) {
   const passphrase = useSecretStore((state) => state.passphrase);
 
   useEffect(() => {
+    debugHandle("useInitE2ee exec useEffect");
+
     let cancelled = false;
 
     if (!rawRoomId) {

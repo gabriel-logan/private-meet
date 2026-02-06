@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import { FiMaximize } from "react-icons/fi";
 
+import debugHandle from "../actions/debugHandle";
+
 interface VideoTileProps {
   stream: MediaStream;
   muted: boolean;
@@ -18,6 +20,8 @@ export default function VideoTile({
 
   useEffect(() => {
     const el = ref.current;
+
+    debugHandle("VideoTile: ", { stream, el });
 
     if (!el) {
       return;
