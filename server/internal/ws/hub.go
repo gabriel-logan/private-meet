@@ -26,8 +26,8 @@ func NewHub() *Hub {
 	return &Hub{
 		clients:    make(map[*Client]bool),
 		rooms:      make(map[string]map[*Client]bool),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
+		register:   make(chan *Client, 256),
+		unregister: make(chan *Client, 256),
 		inbound:    make(chan inboundMessage, 4096),
 	}
 }
