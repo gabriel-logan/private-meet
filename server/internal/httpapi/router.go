@@ -9,11 +9,11 @@ import (
 	"github.com/gabriel-logan/private-meet/server/internal/ws"
 )
 
-func NewRouter(hub *ws.Hub) http.Handler {
+func NewRouter(manager *ws.Manager) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /", handlers.ServeSPA)
-	mux.HandleFunc("GET /ws", ws.ServeWS(hub))
+	mux.HandleFunc("GET /ws", ws.ServeWS(manager))
 	mux.HandleFunc("GET /health", handlers.Health)
 	mux.HandleFunc("POST /auth/sign-in", handlers.SignIn)
 

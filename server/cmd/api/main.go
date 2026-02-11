@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"runtime"
 
 	"github.com/gabriel-logan/private-meet/server/internal/config"
 	"github.com/gabriel-logan/private-meet/server/internal/httpapi"
@@ -16,12 +17,11 @@ func main() {
 	// Load environment variables
 	env := config.InitEnv()
 
-	// Initialize WebSocket hub
-	hub := ws.NewHub()
-	go hub.Run() // Start the hub in a separate goroutine
+	// Initialize WebSocket manager
+	manager := ws.NewManager(runtime.NumCPU() * 2)
 
 	// Initialize HTTP router
-	r := httpapi.NewRouter(hub)
+	r := httpapi.NewRouter(manager)
 
 	server := &http.Server{
 		Addr:    ":" + env.ServerPort,

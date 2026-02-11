@@ -54,8 +54,8 @@ func initTestEnv(t *testing.T) {
 func TestNewRouterAddsCORSInDevelopment(t *testing.T) {
 	initTestEnv(t)
 
-	hub := ws.NewHub()
-	r := NewRouter(hub)
+	manager := ws.NewManager(1)
+	r := NewRouter(manager)
 
 	req := httptest.NewRequest(http.MethodOptions, "http://example.test/health", nil)
 	rec := httptest.NewRecorder()
