@@ -41,7 +41,8 @@ type clientState struct {
 var (
 	clients         sync.Map
 	once            sync.Once
-	cleanupStopChan <-chan struct{}
+	cleanupStopChan = make(chan struct{})
+	cleanupStopOnce sync.Once
 )
 
 func clientIPForRateLimit(r *http.Request) string {

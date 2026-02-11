@@ -13,9 +13,16 @@ import (
 
 func resetRateLimitState(t *testing.T) {
 	t.Helper()
-	clients = sync.Map{}
+	cleanupStopOnce.Do(func() {
+		close(cleanupStopChan)
+	})
+
+	clients.Range(func(key, _ any) bool {
+		clients.Delete(key)
+		return true
+	})
+
 	once = sync.Once{}
-	cleanupStopChan = nil
 }
 
 func TestClientIPForRateLimitPrefersForwardedHeaders(t *testing.T) {
@@ -143,10 +150,6 @@ func TestCleanupOldClientsLoopRemovesStaleEntries(t *testing.T) {
 
 func TestCleanupOldClientsStopsWhenStopClosed(t *testing.T) {
 	resetRateLimitState(t)
-
-	stop := make(chan struct{})
-	close(stop)
-	cleanupStopChan = stop
 
 	done := make(chan struct{})
 	go func() {
