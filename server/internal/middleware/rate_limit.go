@@ -20,11 +20,11 @@ type MethodLimit struct {
 
 var RateLimits = map[string]MethodLimit{
 	"GET": {
-		Limiter: rate.NewLimiter(10, 20),
+		Limiter: rate.NewLimiter(5, 10),
 		BanTime: 10,
 	},
 	"POST": {
-		Limiter: rate.NewLimiter(3, 6),
+		Limiter: rate.NewLimiter(2, 5),
 		BanTime: 30,
 	},
 }
