@@ -2,7 +2,12 @@ package ws
 
 import (
 	"encoding/json"
+	"errors"
+	"io"
 	"log"
+	"net"
+
+	"github.com/gorilla/websocket"
 )
 
 var internalErrorMessage = []byte(`{"type":"general.error","data":{"error":"internal error"},"from":"system"}`)
@@ -45,5 +50,23 @@ func newErrorMessage(message string) []byte {
 		"",
 		payload,
 		"system",
+	)
+}
+
+func IsExpectedWSDisconnect(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	if errors.Is(err, io.EOF) || errors.Is(err, net.ErrClosed) || errors.Is(err, websocket.ErrCloseSent) {
+		return true
+	}
+
+	return websocket.IsCloseError(
+		err,
+		websocket.CloseNormalClosure,
+		websocket.CloseGoingAway,
+		websocket.CloseNoStatusReceived,
+		websocket.CloseAbnormalClosure,
 	)
 }

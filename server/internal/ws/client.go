@@ -92,10 +92,10 @@ func (c *Client) readPump(manager *Manager) { // nosonar
 	for {
 		var msg Message
 		if err := c.conn.ReadJSON(&msg); err != nil {
-			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
-				log.Println("WebSocket closed:", err)
+			if !IsExpectedWSDisconnect(err) {
+				log.Println("WARNING WebSocket read error:", err)
 			} else {
-				log.Println("WebSocket read error:", err)
+				log.Println("DEBUG WebSocket disconnected:", err)
 			}
 
 			break
@@ -170,29 +170,41 @@ func (c *Client) writePump() {
 		case msg, ok := <-c.send:
 			err := c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err != nil {
-				log.Println("WebSocket set write deadline error:", err)
+				log.Println("WARNING WebSocket set write deadline error:", err)
+
 				return
 			}
 
 			if !ok {
 				c.conn.WriteMessage(websocket.CloseMessage, nil)
+
 				return
 			}
 
 			if err = c.conn.WriteMessage(websocket.BinaryMessage, msg); err != nil {
-				log.Println("WebSocket write message error:", err)
+				if !IsExpectedWSDisconnect(err) {
+					log.Println("WARNING WebSocket write message error:", err)
+				} else {
+					log.Println("DEBUG WebSocket write stopped:", err)
+				}
+
 				return
 			}
 
 		case <-ticker.C:
 			err := c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err != nil {
-				log.Println("WebSocket set write deadline error:", err)
+				log.Println("WARNING WebSocket set write deadline error:", err)
 				return
 			}
 
 			if err = c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				log.Println("WebSocket write ping error:", err)
+				if !IsExpectedWSDisconnect(err) {
+					log.Println("WARNING WebSocket write ping error:", err)
+				} else {
+					log.Println("DEBUG WebSocket ping stopped:", err)
+				}
+
 				return
 			}
 		}
