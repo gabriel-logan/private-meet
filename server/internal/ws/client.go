@@ -49,10 +49,7 @@ func (c *Client) readPump(manager *Manager) { // nosonar
 	// Client binds/registers to a hub shard lazily when we know the room.
 	defer func() {
 		if c.hub != nil {
-			select {
-			case c.hub.unregister <- c:
-			default:
-			}
+			c.hub.unregister <- c
 		} else {
 			// If we never bound to a hub (disconnect before any room-scoped message),
 			// close send so writePump can exit.
