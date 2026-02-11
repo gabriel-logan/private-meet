@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -12,14 +13,15 @@ const EnvironmentPrefixMsg = "Environment variable "
 const EnvironmentSuffixMsg = " is required."
 
 type Env struct {
-	GoEnv          string
-	UseLocalTLS    bool
-	AppName        string
-	AllowedOrigin  string
-	ServerPort     string
-	JwtSecret      string
-	JwtExpiration  time.Duration
-	ContextTimeout time.Duration
+	GoEnv             string
+	HubShardsQuantity int
+	UseLocalTLS       bool
+	AppName           string
+	AllowedOrigin     string
+	ServerPort        string
+	JwtSecret         string
+	JwtExpiration     time.Duration
+	ContextTimeout    time.Duration
 }
 
 var env *Env
@@ -32,6 +34,21 @@ func mustExistBool(key string) bool {
 	}
 
 	return value == "true"
+}
+
+func mustExistInt(key string) int {
+	value := os.Getenv(key)
+
+	if value == "" {
+		log.Fatal(EnvironmentPrefixMsg + key + EnvironmentSuffixMsg)
+	}
+
+	intValue, err := strconv.Atoi(value)
+	if err != nil {
+		log.Fatalf(EnvironmentPrefixMsg+key+" must be a valid integer: %v", err)
+	}
+
+	return intValue
 }
 
 func mustExistString(key string) string {
@@ -66,14 +83,15 @@ func InitEnv() *Env {
 	}
 
 	env = &Env{
-		GoEnv:          mustExistString("GO_ENV"),
-		UseLocalTLS:    mustExistBool("USE_LOCAL_TLS"),
-		AppName:        mustExistString("APP_NAME"),
-		AllowedOrigin:  mustExistString("ALLOWED_ORIGIN"),
-		ServerPort:     mustExistString("SERVER_PORT"),
-		JwtSecret:      mustExistString("JWT_SECRET"),
-		JwtExpiration:  mustExistDuration("JWT_EXPIRATION"),
-		ContextTimeout: mustExistDuration("CONTEXT_TIMEOUT"),
+		GoEnv:             mustExistString("GO_ENV"),
+		HubShardsQuantity: mustExistInt("HUB_SHARDS_QUANTITY"),
+		UseLocalTLS:       mustExistBool("USE_LOCAL_TLS"),
+		AppName:           mustExistString("APP_NAME"),
+		AllowedOrigin:     mustExistString("ALLOWED_ORIGIN"),
+		ServerPort:        mustExistString("SERVER_PORT"),
+		JwtSecret:         mustExistString("JWT_SECRET"),
+		JwtExpiration:     mustExistDuration("JWT_EXPIRATION"),
+		ContextTimeout:    mustExistDuration("CONTEXT_TIMEOUT"),
 	}
 
 	log.Println("Environment variables initialized successfully")

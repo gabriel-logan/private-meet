@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"runtime"
 
 	"github.com/gabriel-logan/private-meet/server/internal/config"
 	"github.com/gabriel-logan/private-meet/server/internal/httpapi"
@@ -18,7 +17,7 @@ func main() {
 	env := config.InitEnv()
 
 	// Initialize WebSocket manager
-	manager := ws.NewManager(runtime.NumCPU() * 4)
+	manager := ws.NewManager(env.HubShardsQuantity)
 
 	// Initialize HTTP router
 	r := httpapi.NewRouter(manager)
