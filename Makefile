@@ -13,7 +13,7 @@ build:
 	cd web && pnpm install && pnpm build
 
 install:
-	cd server && go install
+	cd server && go mod download
 	cd web && pnpm install
 
 test:
