@@ -18,7 +18,7 @@ func main() {
 	env := config.InitEnv()
 
 	// Initialize WebSocket manager
-	manager := ws.NewManager(runtime.NumCPU() * 2)
+	manager := ws.NewManager(runtime.NumCPU() * 4)
 
 	// Initialize HTTP router
 	r := httpapi.NewRouter(manager)
