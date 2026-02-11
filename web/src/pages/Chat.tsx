@@ -218,19 +218,8 @@ export default function ChatPage() {
   }
 
   function handleLeaveRoom() {
-    if (room) {
-      try {
-        const ws = getWSInstance();
-
-        if (ws.readyState === WebSocket.OPEN) {
-          // stop typing before leaving
-          ws.send(makeWSMessage("chat.typing", { room, typing: false }));
-          ws.send(makeWSMessage("chat.leave", { room }));
-        }
-      } catch (error) {
-        console.error("Error leaving room:", error);
-      }
-    }
+    // NOTE: We rely on the cleanup function of the WebSocket useEffect to send the leave message, so we don't need to do it here.
+    // NOTE2: REMEMBER TO UPDATE THIS IF CLEANUP LOGIC CHANGES IN THE WEBSOCKET USEEFFECT OR NAVIGATION LOGIC CHANGES IN THIS FUNCTION
 
     navigate("/");
   }
@@ -587,12 +576,6 @@ export default function ChatPage() {
           });
 
         return;
-      }
-
-      if (parsed.type === "general.error") {
-        const errorMsg =
-          parsed.data.error || t("Errors.UnknownErrorFromServer");
-        toast.error(errorMsg);
       }
     };
 
