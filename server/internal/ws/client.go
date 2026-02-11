@@ -192,12 +192,12 @@ func (c *Client) writePump() {
 			err := c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err != nil {
 				log.Println("WebSocket set write deadline error:", err)
-				break
+				return
 			}
 
 			if !ok {
 				c.conn.WriteMessage(websocket.CloseMessage, nil)
-				break
+				return
 			}
 
 			if err = c.conn.WriteMessage(websocket.BinaryMessage, msg); err != nil {
@@ -209,7 +209,7 @@ func (c *Client) writePump() {
 			err := c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err != nil {
 				log.Println("WebSocket set write deadline error:", err)
-				break
+				return
 			}
 
 			if err = c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
