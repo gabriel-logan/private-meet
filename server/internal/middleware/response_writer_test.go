@@ -14,6 +14,7 @@ func TestResponseWriterWriteSetsStatusAndCountsBytes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if n != 5 {
 		t.Fatalf("expected 5 bytes written, got %d", n)
 	}
