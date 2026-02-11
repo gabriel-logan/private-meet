@@ -25,6 +25,9 @@ test_cov:
 test_cov_html:
 	cd server && go test ./... -coverprofile=coverage.out && go tool cover -html=coverage.out
 
+test_race:
+	cd server && go test --race ./...
+
 tidy:
 	cd server && go mod tidy
 
