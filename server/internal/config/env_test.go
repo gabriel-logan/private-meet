@@ -190,6 +190,7 @@ func TestInitEnv(t *testing.T) {
 	ensureInternalDotEnvFile(t)
 
 	t.Setenv("GO_ENV", "test")
+	t.Setenv("HUB_SHARDS_QUANTITY", "1")
 	t.Setenv("USE_LOCAL_TLS", "false")
 	t.Setenv("APP_NAME", "TestApp")
 	t.Setenv("ALLOWED_ORIGIN", "http://localhost")

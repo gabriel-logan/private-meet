@@ -37,6 +37,7 @@ func initTestEnv(t *testing.T) {
 	ensureInternalDotEnvFile(t)
 
 	t.Setenv("GO_ENV", "development")
+	t.Setenv("HUB_SHARDS_QUANTITY", "1")
 	t.Setenv("USE_LOCAL_TLS", "false")
 	t.Setenv("APP_NAME", "PrivateMeet")
 	t.Setenv("ALLOWED_ORIGIN", "http://localhost")
