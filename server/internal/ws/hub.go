@@ -30,6 +30,10 @@ func (h *Hub) Run() {
 	for {
 		select {
 		case in := <-h.inbound:
+			if in == nil || in.client == nil || in.msg == nil {
+				continue
+			}
+
 			c := in.client
 			msg := in.msg
 
