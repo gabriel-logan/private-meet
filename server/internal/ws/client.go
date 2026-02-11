@@ -156,8 +156,9 @@ func (c *Client) readPump(manager *Manager) { // nosonar
 
 			oldHub.detach <- c
 
-			c.hub = hub
 			hub.register <- c
+
+			c.hub = hub
 		}
 
 		// From here on, the hub is the single writer/owner of room state.
