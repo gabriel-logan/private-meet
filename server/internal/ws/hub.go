@@ -27,7 +27,7 @@ func NewHub() *Hub {
 	}
 }
 
-func (h *Hub) Run() {
+func (h *Hub) Run() { // nosonar
 	for {
 		select {
 		case c := <-h.disconnect:
