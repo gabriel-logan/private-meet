@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"strings"
 	"unicode/utf8"
-
-	"github.com/google/uuid"
 )
 
 type inboundMessage struct {
@@ -18,6 +16,7 @@ type Hub struct {
 	rooms   map[string]map[*Client]bool
 
 	register   chan *Client
+	detach     chan *Client
 	unregister chan *Client
 	inbound    chan inboundMessage
 }
@@ -27,6 +26,7 @@ func NewHub() *Hub {
 		clients:    make(map[*Client]bool),
 		rooms:      make(map[string]map[*Client]bool),
 		register:   make(chan *Client, 256),
+		detach:     make(chan *Client, 256),
 		unregister: make(chan *Client, 256),
 		inbound:    make(chan inboundMessage, 4096),
 	}
@@ -48,6 +48,15 @@ func (h *Hub) Run() {
 			}
 
 			close(c.send)
+
+		case c := <-h.detach:
+			delete(h.clients, c)
+
+			affectedRooms := h.clientLeaveAllRooms(c)
+
+			for _, room := range affectedRooms {
+				h.clientBroadcastRoomUsersSnapshot(room)
+			}
 
 		case in := <-h.inbound:
 			h.handleInbound(in.client, &in.msg)
@@ -106,18 +115,6 @@ func (h *Hub) handleInbound(c *Client, msg *Message) {
 		}
 
 		h.clientBroadcastToRoom(msg.Room, msg)
-
-	case MessageUtilsGenerateRoomID:
-		newRoomID := uuid.NewString()
-
-		c.safeSend(
-			newMessage(
-				MessageUtilsGenerateRoomID,
-				"",
-				[]byte(`{"roomID":"`+newRoomID+`"}`),
-				"system",
-			),
-		)
 
 	case MessageWebRTCOffer, MessageWebRTCAnswer, MessageWebRTCIceCandidate:
 		if !h.isClientInRoom(msg.Room, c) {

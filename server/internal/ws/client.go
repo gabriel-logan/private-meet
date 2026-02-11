@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -44,13 +45,20 @@ func (c *Client) sendError(message string) bool {
 	return c.safeSend(newErrorMessage(message))
 }
 
-func (c *Client) readPump() { // nosonar
-	// Don't need to register because client is already registered in ServeWS
+func (c *Client) readPump(manager *Manager) { // nosonar
+	// Client binds/registers to a hub shard lazily when we know the room.
 	defer func() {
-		select {
-		case c.hub.unregister <- c:
-		default:
+		if c.hub != nil {
+			select {
+			case c.hub.unregister <- c:
+			default:
+			}
+		} else {
+			// If we never bound to a hub (disconnect before any room-scoped message),
+			// close send so writePump can exit.
+			close(c.send)
 		}
+
 		c.conn.Close()
 	}()
 
@@ -100,9 +108,24 @@ func (c *Client) readPump() { // nosonar
 			continue
 		}
 
+		if msg.Type == MessageUtilsGenerateRoomID {
+			newRoomID := uuid.NewString()
+
+			c.safeSend(
+				newMessage(
+					MessageUtilsGenerateRoomID,
+					"",
+					[]byte(`{"roomID":"`+newRoomID+`"}`),
+					"system",
+				),
+			)
+
+			continue
+		}
+
 		msg.Room = strings.TrimSpace(msg.Room)
 
-		if msg.Room == "" && msg.Type != MessageUtilsGenerateRoomID {
+		if msg.Room == "" {
 			if !fail("Room ID is required") {
 				break
 			}
@@ -118,10 +141,34 @@ func (c *Client) readPump() { // nosonar
 			continue
 		}
 
+		hub := manager.GetHubForRoom(msg.Room)
+
+		if c.hub == nil {
+			c.hub = hub
+			hub.register <- c
+		} else if c.hub != hub {
+			// Allow switching rooms across shards, but only via chat.join.
+			if msg.Type != MessageChatJoin {
+				if !fail("Wrong shard; send chat.join to switch rooms") {
+					break
+				}
+				continue
+			}
+
+			oldHub := c.hub
+			select {
+			case oldHub.detach <- c:
+			default:
+			}
+
+			c.hub = hub
+			hub.register <- c
+		}
+
 		// From here on, the hub is the single writer/owner of room state.
 		// We only validate basic protocol shape here.
 		select {
-		case c.hub.inbound <- inboundMessage{client: c, msg: msg}:
+		case hub.inbound <- inboundMessage{client: c, msg: msg}:
 		default:
 			// Backpressure: if the hub is overloaded, drop the message.
 			// This keeps the connection responsive under load.
