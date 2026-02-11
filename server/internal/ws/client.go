@@ -46,7 +46,13 @@ func (c *Client) sendError(message string) bool {
 }
 
 func (c *Client) readPump(manager *Manager) { // nosonar
-	defer func() {}()
+	defer func() {
+		if c.hub != nil {
+			c.hub.disconnect <- c
+		}
+
+		c.conn.Close()
+	}()
 
 	c.conn.SetReadLimit(maxWSMessageBytes)
 	if err := c.conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
