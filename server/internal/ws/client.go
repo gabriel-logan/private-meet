@@ -47,8 +47,8 @@ func (c *Client) sendError(message string) bool {
 
 func (c *Client) readPump(manager *Manager) { // nosonar
 	defer func() {
-		if c.hub != nil {
-			c.hub.disconnect <- c
+		if manager != nil {
+			manager.DisconnectClient(c)
 		}
 
 		c.conn.Close()

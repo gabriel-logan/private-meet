@@ -64,24 +64,24 @@ func (h *Hub) Run() {
 			case MessageChatMessage:
 				if !h.isClientInRoom(msg.Room, c) {
 					c.sendError("You are not in this room")
-					return
+					continue
 				}
 
 				var payload ChatData
 				if err := json.Unmarshal(msg.Data, &payload); err != nil {
 					c.sendError("Invalid chat message payload")
-					return
+					continue
 				}
 
 				payload.Message = strings.TrimSpace(payload.Message)
 				if payload.Message == "" {
 					c.sendError("Message cannot be empty")
-					return
+					continue
 				}
 
 				if utf8.RuneCountInString(payload.Message) > maxChatRunes {
 					c.sendError("Message is too long")
-					return
+					continue
 				}
 
 				h.clientBroadcastToRoom(msg.Room, msg)
@@ -89,13 +89,13 @@ func (h *Hub) Run() {
 			case MessageChatTyping:
 				if !h.isClientInRoom(msg.Room, c) {
 					c.sendError("You are not in this room")
-					return
+					continue
 				}
 
 				var payload ChatTypingData
 				if err := json.Unmarshal(msg.Data, &payload); err != nil {
 					c.sendError("Invalid typing payload")
-					return
+					continue
 				}
 
 				h.clientBroadcastToRoom(msg.Room, msg)
@@ -103,7 +103,7 @@ func (h *Hub) Run() {
 			case MessageWebRTCOffer, MessageWebRTCAnswer, MessageWebRTCIceCandidate:
 				if !h.isClientInRoom(msg.Room, c) {
 					c.sendError("You are not in this room")
-					return
+					continue
 				}
 
 				to := ""
@@ -113,7 +113,7 @@ func (h *Hub) Run() {
 					var payload WebRTCOfferData
 					if err := json.Unmarshal(msg.Data, &payload); err != nil {
 						c.sendError("Invalid WebRTC offer payload")
-						return
+						continue
 					}
 
 					to = strings.TrimSpace(payload.To)
@@ -122,7 +122,7 @@ func (h *Hub) Run() {
 					var payload WebRTCAnswerData
 					if err := json.Unmarshal(msg.Data, &payload); err != nil {
 						c.sendError("Invalid WebRTC answer payload")
-						return
+						continue
 					}
 
 					to = strings.TrimSpace(payload.To)
@@ -131,7 +131,7 @@ func (h *Hub) Run() {
 					var payload WebRTCIceCandidateData
 					if err := json.Unmarshal(msg.Data, &payload); err != nil {
 						c.sendError("Invalid WebRTC ICE candidate payload")
-						return
+						continue
 					}
 
 					to = strings.TrimSpace(payload.To)
@@ -139,7 +139,7 @@ func (h *Hub) Run() {
 
 				if to == "" {
 					c.sendError("Missing WebRTC recipient")
-					return
+					continue
 				}
 
 				h.clientBroadcastToRoom(msg.Room, msg)

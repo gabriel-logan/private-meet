@@ -33,3 +33,20 @@ func (m *Manager) GetHubForRoom(room string) *Hub {
 
 	return m.hubs[idx]
 }
+
+func (m *Manager) DisconnectClient(c *Client) {
+	if c == nil {
+		return
+	}
+
+	for _, hub := range m.hubs {
+		if hub == nil {
+			continue
+		}
+
+		select {
+		case hub.disconnect <- c:
+		default:
+		}
+	}
+}
