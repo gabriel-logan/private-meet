@@ -61,6 +61,8 @@ func TestHelperProcess(t *testing.T) {
 	switch helper {
 	case "mustExistBool":
 		_ = mustExistBool(key)
+	case "mustExistInt":
+		_ = mustExistInt(key)
 	case "mustExistString":
 		_ = mustExistString(key)
 	case "mustExistDuration":
@@ -139,6 +141,52 @@ func TestMustExistBoolMissing(t *testing.T) {
 
 	if !strings.Contains(out, EnvironmentPrefixMsg+key+" is required") {
 		t.Fatalf("expected fatal message to mention missing env var; output=%q", out)
+	}
+}
+
+func TestMustExistIntValid(t *testing.T) {
+	key := "TEST_MUST_EXIST_INT"
+	expectedValue := "42"
+
+	t.Setenv(key, expectedValue)
+
+	value := mustExistInt(key)
+	if value != 42 {
+		t.Errorf("Expected 42, got %v", value)
+	}
+}
+
+func TestMustExistIntMissing(t *testing.T) {
+	key := "TEST_MUST_EXIST_INT_MISSING"
+
+	out, err := runHelperProcess(t, map[string]string{
+		"HELPER_NAME": "mustExistInt",
+		"TARGET_KEY":  key,
+	})
+	if err == nil {
+		t.Fatalf("expected subprocess to fail (log.Fatal), got nil error; output=%q", out)
+	}
+
+	if !strings.Contains(out, EnvironmentPrefixMsg+key+" is required") {
+		t.Fatalf("expected fatal message to mention missing env var; output=%q", out)
+	}
+}
+
+func TestMustExistIntInvalid(t *testing.T) {
+	key := "TEST_MUST_EXIST_INT_INVALID"
+	invalidValue := "not_an_int"
+
+	out, err := runHelperProcess(t, map[string]string{
+		"HELPER_NAME": "mustExistInt",
+		"TARGET_KEY":  key,
+		key:           invalidValue,
+	})
+	if err == nil {
+		t.Fatalf("expected subprocess to fail (log.Fatal), got nil error; output=%q", out)
+	}
+
+	if !strings.Contains(out, EnvironmentPrefixMsg+key+" must be a valid integer") {
+		t.Fatalf("expected fatal message to mention invalid integer; output=%q", out)
 	}
 }
 
@@ -236,20 +284,25 @@ func TestInitEnv(t *testing.T) {
 
 func TestGetEnvValid(t *testing.T) {
 	env = &Env{
-		GoEnv:          "test",
-		UseLocalTLS:    false,
-		AppName:        "TestApp",
-		AllowedOrigin:  "http://localhost",
-		ServerPort:     "8080",
-		JwtSecret:      "testsecret",
-		JwtExpiration:  time.Hour,
-		ContextTimeout: 10 * time.Second,
+		GoEnv:             "test",
+		HubShardsQuantity: 1,
+		UseLocalTLS:       false,
+		AppName:           "TestApp",
+		AllowedOrigin:     "http://localhost",
+		ServerPort:        "8080",
+		JwtSecret:         "testsecret",
+		JwtExpiration:     time.Hour,
+		ContextTimeout:    10 * time.Second,
 	}
 
 	got := GetEnv()
 
 	if got.GoEnv != "test" {
 		t.Errorf("Expected GO_ENV to be 'test', got '%s'", got.GoEnv)
+	}
+
+	if got.HubShardsQuantity != 1 {
+		t.Errorf("Expected HUB_SHARDS_QUANTITY to be 1, got '%d'", got.HubShardsQuantity)
 	}
 
 	if got.UseLocalTLS != false {
