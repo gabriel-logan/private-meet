@@ -39,8 +39,9 @@ type clientState struct {
 }
 
 var (
-	clients sync.Map
-	once    sync.Once
+	clients         sync.Map
+	once            sync.Once
+	cleanupStopChan <-chan struct{}
 )
 
 func clientIPForRateLimit(r *http.Request) string {
@@ -134,18 +135,27 @@ func cleanupOldClients() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		now := time.Now()
-		cutoff := now.Add(-10 * time.Minute).UnixNano()
+	cleanupOldClientsLoop(ticker.C, cleanupStopChan)
+}
 
-		clients.Range(func(key, value any) bool {
-			c := value.(*clientState)
-			lastSeen := c.LastSeenUnixNano.Load()
-			if lastSeen < cutoff {
-				clients.Delete(key)
-			}
-			return true
-		})
+func cleanupOldClientsLoop(tick <-chan time.Time, stop <-chan struct{}) {
+	for {
+		select {
+		case <-tick:
+			now := time.Now()
+			cutoff := now.Add(-10 * time.Minute).UnixNano()
+
+			clients.Range(func(key, value any) bool {
+				c := value.(*clientState)
+				lastSeen := c.LastSeenUnixNano.Load()
+				if lastSeen < cutoff {
+					clients.Delete(key)
+				}
+				return true
+			})
+		case <-stop:
+			return
+		}
 	}
 }
 
