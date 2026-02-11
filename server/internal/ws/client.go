@@ -156,10 +156,8 @@ func (c *Client) readPump(manager *Manager) { // nosonar
 			}
 
 			oldHub := c.hub
-			select {
-			case oldHub.detach <- c:
-			default:
-			}
+
+			oldHub.detach <- c
 
 			c.hub = hub
 			hub.register <- c
