@@ -46,18 +46,7 @@ func (c *Client) sendError(message string) bool {
 }
 
 func (c *Client) readPump(manager *Manager) { // nosonar
-	// Client binds/registers to a hub shard lazily when we know the room.
-	defer func() {
-		if c.hub != nil {
-			c.hub.unregister <- c
-		} else {
-			// If we never bound to a hub (disconnect before any room-scoped message),
-			// close send so writePump can exit.
-			close(c.send)
-		}
-
-		c.conn.Close()
-	}()
+	defer func() {}()
 
 	c.conn.SetReadLimit(maxWSMessageBytes)
 	if err := c.conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
@@ -140,31 +129,10 @@ func (c *Client) readPump(manager *Manager) { // nosonar
 
 		hub := manager.GetHubForRoom(msg.Room)
 
-		if c.hub == nil {
-			c.hub = hub
-			hub.register <- c
-		} else if c.hub != hub {
-			// Allow switching rooms across shards, but only via chat.join.
-			if msg.Type != MessageChatJoin {
-				if !fail("Wrong shard; send chat.join to switch rooms") {
-					break
-				}
-				continue
-			}
-
-			oldHub := c.hub
-
-			oldHub.detach <- c
-
-			hub.register <- c
-
-			c.hub = hub
-		}
-
 		// From here on, the hub is the single writer/owner of room state.
 		// We only validate basic protocol shape here.
 		select {
-		case hub.inbound <- inboundMessage{client: c, msg: msg}:
+		case hub.inbound <- &inboundMessage{client: c, msg: &msg}:
 		default:
 			// Backpressure: if the hub is overloaded, drop the message.
 			// This keeps the connection responsive under load.

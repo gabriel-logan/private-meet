@@ -59,7 +59,7 @@ func ServeWS(manager *Manager) http.HandlerFunc {
 		client := &Client{
 			hub:      nil,
 			conn:     conn,
-			send:     make(chan []byte, 32),
+			send:     make(chan []byte, 8),
 			UserID:   userID,
 			Username: username,
 		}
