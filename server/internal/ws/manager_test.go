@@ -11,10 +11,15 @@ func TestManagerDisconnectClientNilAndEdgeHubs(t *testing.T) {
 }
 
 func TestUseDefaultHubShardsBe1(t *testing.T) {
-	m := NewManager(-1)
+	m1 := NewManager(-1)
+	m2 := NewManager(0)
 
-	if len(m.hubs) != 1 {
-		t.Fatalf("expected 1 hub shard, got %d", len(m.hubs))
+	if len(m1.hubs) != 1 {
+		t.Fatalf("expected 1 hub shard, got %d", len(m1.hubs))
+	}
+
+	if len(m2.hubs) != 1 {
+		t.Fatalf("expected 1 hub shard, got %d", len(m2.hubs))
 	}
 }
 
