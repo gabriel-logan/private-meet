@@ -215,11 +215,9 @@ func (h *Hub) clientBroadcastToRoom(room string, msg *Message) {
 	for c := range clients {
 		select {
 		case c.send <- payload:
-			c.droppedMessages = 0
+			c.resetDroppedMessages()
 		default:
-			c.droppedMessages++
-
-			if c.droppedMessages >= maxDroppedMessages {
+			if c.incDroppedMessages() >= maxDroppedMessages {
 				select {
 				case h.disconnect <- c:
 				default:

@@ -53,9 +53,18 @@ func TestHubDoesNotExitOnNotInRoomErrors(t *testing.T) {
 	msg2 := Message{Type: MessageChatJoin, Room: "r1", Data: json.RawMessage(`null`)}
 	h.inbound <- &inboundMessage{client: c, msg: &msg2}
 
-	eventually(t, 500*time.Millisecond, func() bool {
-		return h.isClientInRoom("r1", c)
-	}, "client to be in room after join")
+	select {
+	case b := <-c.send:
+		var m Message
+		if err := json.Unmarshal(b, &m); err != nil {
+			t.Fatalf("failed to unmarshal join response: %v", err)
+		}
+		if m.Type != MessageRoomUsers || m.Room != "r1" {
+			t.Fatalf("expected room.users for r1, got %q (%q)", m.Type, m.Room)
+		}
+	case <-time.After(500 * time.Millisecond):
+		t.Fatalf("expected room.users snapshot after join")
+	}
 }
 
 func TestManagerDisconnectClientRemovesFromAllHubs(t *testing.T) {
@@ -87,19 +96,51 @@ func TestManagerDisconnectClientRemovesFromAllHubs(t *testing.T) {
 	joinB := Message{Type: MessageChatJoin, Room: roomB, Data: json.RawMessage(`null`)}
 	hubB.inbound <- &inboundMessage{client: c, msg: &joinB}
 
-	eventually(t, 500*time.Millisecond, func() bool {
-		return hubA.isClientInRoom(roomA, c)
-	}, "client to be in roomA")
-	eventually(t, 500*time.Millisecond, func() bool {
-		return hubB.isClientInRoom(roomB, c)
-	}, "client to be in roomB")
+	// Wait for the two room.users snapshots (one per join).
+	seen := map[string]bool{}
+	deadline := time.Now().Add(time.Second)
+	for len(seen) < 2 && time.Now().Before(deadline) {
+		select {
+		case b := <-c.send:
+			var m Message
+			if err := json.Unmarshal(b, &m); err != nil {
+				continue
+			}
+			if m.Type == MessageRoomUsers {
+				seen[m.Room] = true
+			}
+		case <-time.After(10 * time.Millisecond):
+		}
+	}
+	if !seen[roomA] || !seen[roomB] {
+		t.Fatalf("expected room.users snapshots for both rooms")
+	}
 
 	m.DisconnectClient(c)
 
-	eventually(t, 500*time.Millisecond, func() bool {
-		return !hubA.isClientInRoom(roomA, c)
-	}, "client to be removed from roomA")
-	eventually(t, 500*time.Millisecond, func() bool {
-		return !hubB.isClientInRoom(roomB, c)
-	}, "client to be removed from roomB")
+	probeNotInRoom := func(hub *Hub, room string) {
+		t.Helper()
+		probeDeadline := time.Now().Add(time.Second)
+		for time.Now().Before(probeDeadline) {
+			msg := Message{Type: MessageChatMessage, Room: room, Data: json.RawMessage(`{"message":"hi"}`)}
+			hub.inbound <- &inboundMessage{client: c, msg: &msg}
+
+			select {
+			case b := <-c.send:
+				var m Message
+				if err := json.Unmarshal(b, &m); err != nil {
+					continue
+				}
+				if m.Type == MessageError {
+					return
+				}
+				// If still joined, we may see chat.message echoed; keep probing.
+			case <-time.After(10 * time.Millisecond):
+			}
+		}
+		t.Fatalf("expected not-in-room error for %q", room)
+	}
+
+	probeNotInRoom(hubA, roomA)
+	probeNotInRoom(hubB, roomB)
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
@@ -18,7 +19,15 @@ type Client struct {
 	UserID   string
 	Username string
 
-	droppedMessages int
+	droppedMessages int32
+}
+
+func (c *Client) resetDroppedMessages() {
+	atomic.StoreInt32(&c.droppedMessages, 0)
+}
+
+func (c *Client) incDroppedMessages() int32 {
+	return atomic.AddInt32(&c.droppedMessages, 1)
 }
 
 const (
