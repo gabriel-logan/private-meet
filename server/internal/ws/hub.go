@@ -63,7 +63,7 @@ func (h *Hub) Run() { // nosonar
 
 			case MessageChatMessage:
 				if !h.isClientInRoom(msg.Room, c) {
-					c.sendError("You are not in this room")
+					c.sendError("You can't send a message to this room")
 					continue
 				}
 
@@ -88,7 +88,7 @@ func (h *Hub) Run() { // nosonar
 
 			case MessageChatTyping:
 				if !h.isClientInRoom(msg.Room, c) {
-					c.sendError("You are not in this room")
+					c.sendError("You can't send typing notifications to this room")
 					continue
 				}
 
@@ -102,7 +102,7 @@ func (h *Hub) Run() { // nosonar
 
 			case MessageWebRTCOffer, MessageWebRTCAnswer, MessageWebRTCIceCandidate:
 				if !h.isClientInRoom(msg.Room, c) {
-					c.sendError("You are not in this room")
+					c.sendError("You can't send WebRTC messages to this room")
 					continue
 				}
 
