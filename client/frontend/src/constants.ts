@@ -28,5 +28,4 @@ export const webRTCFileChannelLabel = __WEBRTC_FILE_CHANNEL_LABEL__;
 export const webRTCImageChunkSizeBytes = 16 * 1024; // 16KB
 export const webRTCFileChannelMaxBufferedAmountBytes = 2 * 1024 * 1024; // 2MB
 
-export const isDesktop =
-  (window as unknown as { go: unknown }).go !== undefined;
+export const isDesktop = !!(window as unknown as { go: unknown }).go;
