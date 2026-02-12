@@ -142,7 +142,7 @@
 
   "About": {
     "HeroTitle": "Private meetings, minimal friction.",
-    "HeroDescription": "Private Meet is a lightweight real-time chat + meeting experience. It already supports client-side encrypted chat, WebRTC media, and image sharing over WebRTC data channels. Next, the focus is improving reliability and polishing the privacy model.",
+    "HeroDescription": "Private Meet is a lightweight real-time chat + meeting experience available on web and desktop (Windows). It already supports client-side encrypted chat, WebRTC media, and image sharing over WebRTC data channels. Next, the focus is improving reliability and polishing the privacy model.",
 
     "OnThisPage": "On this page",
     "OnThisPageLinks": {
@@ -161,7 +161,7 @@
 
     "Meta": {
       "StackLabel": "Stack",
-      "StackValue": "React + WebSocket + WebRTC + Go",
+      "StackValue": "React + WebSocket + WebRTC + Go + Wails",
       "GoalLabel": "Goal",
       "GoalValue": "Privacy-first defaults",
       "RoadmapLabel": "Roadmap",
@@ -191,7 +191,7 @@
       },
       "Config": {
         "Title": "Config cheatsheet",
-        "Subtitle": "Quick mental model for the root .env used by server + web."
+        "Subtitle": "Quick mental model for the root .env used by server + frontend/desktop."
       },
       "Deploy": {
         "Title": "Deploy notes",
@@ -223,6 +223,10 @@
       "Images": {
         "Title": "Image sharing (WebRTC data channel)",
         "Description": "Send images directly peer-to-peer in chat. Sending is enabled only when WebRTC is connected with all peers in the room."
+      },
+      "Desktop": {
+        "Title": "Desktop app (Windows)",
+        "Description": "A Wails-based desktop app is available for Windows. It uses the same backend endpoints and real-time protocol as the web app."
       }
     },
 
@@ -290,7 +294,7 @@
       "WebSocket": {
         "Title": "WebSocket",
         "Description": "Connect to /ws with a query token. Messages are JSON with type, optional room, and data.",
-        "Note": "In dev, origin checks are permissive; in prod, Origin must match ALLOWED_ORIGIN."
+        "Note": "In dev, origin checks are permissive; in prod, Origin must match ALLOWED_ORIGINS."
       },
       "MessageTypes": {
         "Title": "Message types",
@@ -317,7 +321,7 @@
       },
       "Auth": {
         "Title": "Auth boundary",
-        "Description": "WebSocket connections require a valid JWT. In production, the server validates the WS Origin against ALLOWED_ORIGIN."
+        "Description": "WebSocket connections require a valid JWT. In production, the server validates the WS Origin against ALLOWED_ORIGINS."
       }
     },
 
@@ -368,7 +372,7 @@
           "V1": "GO_ENV (development / production)",
           "V2": "USE_LOCAL_TLS (true / false)",
           "V3": "SERVER_PORT",
-          "V4": "ALLOWED_ORIGIN",
+          "V4": "ALLOWED_ORIGINS",
           "V5": "JWT_SECRET + JWT_EXPIRATION",
           "V6": "CONTEXT_TIMEOUT"
         },
@@ -397,15 +401,20 @@
         "Title": "Build",
         "Body": "The repo builds a Go binary and a static web bundle.",
         "ServerBinary": "Server binary: server/bin/server",
-        "WebAssets": "Web assets: web/dist"
+        "WebAssets": "Web assets: client/frontend/dist"
       },
       "Spa": {
         "Title": "Serving the SPA",
-        "Body": "The Go server serves the SPA from web/dist and falls back to index.html for client-side routes."
+        "Body": "The Go server serves the SPA from client/frontend/dist and falls back to index.html for client-side routes."
       },
       "Health": {
         "Title": "Health checks",
         "Body": "/health returns OK and is used by platforms like Render."
+      },
+      "Desktop": {
+        "Title": "Desktop distribution",
+        "Body": "The desktop app can be built with Wails, including a Windows installer for distribution.",
+        "WindowsInstaller": "Windows installer output: distribution/windows/*.exe"
       }
     },
 

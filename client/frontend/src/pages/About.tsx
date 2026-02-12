@@ -11,6 +11,7 @@ import {
   FiKey,
   FiLock,
   FiMessageCircle,
+  FiMonitor,
   FiServer,
   FiShield,
   FiTool,
@@ -135,6 +136,11 @@ export default function AboutPage() {
       title: t("About.CurrentCards.Images.Title"),
       description: t("About.CurrentCards.Images.Description"),
       icon: FiFile,
+    },
+    {
+      title: t("About.CurrentCards.Desktop.Title"),
+      description: t("About.CurrentCards.Desktop.Description"),
+      icon: FiMonitor,
     },
   ];
 
@@ -710,7 +716,7 @@ export default function AboutPage() {
             subtitle={t("About.Sections.Deploy.Subtitle")}
           />
 
-          <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-5">
               <h3 className="text-sm font-semibold text-zinc-100">
                 {t("About.DeployCards.Build.Title")}
@@ -739,6 +745,18 @@ export default function AboutPage() {
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-zinc-400">
                 {t("About.DeployCards.Health.Body")}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-5">
+              <h3 className="text-sm font-semibold text-zinc-100">
+                {t("About.DeployCards.Desktop.Title")}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                {t("About.DeployCards.Desktop.Body")}
+              </p>
+              <p className="mt-2 text-sm text-zinc-400">
+                {t("About.DeployCards.Desktop.WindowsInstaller")}
               </p>
             </div>
           </div>

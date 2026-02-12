@@ -142,7 +142,7 @@
 
   "About": {
     "HeroTitle": "Reuniões privadas, atrito mínimo.",
-    "HeroDescription": "O Private Meet é uma experiência leve de bate-papo e reuniões em tempo real. Ele já oferece suporte a bate-papo criptografado no lado do cliente, mídia WebRTC e compartilhamento de imagens por meio de canais de dados WebRTC. O próximo passo é aprimorar a confiabilidade e refinar o modelo de privacidade.",
+    "HeroDescription": "O Private Meet é uma experiência leve de bate-papo e reuniões em tempo real, disponível para web e desktop (Windows). Ele já oferece suporte a bate-papo criptografado no lado do cliente, mídia WebRTC e compartilhamento de imagens por meio de canais de dados WebRTC. O próximo passo é aprimorar a confiabilidade e refinar o modelo de privacidade.",
 
     "OnThisPage": "Nesta página",
     "OnThisPageLinks": {
@@ -161,7 +161,7 @@
 
     "Meta": {
       "StackLabel": "Stack",
-      "StackValue": "React + WebSocket + WebRTC + Go",
+      "StackValue": "React + WebSocket + WebRTC + Go + Wails",
       "GoalLabel": "Objetivo",
       "GoalValue": "Configurações padrão com foco na privacidade",
       "RoadmapLabel": "Roteiro",
@@ -191,7 +191,7 @@
       },
       "Config": {
         "Title": "Resumo da configuração",
-        "Subtitle": "Modelo mental rápido para o .env raiz usado pelo servidor + web."
+        "Subtitle": "Modelo mental rápido para o .env raiz usado por servidor + frontend/desktop."
       },
       "Deploy": {
         "Title": "Notas de implantação",
@@ -223,6 +223,10 @@
       "Images": {
         "Title": "Compartilhamento de imagens (canal de dados WebRTC)",
         "Description": "Envie imagens diretamente peer-to-peer no chat. O envio é habilitado apenas quando o WebRTC está conectado com todos os peers na sala."
+      },
+      "Desktop": {
+        "Title": "Aplicativo desktop (Windows)",
+        "Description": "Há um app desktop baseado em Wails para Windows. Ele usa os mesmos endpoints de backend e o mesmo protocolo em tempo real da versão web."
       }
     },
 
@@ -290,7 +294,7 @@
       "WebSocket": {
         "Title": "WebSocket",
         "Description": "Conecte-se a /ws com um token de consulta. As mensagens são JSON com tipo, sala opcional e dados.",
-        "Note": "No desenvolvimento, as verificações de origem são permissivas; em produção, a Origem deve corresponder a ALLOWED_ORIGIN."
+        "Note": "No desenvolvimento, as verificações de origem são permissivas; em produção, a Origem deve corresponder a ALLOWED_ORIGINS."
       },
       "MessageTypes": {
         "Title": "Tipos de mensagem WS",
@@ -317,7 +321,7 @@
       },
       "Auth": {
         "Title": "Limite de autenticação",
-        "Description": "As conexões WebSocket exigem um JWT válido. Em produção, o servidor valida a Origem WS contra ALLOWED_ORIGIN."
+        "Description": "As conexões WebSocket exigem um JWT válido. Em produção, o servidor valida a Origem WS contra ALLOWED_ORIGINS."
       }
     },
 
@@ -368,7 +372,7 @@
           "V1": "GO_ENV (development / production)",
           "V2": "USE_LOCAL_TLS (true / false)",
           "V3": "SERVER_PORT",
-          "V4": "ALLOWED_ORIGIN",
+          "V4": "ALLOWED_ORIGINS",
           "V5": "JWT_SECRET + JWT_EXPIRATION",
           "V6": "CONTEXT_TIMEOUT"
         },
@@ -397,15 +401,20 @@
         "Title": "Build",
         "Body": "O repositório compila um binário Go e um pacote web estático.",
         "ServerBinary": "Binário do servidor: server/bin/server",
-        "WebAssets": "Recursos web: web/dist"
+        "WebAssets": "Recursos web: client/frontend/dist"
       },
       "Spa": {
         "Title": "Servindo o SPA",
-        "Body": "O servidor Go serve o SPA de web/dist e recua para index.html para rotas do lado do cliente."
+        "Body": "O servidor Go serve o SPA de client/frontend/dist e recua para index.html para rotas do lado do cliente."
       },
       "Health": {
         "Title": "Verificações de integridade",
         "Body": "/health retorna OK e é usado por plataformas como Render."
+      },
+      "Desktop": {
+        "Title": "Distribuição desktop",
+        "Body": "O app desktop pode ser compilado com Wails, incluindo instalador Windows para distribuição.",
+        "WindowsInstaller": "Saída do instalador Windows: distribution/windows/*.exe"
       }
     },
 
@@ -416,7 +425,7 @@
       },
       "Q2": {
         "Q": "Isso é criptografado de ponta a ponta?",
-        "A": "As mensagens de chat podem ser criptografadas no lado do cliente. A derivação de chave atual é baseada no ID da sala (abordagem simples/dev) e evoluirá para uma troca de chave mais segura."
+        "A": "As mensagens de chat podem ser criptografadas no lado do cliente quando os participantes usam a mesma frase secreta (segredo compartilhado). Hoje, a chave é derivada localmente (PBKDF2 + sal do ID da sala); no longo prazo, o projeto evoluirá para uma troca de chave mais segura e melhor UX."
       },
       "Q3": {
         "Q": "Por que as chamadas falham em algumas redes?",
