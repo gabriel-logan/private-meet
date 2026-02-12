@@ -60,8 +60,8 @@ export default defineConfig(({ mode }): UserConfig => {
     server: {
       https: useTLS
         ? {
-            key: "../cert/fake_key.pem",
-            cert: "../cert/fake_cert.pem",
+            key: envDir + "cert/fake_key.pem",
+            cert: envDir + "cert/fake_cert.pem",
           }
         : undefined,
 
