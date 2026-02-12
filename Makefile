@@ -3,18 +3,18 @@
 .PHONY: run_server run_web build test tidy clean
 
 run_web:
-	cd web && pnpm dev
+	cd client/frontend && pnpm dev
 
 run_server:
 	cd server && go run ./cmd/api/main.go
 
 build:
 	cd server && go build -o bin/server ./cmd/api/main.go
-	cd web && pnpm install && pnpm build
+	cd client/frontend && pnpm install && pnpm build
 
 install:
 	cd server && go mod download
-	cd web && pnpm install
+	cd client/frontend && pnpm install
 
 test:
 	cd server && go test ./...
@@ -34,4 +34,4 @@ tidy:
 clean:
 	cd server && go clean
 	rm -rf server/bin
-	rm -rf web/dist
+	rm -rf client/frontend/dist
