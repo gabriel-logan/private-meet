@@ -1,6 +1,7 @@
 import axios, { type AxiosAdapter } from "axios";
 
 import { HttpGet, HttpPost } from "../../wailsjs/go/main/App";
+import { main } from "../../wailsjs/go/models";
 import { isDesktop } from "../constants";
 
 const baseURL = import.meta.env.VITE_HTTP_API_URL as string;
@@ -15,6 +16,7 @@ function safeParse(data: string) {
 
 const desktopAdapter: AxiosAdapter = async (config) => {
   const method = config.method?.toLowerCase();
+
   const fullUrl = (config.baseURL || "") + (config.url || "");
 
   const headers: Record<string, string> = {};
@@ -27,7 +29,7 @@ const desktopAdapter: AxiosAdapter = async (config) => {
     });
   }
 
-  let rawResponse: string;
+  let rawResponse: main.HttpResponse;
 
   switch (method) {
     case "get": {
@@ -53,9 +55,9 @@ const desktopAdapter: AxiosAdapter = async (config) => {
   }
 
   return {
-    data: safeParse(rawResponse),
-    status: 200,
-    statusText: "OK",
+    data: safeParse(rawResponse.body),
+    status: rawResponse.status,
+    statusText: rawResponse.statusText,
     headers: headers,
     config,
   };
