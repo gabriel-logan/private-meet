@@ -16,7 +16,7 @@ func ensureTestDist(t *testing.T) string {
 		t.Fatalf("failed to getwd: %v", err)
 	}
 
-	dist := filepath.Clean(filepath.Join(wd, "..", "web", "dist"))
+	dist := filepath.Clean(filepath.Join(wd, "..", "client", "frontend", "dist"))
 
 	if err := os.MkdirAll(filepath.Join(dist, "assets"), 0o755); err != nil {
 		t.Fatalf("failed to create dist: %v", err)
@@ -31,7 +31,7 @@ func ensureTestDist(t *testing.T) string {
 	}
 
 	t.Cleanup(func() {
-		_ = os.RemoveAll(filepath.Clean(filepath.Join(wd, "..", "web")))
+		_ = os.RemoveAll(filepath.Clean(filepath.Join(wd, "..", "client", "frontend", "dist")))
 	})
 
 	return dist
