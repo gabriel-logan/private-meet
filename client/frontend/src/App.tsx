@@ -8,12 +8,15 @@ import Loading from "./components/Loading";
 import { isDesktop } from "./constants";
 import useInitWsConn from "./hooks/useInitWsConn";
 import useLocalizedSeo from "./hooks/useLocalizedSeo";
+import useRetryConnectServer from "./hooks/useRetryConnectServer";
 import Router from "./Router";
 import { useAuthStore } from "./stores/authStore";
 export default function App() {
   const { t } = useTranslation();
 
   useLocalizedSeo();
+
+  const { isConnected } = useRetryConnectServer();
 
   const accessToken = useAuthStore((state) => state.accessToken);
 
@@ -44,6 +47,10 @@ export default function App() {
       console.log("Welcome to Private Meet!");
     }
   }, []);
+
+  if (!isConnected) {
+    return <Loading />;
+  }
 
   return (
     <>
