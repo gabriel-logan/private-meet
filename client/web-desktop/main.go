@@ -11,12 +11,14 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
+var wailsRun = wails.Run
+
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
 
 	// Create application with options
-	err := wails.Run(&options.App{
+	err := wailsRun(&options.App{
 		Title:  "Private Meet",
 		Width:  1024,
 		Height: 768,
