@@ -9,4 +9,12 @@ describe("Loading", () => {
 
     expect(screen.getByText("Loading...")).toBeDefined();
   });
+
+  it("renders custom message", () => {
+    const customMessage = "Please wait...";
+
+    render(<Loading message={customMessage} />);
+
+    expect(screen.getByText(customMessage)).toBeDefined();
+  });
 });

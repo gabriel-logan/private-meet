@@ -1,7 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 
-export default function Loading() {
+interface LoadingProps {
+  message?: string;
+}
+
+export default function Loading({ message }: LoadingProps) {
   const { t } = useTranslation();
 
   return (
@@ -14,7 +18,7 @@ export default function Loading() {
       >
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-zinc-700 border-t-indigo-500" />
         <span className="text-sm text-zinc-400">
-          {t("Loading.LoadingDotDotDot")}
+          {message || t("Loading.LoadingDotDotDot")}
         </span>
       </motion.div>
     </main>

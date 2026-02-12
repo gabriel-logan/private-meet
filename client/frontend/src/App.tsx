@@ -49,7 +49,7 @@ export default function App() {
   }, []);
 
   if (!isConnected) {
-    return <Loading />;
+    return <Loading message="Connecting to server..." />;
   }
 
   return (
