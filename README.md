@@ -168,6 +168,12 @@ Current message types include:
 
 See the source-of-truth types in `web/src/protocol/ws.ts`.
 
+## Disable global auto-conversion
+
+```bash
+git config --global core.autocrlf false
+```
+
 ## Current limits (selected)
 
 - Room ID length: up to 128 chars
