@@ -14,7 +14,7 @@
 
   3. **Configure environment**
 
-    Private Meet expects a `.env` at the repo root (shared by `server/` and `web/`).
+    Private Meet expects a `.env` at the repo root (shared by `server/` and `client/frontend/`).
 
     ```bash
     cp .env.example .env
@@ -25,7 +25,11 @@
   4. **Install dependencies**
 
     ```bash
-    make install
+    cd server
+    go mod download
+
+    cd ../client/frontend
+    pnpm install
     ```
 
   5. **Run locally**
@@ -33,11 +37,20 @@
     In separate terminals:
 
     ```bash
-    make run_server
+    cd server
+    go run ./cmd/api/main.go
     ```
 
     ```bash
-    make run_web
+    cd client/frontend
+    pnpm dev
+    ```
+
+    Optional (desktop app):
+
+    ```bash
+    cd client
+    wails dev
     ```
 
 6. **Commit and Push**
@@ -57,7 +70,7 @@
 Private Meet is split into:
 
 - `server/` (Go)
-- `web/` (React + TypeScript)
+- `client/frontend/` (React + TypeScript)
 
 When possible, keep changes scoped to one area and include a short explanation in the PR.
 
@@ -131,9 +144,11 @@ When possible, keep changes scoped to one area and include a short explanation i
 
 ## Useful commands
 
-- `make test` (server tests)
-- `cd web && pnpm lint` / `cd web && pnpm lint:fix`
-- `cd web && pnpm build`
+- `cd server && go test ./...` (server tests)
+- `cd client/frontend && pnpm lint` / `cd client/frontend && pnpm lint:fix`
+- `cd client/frontend && pnpm build`
+- `cd client && wails dev` (desktop development)
+- `cd client && wails build -nsis -clean -race` (Windows installer)
 
 ## License
 

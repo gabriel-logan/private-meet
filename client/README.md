@@ -1,19 +1,36 @@
-# README
+# Private Meet Desktop (Wails)
 
-## About
+This directory contains the desktop app for Private Meet, built with Wails + React (frontend in `client/frontend`).
 
-This is the official Wails React-TS template.
+## Development
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+From this folder:
 
-## Live Development
+```bash
+wails dev
+```
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
+## Build
 
-## Building
+From this folder:
 
-To build a redistributable, production mode package, use `wails build`.
+```bash
+wails build
+```
+
+Build Windows installer (`.exe`):
+
+```bash
+wails build -nsis -clean -race
+```
+
+Distribution files are generated under `../distribution/windows/`.
+
+## Configuration
+
+- Wails app settings: `wails.json`
+- Frontend env variables are read from the repo root `.env` via `client/frontend/vite.config.ts`.
+- Make sure the backend is running and reachable by `VITE_HTTP_API_URL` and `VITE_WS_API_URL`.
+
+For Wails configuration details:
+https://wails.io/docs/reference/project-config

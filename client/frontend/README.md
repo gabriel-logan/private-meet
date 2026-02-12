@@ -14,12 +14,18 @@ pnpm install
 
 ## Environment (.env)
 
-The web client reads environment variables from the repo root `.env` (see `vite.config.ts` → `envDir: "../"`).
+The frontend reads environment variables from the repo root `.env` (see `vite.config.ts` → `envDir: "../../"`).
 
 If you don't have it yet:
 
 ```bash
-cp ../.env.example ../.env
+cp ../../.env.example ../../.env
+```
+
+On Windows PowerShell:
+
+```powershell
+Copy-Item ../../.env.example ../../.env
 ```
 
 Required:
@@ -33,6 +39,15 @@ Optional (TURN):
 - `VITE_TURN_SERVER_URL`, `VITE_TURN_SERVER_USERNAME`, `VITE_TURN_SERVER_CREDENTIAL`
 
 ## Run (dev)
+
+Start backend first (separate terminal):
+
+```bash
+cd ../../server
+go run ./cmd/api/main.go
+```
+
+Then run frontend:
 
 ```bash
 pnpm dev

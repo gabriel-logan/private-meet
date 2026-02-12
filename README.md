@@ -50,28 +50,37 @@ Important:
 Limitations (current)
 
 - WebRTC mesh does not scale to large rooms (peer-to-peer connections per participant).
-- The mesh is capped (see `webRTCMaxPeerConnections` in `web/src/constants.ts`).
+- The mesh is capped (see `webRTCMaxPeerConnections` in `client/frontend/src/constants.ts`).
 - Without TURN, some NATs will fail to connect.
 
 ## Folders
 
 - `server/`: Go API + WebSocket server
-- `web/`: React + TypeScript + Vite client
+- `client/frontend/`: React + TypeScript + Vite client
+- `client/`: Wails desktop app (Windows installer build)
 - `cert/`: local dev certificates (optional)
 
 ## Requirements
 
 - Go 1.25+
 - Node.js + pnpm
+- Wails CLI (for desktop dev/build): https://wails.io/docs/gettingstarted/installation
+- On Windows, NSIS is required to generate installer (`.exe`) with `wails build -nsis`.
 
 ## Configuration (.env)
 
-This repo uses a single `.env` at the project root (used by both `server/` and `web/`).
+This repo uses a single `.env` at the project root (used by both `server/` and `client/frontend/`).
 
 Start from the example:
 
 ```bash
 cp .env.example .env
+```
+
+On Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
 ```
 
 ### Backend variables
@@ -83,36 +92,60 @@ cp .env.example .env
 - `JWT_SECRET`: HS256 secret for access tokens.
 - `JWT_EXPIRATION`: duration string (e.g. `1h`, `30m`).
 - `CONTEXT_TIMEOUT`: duration string (e.g. `15s`).
-- `ALLOWED_ORIGIN`: used for WS origin checks in non-dev environments.
+- `ALLOWED_ORIGINS`: used for WS origin checks in non-dev environments.
 
 ### Frontend variables (Vite)
 
 - `VITE_HTTP_API_URL`: base URL for REST calls (e.g. `http://localhost:3000`).
 - `VITE_WS_API_URL`: base URL for WS calls (e.g. `ws://localhost:3000`).
+- `ROOM_ID_PREFIX`: prefix used in room IDs generated/normalized by the client build.
+- `E2EE_WIRE_PREFIX`: prefix used in encrypted chat wire payloads.
+- `WEBRTC_FILE_CHANNEL_LABEL`: label prefix used for WebRTC data channels.
 - `VITE_HAS_TURN_SERVER`: `true`/`false` (enables TURN in the WebRTC ICE config).
 - `VITE_TURN_SERVER_URL`, `VITE_TURN_SERVER_USERNAME`, `VITE_TURN_SERVER_CREDENTIAL`: TURN config (used only if `VITE_HAS_TURN_SERVER=true`).
 
-## Install
+## Install Dependencies
 
 ```bash
-make install
+cd server
+go mod download
+
+cd ../client/frontend
+pnpm install
 ```
 
 Make sure you have a root `.env` configured (see the section above) before running the app.
 
 ## Running the Application
 
-Run backend:
+### Web version (backend + frontend)
+
+Run backend in terminal 1:
 
 ```bash
-make run_server
+cd server
+go run ./cmd/api/main.go
 ```
 
-Run frontend:
+Run frontend in terminal 2:
 
 ```bash
-make run_web
+cd client/frontend
+pnpm dev
 ```
+
+Open the local URL shown by Vite (normally `https://localhost:5173` when local TLS is enabled).
+
+### Desktop version (Wails)
+
+Run desktop app in development mode:
+
+```bash
+cd client
+wails dev
+```
+
+The desktop app uses the same root `.env` values (`VITE_HTTP_API_URL` and `VITE_WS_API_URL`) to connect to your backend.
 
 ### Local dev TLS / secure context note
 
@@ -124,21 +157,47 @@ Expect a browser warning for the fake certificate unless you install/trust it.
 
 ## Building for Production
 
+### Web + server build
+
 ```bash
-make build
+cd server
+go build -o bin/server ./cmd/api/main.go
+
+cd ../client/frontend
+pnpm install
+pnpm build
 ```
 
 Production build output:
 
-- `web/dist/` (static assets)
+- `client/frontend/dist/` (static assets)
 - `server/bin/server` (Go binary)
 
-The Go server serves the SPA from `web/dist/` at `/`.
+The Go server serves the SPA from `client/frontend/dist/` at `/`.
+
+### Desktop build (Windows)
+
+Build desktop executable:
+
+```bash
+cd client
+wails build -clean -race
+```
+
+Build Windows installer (`.exe`):
+
+```bash
+cd client
+wails build -nsis -clean -race
+```
+
+Installer output is generated under `distribution/windows/`.
 
 ## Testing
 
 ```bash
-make test
+cd server
+go test ./...
 ```
 
 ## API / Protocol (current)
@@ -172,7 +231,7 @@ Current message types include:
 - `utils.generateRoomID`
 - `webrtc.offer`, `webrtc.answer`, `webrtc.iceCandidate` (signaling)
 
-See the source-of-truth types in `web/src/protocol/ws.ts`.
+See the source-of-truth types in `client/frontend/src/protocol/ws.ts`.
 
 ## Disable global auto-conversion
 
