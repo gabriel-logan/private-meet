@@ -27,12 +27,27 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: "latest"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "latest"
+          cache: "pnpm"
+          cache-dependency-path: client/web-desktop/frontend/pnpm-lock.yaml
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: "1.24"
           cache: true
           cache-dependency-path: client/web-desktop/go.sum
+
+      - name: Install frontend dependencies and build
+        run: cd frontend && pnpm install && pnpm build && cd ..
 
       - name: Download dependencies
         run: go mod download
