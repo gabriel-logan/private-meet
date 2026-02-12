@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write **/*.{js,ts,tsx,json,css,md,html} !coverage/**/* !wailsjs/**/*",
-    "format:check": "prettier --check **/*.{js,ts,tsx,json,css,md,html}",
+    "format:check": "prettier --check **/*.{js,ts,tsx,json,css,md,html} !coverage/**/* !wailsjs/**/*",
     "generate-404byindex": "cp ./dist/index.html ./dist/404.html",
     "preview": "vite preview",
     "test": "vitest --run",
