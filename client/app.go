@@ -11,17 +11,12 @@ import (
 
 // App struct
 type App struct {
-	ctx    context.Context
-	client *http.Client
+	ctx context.Context
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{
-		client: &http.Client{
-			Timeout: 2 * time.Minute,
-		},
-	}
+	return &App{}
 }
 
 // startup is called when the app starts. The context is saved
@@ -52,7 +47,10 @@ func (a *App) HttpGet(url string, headers map[string]string) (*HttpResponse, err
 		req.Header.Set(key, value)
 	}
 
-	resp, err := a.client.Do(req)
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +89,10 @@ func (a *App) HttpPost(url string, body string, headers map[string]string) (*Htt
 		req.Header.Set("Content-Type", "application/json")
 	}
 
-	resp, err := a.client.Do(req)
+	client := &http.Client{
+		Timeout: 60 * time.Second,
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
