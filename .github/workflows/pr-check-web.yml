@@ -18,6 +18,12 @@ jobs:
   frontend:
     runs-on: ubuntu-latest
 
+    env:
+      ROOM_ID_PREFIX: fake_room_id_prefix
+      E2EE_WIRE_PREFIX: fake_e2ee_wire_prefix
+      WEBRTC_FILE_CHANNEL_LABEL: fake_webrtc_file_channel_label
+      USE_LOCAL_TLS: false
+
     defaults:
       run:
         working-directory: client/frontend
