@@ -75,7 +75,6 @@ func (a *App) HttpGet(url string, headers map[string]string) (*HttpResponse, err
 }
 
 func (a *App) HttpPost(url string, body string, headers map[string]string) (*HttpResponse, error) {
-
 	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(body))
 	if err != nil {
 		return nil, err
