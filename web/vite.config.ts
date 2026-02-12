@@ -1,6 +1,6 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv, type UserConfig } from "vite";
 
 const genPrefix = (length: number): string => {
   if (length > 32) {
@@ -19,45 +19,55 @@ const genPrefix = (length: number): string => {
   return out;
 };
 
-export default defineConfig({
-  envDir: "../",
+export default defineConfig(({ mode }): UserConfig => {
+  const envDir = "../";
 
-  define: {
-    __ROOM_ID_PREFIX__: JSON.stringify(genPrefix(5) + ":"),
-    __E2EE_WIRE_PREFIX__: JSON.stringify(genPrefix(5) + ":"),
-    __WEBRTC_FILE_CHANNEL_LABEL__: JSON.stringify(genPrefix(5) + ":"),
-    __USER_STORAGE_KEY__: JSON.stringify(genPrefix(5) + ":"),
-  },
+  const env = loadEnv(mode, envDir, "");
 
-  plugins: [
-    react({
-      babel: {
-        plugins: ["babel-plugin-react-compiler"],
-      },
-    }),
-    tailwindcss(),
-  ],
+  const useTLS = env.USE_LOCAL_TLS === "true";
 
-  server: {
-    https: {
-      key: "../cert/fake_key.pem",
-      cert: "../cert/fake_cert.pem",
+  return {
+    envDir: envDir,
+
+    define: {
+      __ROOM_ID_PREFIX__: JSON.stringify(genPrefix(5) + ":"),
+      __E2EE_WIRE_PREFIX__: JSON.stringify(genPrefix(5) + ":"),
+      __WEBRTC_FILE_CHANNEL_LABEL__: JSON.stringify(genPrefix(5) + ":"),
+      __USER_STORAGE_KEY__: JSON.stringify(genPrefix(5) + ":"),
     },
 
-    host: true,
-  },
+    plugins: [
+      react({
+        babel: {
+          plugins: ["babel-plugin-react-compiler"],
+        },
+      }),
+      tailwindcss(),
+    ],
 
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          react: ["react", "react-dom"],
-          router: ["react-router"],
-          ui1: ["react-icons", "emoji-picker-react"],
-          ui2: ["motion", "react-toastify"],
-          i18next: ["i18next", "react-i18next"],
+    server: {
+      https: useTLS
+        ? {
+            key: "../cert/fake_key.pem",
+            cert: "../cert/fake_cert.pem",
+          }
+        : undefined,
+
+      host: true,
+    },
+
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            react: ["react", "react-dom"],
+            router: ["react-router"],
+            ui1: ["react-icons", "emoji-picker-react"],
+            ui2: ["motion", "react-toastify"],
+            i18next: ["i18next", "react-i18next"],
+          },
         },
       },
     },
-  },
+  };
 });
