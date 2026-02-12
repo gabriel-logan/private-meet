@@ -7,11 +7,12 @@ permissions:
 on:
   push:
     paths:
-      - "client/frontend/**"
+      - "client/web-desktop/frontend/**"
       - ".github/workflows/pr-check-web.yml"
+
   pull_request:
     paths:
-      - "client/frontend/**"
+      - "client/web-desktop/frontend/**"
       - ".github/workflows/pr-check-web.yml"
 
 jobs:
@@ -26,7 +27,7 @@ jobs:
       
     defaults:
       run:
-        working-directory: client/frontend
+        working-directory: client/web-desktop/frontend
 
     steps:
       - name: Checkout repo
@@ -42,7 +43,7 @@ jobs:
         with:
           node-version: "latest"
           cache: "pnpm"
-          cache-dependency-path: client/frontend/pnpm-lock.yaml
+          cache-dependency-path: client/web-desktop/frontend/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

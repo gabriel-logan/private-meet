@@ -20,7 +20,7 @@ const genPrefix = (length: number): string => {
 };
 
 export default defineConfig(({ mode }): UserConfig => {
-  const envDir = "../../";
+  const envDir = "../../../";
 
   const env = loadEnv(mode, envDir, "");
 

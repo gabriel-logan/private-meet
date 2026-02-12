@@ -9,7 +9,7 @@ import (
 )
 
 func ServeSPA(w http.ResponseWriter, r *http.Request) {
-	distPath := "../client/frontend/dist"
+	distPath := "../client/web-desktop/frontend/dist"
 
 	distAbs, err := filepath.Abs(distPath)
 	if err != nil {
