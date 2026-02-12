@@ -26,13 +26,23 @@ export default defineConfig(({ mode }): UserConfig => {
 
   const useTLS = env.USE_LOCAL_TLS === "true";
 
+  const roomIdPrefix = env.ROOM_ID_PREFIX;
+  const e2eeWirePrefix = env.E2EE_WIRE_PREFIX;
+  const webRTCFileChannelLabel = env.WEBRTC_FILE_CHANNEL_LABEL;
+
+  if (!roomIdPrefix || !e2eeWirePrefix || !webRTCFileChannelLabel) {
+    throw new Error(
+      "Missing required environment variables. Please check your .env file.",
+    );
+  }
+
   return {
     envDir: envDir,
 
     define: {
-      __ROOM_ID_PREFIX__: JSON.stringify(genPrefix(5) + ":"),
-      __E2EE_WIRE_PREFIX__: JSON.stringify(genPrefix(5) + ":"),
-      __WEBRTC_FILE_CHANNEL_LABEL__: JSON.stringify(genPrefix(5) + ":"),
+      __ROOM_ID_PREFIX__: roomIdPrefix,
+      __E2EE_WIRE_PREFIX__: e2eeWirePrefix,
+      __WEBRTC_FILE_CHANNEL_LABEL__: webRTCFileChannelLabel,
       __USER_STORAGE_KEY__: JSON.stringify(genPrefix(5) + ":"),
     },
 
@@ -53,7 +63,7 @@ export default defineConfig(({ mode }): UserConfig => {
           }
         : undefined,
 
-      host: true,
+      host: useTLS,
     },
 
     build: {
