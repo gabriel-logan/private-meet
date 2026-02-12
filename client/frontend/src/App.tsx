@@ -1,28 +1,41 @@
-import {useState} from 'react';
-import logo from './assets/images/logo-universal.png';
-import './App.css';
-import {Greet} from "../wailsjs/go/main/App";
+import { type ReactElement } from "react";
+import { useTranslation } from "react-i18next";
+import { ToastContainer } from "react-toastify";
 
-function App() {
-    const [resultText, setResultText] = useState("Please enter your name below 👇");
-    const [name, setName] = useState('');
-    const updateName = (e: any) => setName(e.target.value);
-    const updateResultText = (result: string) => setResultText(result);
+import ErrorPage from "./components/Error";
+import Loading from "./components/Loading";
+import useInitWsConn from "./hooks/useInitWsConn";
+import useLocalizedSeo from "./hooks/useLocalizedSeo";
+import Router from "./Router";
+import { useAuthStore } from "./stores/authStore";
 
-    function greet() {
-        Greet(name).then(updateResultText);
+export default function App() {
+  const { t } = useTranslation();
+
+  useLocalizedSeo();
+
+  const accessToken = useAuthStore((state) => state.accessToken);
+
+  const { ready, error } = useInitWsConn();
+
+  let content: ReactElement;
+
+  if (accessToken) {
+    if (error) {
+      content = <ErrorPage message={t("Errors.FailedToConnectToWsServer")} />;
+    } else if (ready) {
+      content = <Router />;
+    } else {
+      content = <Loading />;
     }
+  } else {
+    content = <Router />;
+  }
 
-    return (
-        <div id="App">
-            <img src={logo} id="logo" alt="logo"/>
-            <div id="result" className="result">{resultText}</div>
-            <div id="input" className="input-box">
-                <input id="name" className="input" onChange={updateName} autoComplete="off" name="input" type="text"/>
-                <button className="btn" onClick={greet}>Greet</button>
-            </div>
-        </div>
-    )
+  return (
+    <>
+      <ToastContainer autoClose={3000} />
+      {content}
+    </>
+  );
 }
-
-export default App
