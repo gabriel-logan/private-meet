@@ -49,7 +49,7 @@ func initTestEnv(t *testing.T, appName, secret string, jwtExpiration time.Durati
 	t.Setenv("HUB_SHARDS_QUANTITY", "1")
 	t.Setenv("USE_LOCAL_TLS", "false")
 	t.Setenv("APP_NAME", appName)
-	t.Setenv("ALLOWED_ORIGIN", "http://localhost")
+	t.Setenv("ALLOWED_ORIGINS", "http://localhost")
 	t.Setenv("SERVER_PORT", "8080")
 	t.Setenv("JWT_SECRET", secret)
 	t.Setenv("JWT_EXPIRATION", jwtExpiration.String())

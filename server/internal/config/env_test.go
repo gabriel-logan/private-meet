@@ -63,6 +63,8 @@ func TestHelperProcess(t *testing.T) {
 		_ = mustExistBool(key)
 	case "mustExistInt":
 		_ = mustExistInt(key)
+	case "mustExistStringSlice":
+		_ = mustExistStringSlice(key)
 	case "mustExistString":
 		_ = mustExistString(key)
 	case "mustExistDuration":
@@ -100,6 +102,61 @@ func TestMustExistStringMissing(t *testing.T) {
 	}
 	if !strings.Contains(out, EnvironmentPrefixMsg+key+" is required") {
 		t.Fatalf("expected fatal message to mention missing env var; output=%q", out)
+	}
+}
+
+func TestMustExistStringSliceValid(t *testing.T) {
+	key := "TEST_MUST_EXIST_STRING_SLICE"
+	expectedValue := "value1,value2,value3"
+
+	t.Setenv(key, expectedValue)
+
+	value := mustExistStringSlice(key)
+	expectedSlice := []string{"value1", "value2", "value3"}
+
+	if len(value) != len(expectedSlice) {
+		t.Fatalf("Expected slice length %d, got %d", len(expectedSlice), len(value))
+	}
+
+	for i, v := range expectedSlice {
+		if value[i] != v {
+			t.Errorf("Expected value %s at index %d, got %s", v, i, value[i])
+		}
+	}
+}
+
+func TestMustExistStringSliceMissing(t *testing.T) {
+	key := "TEST_MUST_EXIST_STRING_SLICE_MISSING"
+
+	out, err := runHelperProcess(t, map[string]string{
+		"HELPER_NAME": "mustExistStringSlice",
+		"TARGET_KEY":  key,
+	})
+	if err == nil {
+		t.Fatalf("expected subprocess to fail (log.Fatal), got nil error; output=%q", out)
+	}
+	if !strings.Contains(out, EnvironmentPrefixMsg+key+" is required") {
+		t.Fatalf("expected fatal message to mention missing env var; output=%q", out)
+	}
+}
+
+func TestMustExistStringSliceEmptyElements(t *testing.T) {
+	key := "TEST_MUST_EXIST_STRING_SLICE_EMPTY"
+	expectedValue := "value1,,value3,"
+
+	t.Setenv(key, expectedValue)
+
+	value := mustExistStringSlice(key)
+	expectedSlice := []string{"value1", "", "value3", ""}
+
+	if len(value) != len(expectedSlice) {
+		t.Fatalf("Expected slice length %d, got %d", len(expectedSlice), len(value))
+	}
+
+	for i, v := range expectedSlice {
+		if value[i] != v {
+			t.Errorf("Expected value %s at index %d, got %s", v, i, value[i])
+		}
 	}
 }
 
@@ -241,7 +298,7 @@ func TestInitEnv(t *testing.T) {
 	t.Setenv("HUB_SHARDS_QUANTITY", "1")
 	t.Setenv("USE_LOCAL_TLS", "false")
 	t.Setenv("APP_NAME", "TestApp")
-	t.Setenv("ALLOWED_ORIGIN", "http://localhost")
+	t.Setenv("ALLOWED_ORIGINS", "http://localhost")
 	t.Setenv("SERVER_PORT", "8080")
 	t.Setenv("JWT_SECRET", "testsecret")
 	t.Setenv("JWT_EXPIRATION", "1h")
@@ -261,8 +318,8 @@ func TestInitEnv(t *testing.T) {
 		t.Errorf("Expected APP_NAME to be 'TestApp', got '%s'", env.AppName)
 	}
 
-	if env.AllowedOrigin != "http://localhost" {
-		t.Errorf("Expected ALLOWED_ORIGIN to be 'http://localhost', got '%s'", env.AllowedOrigin)
+	if len(env.AllowedOrigins) != 1 || env.AllowedOrigins[0] != "http://localhost" {
+		t.Errorf("Expected ALLOWED_ORIGINS to be ['http://localhost'], got '%v'", env.AllowedOrigins)
 	}
 
 	if env.ServerPort != "8080" {
@@ -288,7 +345,7 @@ func TestGetEnvValid(t *testing.T) {
 		HubShardsQuantity: 1,
 		UseLocalTLS:       false,
 		AppName:           "TestApp",
-		AllowedOrigin:     "http://localhost",
+		AllowedOrigins:    []string{"http://localhost"},
 		ServerPort:        "8080",
 		JwtSecret:         "testsecret",
 		JwtExpiration:     time.Hour,
@@ -313,8 +370,8 @@ func TestGetEnvValid(t *testing.T) {
 		t.Errorf("Expected APP_NAME to be 'TestApp', got '%s'", got.AppName)
 	}
 
-	if got.AllowedOrigin != "http://localhost" {
-		t.Errorf("Expected ALLOWED_ORIGIN to be 'http://localhost', got '%s'", got.AllowedOrigin)
+	if len(got.AllowedOrigins) != 1 || got.AllowedOrigins[0] != "http://localhost" {
+		t.Errorf("Expected ALLOWED_ORIGINS to be ['http://localhost'], got '%v'", got.AllowedOrigins)
 	}
 
 	if got.ServerPort != "8080" {

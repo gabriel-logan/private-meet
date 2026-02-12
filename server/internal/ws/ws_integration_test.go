@@ -24,7 +24,7 @@ func initWSIntegrationEnv(t *testing.T) {
 	t.Setenv("HUB_SHARDS_QUANTITY", "2")
 	t.Setenv("USE_LOCAL_TLS", "false")
 	t.Setenv("APP_NAME", "PrivateMeet")
-	t.Setenv("ALLOWED_ORIGIN", "http://example.test")
+	t.Setenv("ALLOWED_ORIGINS", "http://example.test")
 	t.Setenv("SERVER_PORT", "8080")
 	t.Setenv("JWT_SECRET", "testsecret")
 	t.Setenv("JWT_EXPIRATION", "1h")

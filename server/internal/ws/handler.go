@@ -21,9 +21,15 @@ var upgrader = websocket.Upgrader{
 
 		origin := r.Header.Get("Origin")
 
-		allowedOrigin := env.AllowedOrigin
+		allowedOrigins := env.AllowedOrigins
 
-		return origin == allowedOrigin
+		for _, allowedOrigin := range allowedOrigins {
+			if origin == allowedOrigin {
+				return true
+			}
+		}
+
+		return false
 	},
 }
 

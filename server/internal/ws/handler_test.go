@@ -39,7 +39,7 @@ func initTestEnv(t *testing.T, goEnv string, allowedOrigin string) {
 	t.Setenv("HUB_SHARDS_QUANTITY", "1")
 	t.Setenv("USE_LOCAL_TLS", "false")
 	t.Setenv("APP_NAME", "PrivateMeet")
-	t.Setenv("ALLOWED_ORIGIN", allowedOrigin)
+	t.Setenv("ALLOWED_ORIGINS", allowedOrigin)
 	t.Setenv("SERVER_PORT", "8080")
 	t.Setenv("JWT_SECRET", "testsecret")
 	t.Setenv("JWT_EXPIRATION", "1h")

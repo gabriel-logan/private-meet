@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -17,7 +18,7 @@ type Env struct {
 	HubShardsQuantity int
 	UseLocalTLS       bool
 	AppName           string
-	AllowedOrigin     string
+	AllowedOrigins    []string
 	ServerPort        string
 	JwtSecret         string
 	JwtExpiration     time.Duration
@@ -61,6 +62,16 @@ func mustExistString(key string) string {
 	return value
 }
 
+func mustExistStringSlice(key string) []string {
+	value := os.Getenv(key)
+
+	if value == "" {
+		log.Fatal(EnvironmentPrefixMsg + key + EnvironmentSuffixMsg)
+	}
+
+	return strings.Split(value, ",")
+}
+
 func mustExistDuration(key string) time.Duration {
 	value := os.Getenv(key)
 
@@ -87,7 +98,7 @@ func InitEnv() *Env {
 		HubShardsQuantity: mustExistInt("HUB_SHARDS_QUANTITY"),
 		UseLocalTLS:       mustExistBool("USE_LOCAL_TLS"),
 		AppName:           mustExistString("APP_NAME"),
-		AllowedOrigin:     mustExistString("ALLOWED_ORIGIN"),
+		AllowedOrigins:    mustExistStringSlice("ALLOWED_ORIGINS"),
 		ServerPort:        mustExistString("SERVER_PORT"),
 		JwtSecret:         mustExistString("JWT_SECRET"),
 		JwtExpiration:     mustExistDuration("JWT_EXPIRATION"),
