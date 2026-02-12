@@ -12,6 +12,12 @@ build:
 	cd server && go build -o bin/server ./cmd/api/main.go
 	cd client/frontend && pnpm install && pnpm build
 
+build_desktop:
+	cd client && wails build -clean -race
+
+build_desktop_install:
+	cd client && wails build -nsis -clean -race
+
 install:
 	cd server && go mod download
 	cd client/frontend && pnpm install
