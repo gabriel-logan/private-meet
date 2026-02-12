@@ -9,5 +9,13 @@
   "frontend:dev:serverUrl": "auto",
   "author": {
     "name": "gabriel-logan"
-  }
+  },
+  "info": {
+    "companyName": "Private Meet",
+    "productName": "Private Meet",
+    "productVersion": "0.1.0",
+    "copyright": "© 2026 Private Meet",
+    "comments": "Privacy-first real-time communication"
+  },
+  "obfuscated": true
 }
