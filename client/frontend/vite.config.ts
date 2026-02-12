@@ -40,9 +40,11 @@ export default defineConfig(({ mode }): UserConfig => {
     envDir: envDir,
 
     define: {
-      __ROOM_ID_PREFIX__: roomIdPrefix,
-      __E2EE_WIRE_PREFIX__: e2eeWirePrefix,
-      __WEBRTC_FILE_CHANNEL_LABEL__: webRTCFileChannelLabel,
+      __ROOM_ID_PREFIX__: JSON.stringify(roomIdPrefix + ":"),
+      __E2EE_WIRE_PREFIX__: JSON.stringify(e2eeWirePrefix + ":"),
+      __WEBRTC_FILE_CHANNEL_LABEL__: JSON.stringify(
+        webRTCFileChannelLabel + ":",
+      ),
       __USER_STORAGE_KEY__: JSON.stringify(genPrefix(5) + ":"),
     },
 
