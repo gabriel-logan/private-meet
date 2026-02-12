@@ -18,6 +18,12 @@ This demo is hosted on Render.com and may have limitations on usage.
 We are not using TURN servers in the demo, so connectivity may vary based on your network conditions.
 We are using free instances, so performance may vary.
 
+## Desktop (Windows)
+
+Download the desktop installer here:
+
+- [Private Meet 0.1.0 Windows Installer (amd64)](distribution/windows/0.1.0-Private-Meet-amd64-installer.exe)
+
 ## Features
 
 - No accounts required — create or join a room instantly.
