@@ -19,9 +19,13 @@ var upgrader = websocket.Upgrader{
 			return true
 		}
 
-		origin := r.Header.Get("Origin")
-
 		allowedOrigins := env.AllowedOrigins
+
+		if allowedOrigins[0] == "*" {
+			return true
+		}
+
+		origin := r.Header.Get("Origin")
 
 		for _, allowedOrigin := range allowedOrigins {
 			if origin == allowedOrigin {
