@@ -9,7 +9,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write **/*.{js,jsx,ts,tsx}",
     "format:check": "prettier --check **/*.{js,jsx,ts,tsx}",
-    "start": "react-native start",
+    "start": "react-native start --verbose --client-logs",
     "test": "jest"
   },
   "dependencies": {
