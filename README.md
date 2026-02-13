@@ -22,6 +22,7 @@ We are using free instances, so performance may vary.
 
 Download the desktop installer here:
 
+- [Private Meet 1.0.0 Windows Installer (amd64)](https://github.com/gabriel-logan/private-meet/raw/refs/heads/main/distribution/windows/1.0.0-Private-Meet-amd64-installer.exe)
 - [Private Meet 0.1.0 Windows Installer (amd64)](https://github.com/gabriel-logan/private-meet/raw/refs/heads/main/distribution/windows/0.1.0-Private-Meet-amd64-installer.exe)
 
 ## Features
