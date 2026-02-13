@@ -1,3 +1,4 @@
+import { getLocales } from "react-native-localize";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -27,7 +28,7 @@ interface UserStore {
 export const useUserStore = create<UserStore>()(
   persist(
     set => ({
-      locale: safeLocale("en"),
+      locale: safeLocale(getLocales()[0].languageCode),
       isLoading: false,
 
       setLocale: locale =>
