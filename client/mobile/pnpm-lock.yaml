@@ -28,13 +28,13 @@ importers:
         version: 4.23.0(react-native@0.84.0(@babel/core@7.29.0)(@react-native-community/cli@20.1.0(typescript@5.9.3))(@react-native/metro-config@0.84.0(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.3))(react@19.2.3)
     devDependencies:
       '@babel/core':
-        specifier: ^7.25.2
+        specifier: ^7.29.0
         version: 7.29.0
       '@babel/preset-env':
-        specifier: ^7.25.3
+        specifier: ^7.29.0
         version: 7.29.0(@babel/core@7.29.0)
       '@babel/runtime':
-        specifier: ^7.25.0
+        specifier: ^7.28.6
         version: 7.28.6
       '@react-native-community/cli':
         specifier: 20.1.0
@@ -58,16 +58,16 @@ importers:
         specifier: 0.84.0
         version: 0.84.0
       '@types/jest':
-        specifier: ^29.5.13
+        specifier: ^29.5.14
         version: 29.5.14
       '@types/react':
-        specifier: ^19.2.0
+        specifier: ^19.2.14
         version: 19.2.14
       '@types/react-test-renderer':
         specifier: ^19.1.0
         version: 19.1.0
       eslint:
-        specifier: ^8.19.0
+        specifier: ^8.57.1
         version: 8.57.1
       eslint-config-prettier:
         specifier: ^10.1.8
@@ -79,7 +79,7 @@ importers:
         specifier: ^12.1.1
         version: 12.1.1(eslint@8.57.1)
       jest:
-        specifier: ^29.6.3
+        specifier: ^29.7.0
         version: 29.7.0(@types/node@25.2.3)
       prettier:
         specifier: 3.8.1
@@ -91,7 +91,7 @@ importers:
         specifier: 19.2.3
         version: 19.2.3(react@19.2.3)
       typescript:
-        specifier: ^5.8.3
+        specifier: ^5.9.3
         version: 5.9.3
 
 packages:
