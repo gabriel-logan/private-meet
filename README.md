@@ -232,7 +232,7 @@ Current message types include:
 - `utils.generateRoomID`
 - `webrtc.offer`, `webrtc.answer`, `webrtc.iceCandidate` (signaling)
 
-See the source-of-truth types in `client/frontend/src/protocol/ws.ts`.
+See the source-of-truth types in `client/shared/protocol/ws.ts`.
 
 ## Disable global auto-conversion
 

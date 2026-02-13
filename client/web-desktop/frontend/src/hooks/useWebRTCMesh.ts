@@ -2,6 +2,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
+  makeWSMessage,
+  type RoomUser,
+  type WSIncomingMessage,
+} from "../../../../shared/protocol/ws";
+import {
   webRTCFileChannelLabel,
   webRTCFileChannelMaxBufferedAmountBytes,
   webRTCImageChunkSizeBytes,
@@ -15,11 +20,6 @@ import {
   webRTCConfig,
 } from "../lib/webRTC";
 import { getWSInstance } from "../lib/wsInstance";
-import {
-  makeWSMessage,
-  type RoomUser,
-  type WSIncomingMessage,
-} from "../protocol/ws";
 import type { IncomingFileTransferProgress } from "../types";
 import { debugHandle } from "../utils/general";
 

@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
+import { parseIncomingWSMessage } from "../../../../shared/protocol/ws";
 import { getWSInstance } from "../lib/wsInstance";
-import { parseIncomingWSMessage } from "../protocol/ws";
 
 export default function useWsToastError() {
   const { t } = useTranslation();

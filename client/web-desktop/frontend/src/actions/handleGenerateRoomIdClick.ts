@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 
+import { makeWSMessage } from "../../../../shared/protocol/ws";
 import { getWSInstance } from "../lib/wsInstance";
-import { makeWSMessage } from "../protocol/ws";
 
 export default function handleGenerateRoomIdClick() {
   try {

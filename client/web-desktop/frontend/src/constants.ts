@@ -1,8 +1,8 @@
-import de from "./utils/locales/de.json";
-import en from "./utils/locales/en.json";
-import ja from "./utils/locales/ja.json";
-import pt from "./utils/locales/pt.json";
-import zh from "./utils/locales/zh.json";
+import de from "../../../shared/locales/de.json";
+import en from "../../../shared/locales/en.json";
+import ja from "../../../shared/locales/ja.json";
+import pt from "../../../shared/locales/pt.json";
+import zh from "../../../shared/locales/zh.json";
 
 // i18n resources
 export const resources = {

@@ -22,6 +22,11 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "react-toastify";
 import EmojiPicker, { type EmojiClickData, Theme } from "emoji-picker-react";
 
+import {
+  makeWSMessage,
+  parseIncomingWSMessage,
+  type WSIncomingMessage,
+} from "../../../../shared/protocol/ws";
 import FileTransferProgressBar from "../components/FileTransferProgressBar";
 import RemoteAudio from "../components/RemoteAudio";
 import VideoTile from "../components/VideoTile";
@@ -40,11 +45,6 @@ import {
 } from "../lib/e2ee";
 import { parseJwt } from "../lib/jwt";
 import { getWSInstance } from "../lib/wsInstance";
-import {
-  makeWSMessage,
-  parseIncomingWSMessage,
-  type WSIncomingMessage,
-} from "../protocol/ws";
 import { useAuthStore } from "../stores/authStore";
 import {
   debugHandle,
