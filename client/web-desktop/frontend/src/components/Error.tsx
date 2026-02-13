@@ -4,7 +4,7 @@ import { FiAlertCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { motion } from "motion/react";
 
-import { debugHandle } from "../utils/general";
+import { debugHandle } from "../../../../shared/utils/general";
 
 interface ErrorPageProps {
   message: string;

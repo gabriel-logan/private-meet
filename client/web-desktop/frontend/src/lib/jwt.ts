@@ -1,4 +1,4 @@
-import { base64UrlDecode } from "../utils/general";
+import { base64UrlDecode } from "../../../../shared/utils/general";
 
 export function parseJwt(token?: string): { sub?: string; username?: string } {
   if (!token) {

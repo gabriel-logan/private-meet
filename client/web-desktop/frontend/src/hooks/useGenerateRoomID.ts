@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { parseIncomingWSMessage } from "../../../../shared/protocol/ws";
+import { debugHandle } from "../../../../shared/utils/general";
 import { getWSInstance } from "../lib/wsInstance";
-import { debugHandle } from "../utils/general";
 
 export default function useGenerateRoomID() {
   const { t } = useTranslation();

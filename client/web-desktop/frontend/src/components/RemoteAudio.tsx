@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-import { debugHandle } from "../utils/general";
+import { debugHandle } from "../../../../shared/utils/general";
 
 interface RemoteAudioProps {
   stream: MediaStream;

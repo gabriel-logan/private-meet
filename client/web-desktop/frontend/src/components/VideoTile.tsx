@@ -6,7 +6,7 @@ import {
   FiMinimize2,
 } from "react-icons/fi";
 
-import { debugHandle } from "../utils/general";
+import { debugHandle } from "../../../../shared/utils/general";
 
 type VideoResizeMode = "contain" | "cover" | "fill";
 

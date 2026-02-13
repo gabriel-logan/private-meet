@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-import { debugHandle } from "../utils/general";
+import { debugHandle } from "../../../../shared/utils/general";
 
 function setMetaByName(name: string, content: string) {
   const el = document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);

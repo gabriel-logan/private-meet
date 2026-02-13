@@ -27,6 +27,13 @@ import {
   parseIncomingWSMessage,
   type WSIncomingMessage,
 } from "../../../../shared/protocol/ws";
+import {
+  debugHandle,
+  getTimeLabel,
+  isSafeUrl,
+  isString,
+  safeText,
+} from "../../../../shared/utils/general";
 import FileTransferProgressBar from "../components/FileTransferProgressBar";
 import RemoteAudio from "../components/RemoteAudio";
 import VideoTile from "../components/VideoTile";
@@ -46,16 +53,7 @@ import {
 import { parseJwt } from "../lib/jwt";
 import { getWSInstance } from "../lib/wsInstance";
 import { useAuthStore } from "../stores/authStore";
-import {
-  debugHandle,
-  getTimeLabel,
-  handleCopyRoomId,
-  hasVideo,
-  isSafeUrl,
-  isString,
-  normalizeRoomId,
-  safeText,
-} from "../utils/general";
+import { handleCopyRoomId, hasVideo, normalizeRoomId } from "../utils/general";
 
 export default function ChatPage() {
   const { t } = useTranslation();

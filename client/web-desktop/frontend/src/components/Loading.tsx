@@ -5,7 +5,7 @@ interface LoadingProps {
   message?: string;
 }
 
-export default function Loading({ message }: LoadingProps) {
+export default function Loading({ message }: Readonly<LoadingProps>) {
   const { t } = useTranslation();
 
   return (

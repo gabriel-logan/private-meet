@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { debugHandle } from "../utils/general";
+import { debugHandle } from "../../../../shared/utils/general";
 
 export default function useEmoji() {
   const [emojiOpen, setEmojiOpen] = useState(false);

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
+import { debugHandle } from "../../../../shared/utils/general";
 import apiInstance from "../lib/apiInstance";
-import { debugHandle } from "../utils/general";
 
 const RETRY_INTERVAL = 1000 * 30;
 

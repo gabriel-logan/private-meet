@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
+import { debugHandle } from "../../../../shared/utils/general";
 import { closeWSInstance, updateWSInstanceToken } from "../lib/wsInstance";
 import { useAuthStore } from "../stores/authStore";
-import { debugHandle } from "../utils/general";
 
 export default function useInitWsConn() {
   const accessToken = useAuthStore((state) => state.accessToken);

@@ -6,6 +6,7 @@ import {
   type RoomUser,
   type WSIncomingMessage,
 } from "../../../../shared/protocol/ws";
+import { debugHandle } from "../../../../shared/utils/general";
 import {
   webRTCFileChannelLabel,
   webRTCFileChannelMaxBufferedAmountBytes,
@@ -21,7 +22,6 @@ import {
 } from "../lib/webRTC";
 import { getWSInstance } from "../lib/wsInstance";
 import type { IncomingFileTransferProgress } from "../types";
-import { debugHandle } from "../utils/general";
 
 type PeerEntry = {
   peerID: string;
