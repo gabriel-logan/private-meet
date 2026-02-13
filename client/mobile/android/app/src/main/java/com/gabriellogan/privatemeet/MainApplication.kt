@@ -1,4 +1,4 @@
-package com.privatemeet
+package com.gabriellogan.privatemeet
 
 import android.app.Application
 import com.facebook.react.PackageList
