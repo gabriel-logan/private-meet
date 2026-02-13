@@ -2,6 +2,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 export type RootNativeStackParamList = {
   Home: undefined;
+  Chat: { roomId: string };
 };
 
 export type RootNativeStackScreenProps<

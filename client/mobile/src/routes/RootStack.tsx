@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
+import ChatPage from "../pages/Chat";
 import HomePage from "../pages/Home";
 import type { RootNativeStackParamList } from "../types/Navigation";
 
@@ -9,6 +10,7 @@ export default function RootStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Home" component={HomePage} />
+      <Stack.Screen name="Chat" component={ChatPage} />
     </Stack.Navigator>
   );
 }
