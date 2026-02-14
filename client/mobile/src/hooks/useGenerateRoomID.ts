@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { parseIncomingWSMessage } from "../../../shared/protocol/ws";
 import { debugHandle } from "../../../shared/utils/general";
 import { getWSInstance } from "../lib/wsInstance";
+import toast from "../utils/toast";
 
 export default function useGenerateRoomID() {
   const { t } = useTranslation();
@@ -22,15 +23,21 @@ export default function useGenerateRoomID() {
       return;
     }
 
-    const onMessage = async (event: any) => {
+    const onMessage = async (event: MessageEvent) => {
       try {
         const { type, data } = await parseIncomingWSMessage(event.data);
 
         if (type === "utils.generateRoomID") {
           setRoomId(data.roomID);
+
+          toast.success(t("Success.RoomIDGenerated"), {
+            autoClose: 1000,
+          });
         }
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Error handling WebSocket message:", error);
+        toast.error(t("Errors.ErrorProcessingServerMessage"));
       }
     };
 

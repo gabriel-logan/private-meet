@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Alert, Button, Text, TextInput, View } from "react-native";
+import { Button, Text, TextInput, View } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { t } from "i18next";
 
@@ -28,11 +28,14 @@ import { getWSInstance } from "../lib/wsInstance";
 import { useAuthStore } from "../stores/authStore";
 import { RootNativeStackScreenProps } from "../types/Navigation";
 import { normalizeRoomId } from "../utils/general";
+import toast from "../utils/toast";
+
+type ChatPageProps = RootNativeStackScreenProps<"Chat">;
 
 export default function ChatPage() {
   const accessToken = useAuthStore(state => state.accessToken);
 
-  const { params } = useRoute<RootNativeStackScreenProps<"Chat">["route"]>();
+  const { params } = useRoute<ChatPageProps["route"]>();
 
   const { roomId } = params;
 
@@ -59,13 +62,13 @@ export default function ChatPage() {
     );
 
     if (!accessToken) {
-      Alert.alert(t("Errors.PleaseCreateAUserFirst"));
+      toast.error(t("Errors.PleaseCreateAUserFirst"));
       navigation.navigate("Home");
       return;
     }
 
     if (!room) {
-      Alert.alert(t("Errors.InvalidRoom"));
+      toast.error(t("Errors.InvalidRoom"));
       navigation.navigate("Home");
       return;
     }
@@ -76,25 +79,25 @@ export default function ChatPage() {
       ws = getWSInstance();
     } catch (error) {
       console.error("WebSocket not initialized.", error);
-      Alert.alert(t("Errors.WsInstanceIsNotInitialized"));
+      toast.error(t("Errors.WsInstanceIsNotInitialized"));
       navigation.navigate("Home");
       return;
     }
 
     if (ws.readyState !== WebSocket.OPEN) {
-      Alert.alert(t("Errors.ConnectingDotDotDotTryAgainInAMoment"));
+      toast.error(t("Errors.ConnectingDotDotDotTryAgainInAMoment"));
       navigation.navigate("Home");
       return;
     }
 
-    const onMessage = async (event: any) => {
+    const onMessage = async (event: MessageEvent) => {
       let parsed: WSIncomingMessage;
 
       try {
         parsed = await parseIncomingWSMessage(event.data);
       } catch (error) {
         console.error("Error parsing incoming WS message:", error);
-        Alert.alert(t("Errors.ErrorProcessingServerMessage"));
+        toast.error(t("Errors.ErrorProcessingServerMessage"));
         return;
       }
 
@@ -278,7 +281,6 @@ export default function ChatPage() {
           ws.send(makeWSMessage("chat.leave", { room }));
         }
       } catch (error) {
-        // eslint-disable-next-line no-console
         console.error("Error leaving room:", error);
       }
 

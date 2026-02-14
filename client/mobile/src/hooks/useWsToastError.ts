@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { parseIncomingWSMessage } from "../../../shared/protocol/ws";
 import { getWSInstance } from "../lib/wsInstance";
+import toast from "../utils/toast";
 
 export default function useWsToastError() {
   const { t } = useTranslation();
@@ -16,7 +17,7 @@ export default function useWsToastError() {
       return;
     }
 
-    ws.onmessage = async (event: any) => {
+    ws.onmessage = async (event: MessageEvent) => {
       const parsed = await parseIncomingWSMessage(event.data);
 
       if (parsed.type === "general.error") {
@@ -28,10 +29,3 @@ export default function useWsToastError() {
     };
   }, [t]);
 }
-
-const toast = {
-  error: (message: string) => {
-    // eslint-disable-next-line no-console
-    console.error("WebSocket Error:", message);
-  },
-};

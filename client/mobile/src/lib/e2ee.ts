@@ -5,8 +5,6 @@ import { maxMessageChars } from "../constants";
 // @ts-ignore
 const crypto = global.crypto; // nosonar
 
-type CryptoKey = any; // nosonar
-
 // AES-GCM standard IV length
 export const ivBytes = 12;
 // PBKDF2 work factor (tune based on target devices)

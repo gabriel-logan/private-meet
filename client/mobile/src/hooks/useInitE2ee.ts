@@ -3,13 +3,14 @@ import { useEffect, useRef, useState } from "react";
 import { debugHandle } from "../../../shared/utils/general";
 import { initE2EE } from "../lib/e2ee";
 import { useSecretStore } from "../stores/secretStore";
+import toast from "../utils/toast";
 
 interface UseInitE2eeProps {
   rawRoomId: string | null;
 }
 
 export default function useInitE2ee({ rawRoomId }: UseInitE2eeProps) {
-  const e2eeKeyRef = useRef(null);
+  const e2eeKeyRef = useRef<CryptoKey | null>(null);
 
   const [e2eeReady, setE2eeReady] = useState(false);
 
@@ -41,6 +42,7 @@ export default function useInitE2ee({ rawRoomId }: UseInitE2eeProps) {
       } catch (error) {
         console.error("Failed to initialize E2EE:", error);
         if (!cancelled) {
+          toast.error("Failed to initialize E2EE.");
           setE2eeReady(false);
         }
       }
