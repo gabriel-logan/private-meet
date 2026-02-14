@@ -5,9 +5,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#09090b",
   },
+
   screen: {
     flex: 1,
   },
+
   contentWrap: {
     flex: 1,
     width: "100%",
@@ -79,7 +81,7 @@ const styles = StyleSheet.create({
 
   sectionViewport: {
     flex: 1,
-    paddingHorizontal: 14,
+    paddingHorizontal: 8,
   },
 
   sectionViewportSmall: {
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
 
   sectionBody: {
     flex: 1,
-    padding: 14,
+    padding: 6,
     gap: 12,
   },
 
