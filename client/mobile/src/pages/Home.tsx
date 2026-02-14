@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     backgroundColor: "#09090b",
   },
+
   card: {
     width: "100%",
     maxWidth: 420,
@@ -82,6 +83,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 12 },
     elevation: 10,
   },
+
   title: {
     marginBottom: 12,
     textAlign: "center",
@@ -90,9 +92,11 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
     color: "#f4f4f5",
   },
+
   highlight: {
     color: "#6366f1",
   },
+
   subtitle: {
     marginBottom: 32,
     textAlign: "center",
