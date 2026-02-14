@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import CreateUser from "../components/CreateUser";
 import JoinMeeting from "../components/JoinMeeting";
@@ -67,7 +68,7 @@ export default function HomePage() {
   }, [opacity]);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Header />
 
       <View style={styles.card}>
@@ -92,7 +93,7 @@ export default function HomePage() {
 
         {accessToken ? <JoinMeeting /> : <CreateUser />}
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
