@@ -24,3 +24,5 @@ declare interface Blob {
 
 declare const atob: (input: string) => string;
 declare const btoa: (input: string) => string;
+
+declare const queueMicrotask: (callback: () => void) => void;
