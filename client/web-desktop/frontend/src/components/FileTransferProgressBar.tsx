@@ -1,4 +1,4 @@
-import type { IncomingFileTransferProgress } from "../types";
+import type { IncomingFileTransferProgress } from "../../../../shared/types";
 
 interface FileTransferProgressBarProps {
   incomingFileTransfers: IncomingFileTransferProgress[];

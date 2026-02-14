@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next";
 import { FiCheck, FiChevronDown, FiGlobe } from "react-icons/fi";
 import { AnimatePresence, motion } from "motion/react";
 
+import type { Locale } from "../../../../shared/types";
 import { debugHandle } from "../../../../shared/utils/general";
 import { resources } from "../constants";
 import { useUserStore } from "../stores/userStore";
-import type { Locale } from "../types";
 
 type AnyRecord = Record<string, unknown>;
 
