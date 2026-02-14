@@ -6,6 +6,16 @@ import CreateUser from "../components/CreateUser";
 import JoinMeeting from "../components/JoinMeeting";
 import { useAuthStore } from "../stores/authStore";
 
+function Header() {
+  const { t } = useTranslation();
+
+  return (
+    <View style={styles.header}>
+      <Text style={styles.headerTitle}>{t("HomePageTitle")}</Text>
+    </View>
+  );
+}
+
 export default function HomePage() {
   const { t } = useTranslation();
 
@@ -34,6 +44,8 @@ export default function HomePage() {
 
   return (
     <View style={styles.container}>
+      <Header />
+
       <View style={styles.card}>
         <Animated.Text
           style={[
