@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   messageBubble: {
     borderRadius: 12,
     backgroundColor: "#172554",
-    paddingHorizontal: 10,
+    padding: 10,
     maxWidth: "92%",
   },
 
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
 
   messageBubbleOther: {
     borderColor: "#27272a",
-    backgroundColor: "#111113",
+    backgroundColor: "#141416",
     alignSelf: "flex-start",
     width: "92%",
   },
