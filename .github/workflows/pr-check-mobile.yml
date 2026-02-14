@@ -1,0 +1,55 @@
+name: Mobile PR Check
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  push:
+    paths:
+      - "client/mobile/**"
+      - ".github/workflows/pr-check-mobile.yml"
+
+  pull_request:
+    paths:
+      - "client/mobile/**"
+      - ".github/workflows/pr-check-mobile.yml"
+
+jobs:
+  mobile:
+    runs-on: ubuntu-latest
+
+    env:
+      ROOM_ID_PREFIX: fake_room_id_prefix
+      E2EE_WIRE_PREFIX: fake_e2ee_wire_prefix
+      WEBRTC_FILE_CHANNEL_LABEL: fake_webrtc_file_channel_label
+      USE_LOCAL_TLS: false
+      
+    defaults:
+      run:
+        working-directory: client/mobile
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: "latest"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "latest"
+          cache: "pnpm"
+          cache-dependency-path: client/mobile/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
