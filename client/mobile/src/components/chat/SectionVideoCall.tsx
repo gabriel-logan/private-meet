@@ -1,6 +1,6 @@
+import { useTranslation } from "react-i18next";
 import { Text, View } from "react-native";
 import Feather from "@react-native-vector-icons/feather";
-import { t } from "i18next";
 
 import type { ChatStyles } from "../../pages/ChatStyles";
 
@@ -16,6 +16,8 @@ export default function SectionVideoCall({
   onlineUsersCount,
   styles,
 }: Readonly<SectionVideoCallProps>) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.sectionCard}>
       <View style={styles.sectionHeader}>

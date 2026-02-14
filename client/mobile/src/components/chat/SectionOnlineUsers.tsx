@@ -1,6 +1,6 @@
+import { useTranslation } from "react-i18next";
 import { Text, View } from "react-native";
 import Feather from "@react-native-vector-icons/feather";
-import { t } from "i18next";
 
 import { OnlineUser } from "../../hooks/useOnlineUsers";
 import type { ChatStyles } from "../../pages/ChatStyles";
@@ -16,6 +16,8 @@ export default function SectionOnlineUsers({
   rawRoomId,
   styles,
 }: Readonly<SectionOnlineUsersProps>) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.sectionCard}>
       <View style={styles.sectionHeader}>

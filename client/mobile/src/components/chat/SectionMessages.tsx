@@ -1,9 +1,14 @@
+import { useTranslation } from "react-i18next";
 import { Pressable, Text, TextInput, View } from "react-native";
 import Feather from "@react-native-vector-icons/feather";
-import { t } from "i18next";
 
+import { makeWSMessage } from "../../../../shared/protocol/ws";
 import { maxMessageChars } from "../../constants";
+import type { OnlineUser } from "../../hooks/useOnlineUsers";
+import { encryptTextToWire } from "../../lib/e2ee";
+import { getWSInstance } from "../../lib/wsInstance";
 import type { ChatStyles } from "../../pages/ChatStyles";
+import toast from "../../utils/toast";
 
 type MessageItem = {
   id: string;
@@ -22,9 +27,15 @@ interface SectionMessagesProps {
   typingLabel: string;
   e2eeReady: boolean;
   styles: ChatStyles;
+  e2eeKeyRef: React.RefObject<CryptoKey | null>;
+  typingTimeoutRef: React.RefObject<number | null>;
+  typingSentRef: React.RefObject<boolean>;
+  onlineUsers: OnlineUser[];
+  me: { sub?: string; username?: string };
 }
 
 export default function SectionMessages({
+  room,
   rawRoomId,
   messages,
   message,
@@ -32,7 +43,72 @@ export default function SectionMessages({
   typingLabel,
   e2eeReady,
   styles,
+  e2eeKeyRef,
+  typingTimeoutRef,
+  typingSentRef,
+  onlineUsers,
+  me,
 }: Readonly<SectionMessagesProps>) {
+  const { t } = useTranslation();
+
+  async function handleSendText() {
+    if (onlineUsers.length <= 1) {
+      toast.info(t("Errors.NoOneInTheRoomToReceiveMessage"));
+      return;
+    }
+
+    const text = message.trim();
+
+    if (!text) {
+      toast.error(t("Errors.PleaseEnterAMessage"));
+      return;
+    }
+
+    if (!room) {
+      toast.error(t("Errors.MissingRoomID"));
+      return;
+    }
+
+    if (!e2eeKeyRef.current) {
+      toast.error(t("Errors.EnryptionNotReadyYet"));
+      return;
+    }
+
+    try {
+      const ws = getWSInstance();
+
+      if (ws.readyState !== WebSocket.OPEN) {
+        toast.error(t("Errors.NotConnectedYetTryAgainInASecond"));
+        return;
+      }
+
+      // clear typing when sending
+      if (typingTimeoutRef.current) {
+        globalThis.clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
+      }
+
+      typingSentRef.current = false;
+
+      ws.send(makeWSMessage("chat.typing", { room, typing: false }));
+
+      const encryptedWire = await encryptTextToWire(text, e2eeKeyRef.current, {
+        roomId: room,
+        userId: me.sub,
+        maxPlaintextChars: maxMessageChars,
+      });
+
+      ws.send(makeWSMessage("chat.message", { room, message: encryptedWire }));
+
+      setMessage("");
+      // setEmojiOpen(false);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Error sending message:", error);
+      toast.error(t("Errors.FailedToSendEncryptedMessage"));
+    }
+  }
+
   return (
     <View style={styles.sectionCard}>
       <View style={styles.sectionHeader}>
@@ -102,7 +178,33 @@ export default function SectionMessages({
 
           <TextInput
             value={message}
-            onChangeText={setMessage}
+            onChangeText={text => {
+              setMessage(text);
+
+              if (!typingSentRef.current) {
+                const ws = getWSInstance();
+
+                if (ws.readyState === WebSocket.OPEN) {
+                  ws.send(makeWSMessage("chat.typing", { room, typing: true }));
+                  typingSentRef.current = true;
+                }
+              }
+
+              if (typingTimeoutRef.current) {
+                globalThis.clearTimeout(typingTimeoutRef.current);
+              }
+
+              typingTimeoutRef.current = globalThis.setTimeout(() => {
+                const ws = getWSInstance();
+
+                if (ws.readyState === WebSocket.OPEN) {
+                  ws.send(
+                    makeWSMessage("chat.typing", { room, typing: false }),
+                  );
+                  typingSentRef.current = false;
+                }
+              }, 1000);
+            }}
             maxLength={maxMessageChars}
             multiline
             placeholder={t("Chat.WriteAMessage")}
@@ -119,7 +221,7 @@ export default function SectionMessages({
               {Array.from(message).length}/{maxMessageChars}
             </Text>
 
-            <Pressable style={styles.sendButton}>
+            <Pressable style={styles.sendButton} onPress={handleSendText}>
               <Feather name="send" size={15} color="#fff" />
               <Text style={styles.sendButtonText}>{t("Chat.Send")}</Text>
             </Pressable>

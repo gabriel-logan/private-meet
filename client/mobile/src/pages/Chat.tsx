@@ -383,6 +383,11 @@ export default function ChatPage() {
                 typingLabel={typingLabel}
                 e2eeReady={e2eeReady}
                 styles={styles}
+                e2eeKeyRef={e2eeKeyRef}
+                me={me}
+                onlineUsers={onlineUsers}
+                typingSentRef={typingSentRef}
+                typingTimeoutRef={typingTimeoutRef}
               />
             ) : null}
 

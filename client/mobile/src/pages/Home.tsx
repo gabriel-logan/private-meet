@@ -30,8 +30,11 @@ function Header() {
             onPress={async () => {
               const url = "https://private-meet-76by.onrender.com/about";
 
-              if (await Linking.canOpenURL(url)) {
+              try {
                 await Linking.openURL(url);
+              } catch (error) {
+                // eslint-disable-next-line no-console
+                console.error("Failed to open URL:", error);
               }
             }}
           >
