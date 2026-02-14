@@ -10,8 +10,10 @@ export default function Loading({ message }: Readonly<LoadingProps>) {
 
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color="#0000ff" />
-      <Text>{message || t("Loading.LoadingDotDotDot")}</Text>
+      <ActivityIndicator size="large" color="#4f46e5" />
+      <Text style={styles.text}>
+        {message || t("Loading.LoadingDotDotDot")}
+      </Text>
     </View>
   );
 }
@@ -19,7 +21,14 @@ export default function Loading({ message }: Readonly<LoadingProps>) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#09090b",
     justifyContent: "center",
     alignItems: "center",
+    gap: 16,
+  },
+
+  text: {
+    fontSize: 14,
+    color: "#d4d4d8",
   },
 });
