@@ -1,4 +1,13 @@
+import React from "react";
 import { useTranslation } from "react-i18next";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Feather from "@react-native-vector-icons/feather";
 import { useNavigation } from "@react-navigation/native";
 
 import handleDeleteUser from "../actions/handleDeleteUser";
@@ -23,5 +32,155 @@ export default function JoinMeeting() {
 
   const { roomId, setRoomId } = useGenerateRoomID();
 
-  return null;
+  return (
+    <View style={styles.container}>
+      <View style={styles.field}>
+        <Text style={styles.label}>{t("JoinMeeting.RoomID")}</Text>
+
+        <TextInput
+          value={roomId}
+          onChangeText={setRoomId}
+          placeholder={t("JoinMeeting.EnterRoomID")}
+          placeholderTextColor="#71717a"
+          maxLength={128}
+          style={styles.input}
+        />
+      </View>
+
+      <View style={styles.field}>
+        <Text style={styles.label}>{t("JoinMeeting.Passphrase")}</Text>
+
+        <TextInput
+          value={passphrase ?? ""}
+          onChangeText={setPassphrase}
+          placeholder={t("JoinMeeting.EnterPassphrase")}
+          placeholderTextColor="#71717a"
+          secureTextEntry
+          maxLength={128}
+          style={styles.input}
+        />
+
+        <Text style={styles.helper}>
+          {t("JoinMeeting.PText1", { maxRoomIDLength })}
+        </Text>
+
+        <Text style={styles.helper}>{t("JoinMeeting.PText2")}</Text>
+      </View>
+
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() =>
+          handleJoinRoom({
+            roomId,
+            passphrase,
+            clearPassphrase,
+            navigation,
+          })
+        }
+        style={[styles.button, styles.primaryButton]}
+      >
+        <Feather name="log-in" size={18} color="#fff" />
+        <Text style={styles.primaryButtonText}>
+          {t("JoinMeeting.JoinRoomButton")}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={handleGenerateRoomIdClick}
+        style={[styles.button, styles.secondaryButton]}
+      >
+        <Feather name="shuffle" size={18} color="#fff" />
+        <Text style={styles.secondaryButtonText}>
+          {t("JoinMeeting.GenerateNewRoomIDButton")}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => handleDeleteUser({ revokeAccessToken })}
+        style={[styles.button, styles.dangerButton]}
+      >
+        <Feather name="trash-2" size={18} color="#f87171" />
+        <Text style={styles.dangerButtonText}>
+          {t("JoinMeeting.DeleteUserButton")}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+    gap: 12,
+  },
+
+  field: {
+    gap: 6,
+  },
+
+  label: {
+    fontSize: 14,
+    color: "#d4d4d8",
+  },
+
+  input: {
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#27272a",
+    backgroundColor: "#09090b",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: "#f4f4f5",
+  },
+
+  helper: {
+    fontSize: 12,
+    color: "#71717a",
+    marginTop: 2,
+  },
+
+  button: {
+    marginTop: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderRadius: 8,
+    paddingVertical: 10,
+  },
+
+  primaryButton: {
+    backgroundColor: "#4f46e5",
+  },
+
+  primaryButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+
+  secondaryButton: {
+    backgroundColor: "#27272a",
+  },
+
+  secondaryButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+
+  dangerButton: {
+    backgroundColor: "#18181b",
+    borderWidth: 1,
+    borderColor: "#27272a",
+  },
+
+  dangerButtonText: {
+    color: "#f87171",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+});
