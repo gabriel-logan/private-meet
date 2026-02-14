@@ -8,7 +8,7 @@ const Stack = createNativeStackNavigator<RootNativeStackParamList>();
 
 export default function RootStack() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Home" component={HomePage} />
       <Stack.Screen name="Chat" component={ChatPage} />
     </Stack.Navigator>
