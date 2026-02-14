@@ -16,6 +16,7 @@ import Feather from "@react-native-vector-icons/feather";
 
 import handleCreateUser from "../actions/handleCreateUser";
 import { useAuthStore } from "../stores/authStore";
+import toast from "../utils/toast";
 
 export default function CreateUser() {
   const { t } = useTranslation();
@@ -26,6 +27,7 @@ export default function CreateUser() {
 
   function handleSubmit() {
     if (!username.trim()) {
+      toast.info(t("Infos.UserCanNotBeBlank"));
       return;
     }
 

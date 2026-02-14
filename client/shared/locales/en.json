@@ -87,7 +87,8 @@
     "UserDeletedSuccessfully": "User deleted. Please create a new user to continue.",
     "UserIsTypingDotDotDot": "{{username}} is typing...",
     "TwoUsersAreTypingDotDotDot": "{{username1}} and {{username2}} are typing...",
-    "MultipleUsersAreTypingDotDotDot": "{{username1}}, {{username2}}, and {{count}} others are typing..."
+    "MultipleUsersAreTypingDotDotDot": "{{username1}}, {{username2}}, and {{count}} others are typing...",
+    "UserCanNotBeBlank": "User cannot be blank."
   },
 
   "Success": {
