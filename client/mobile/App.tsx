@@ -1,3 +1,4 @@
+import "fast-text-encoding";
 import "./src/utils/i18n";
 
 import { NavigationContainer } from "@react-navigation/native";

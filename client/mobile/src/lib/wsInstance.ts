@@ -3,10 +3,8 @@ import { VITE_WS_API_URL } from "@env";
 let ws: WebSocket | null = null;
 let connectionVersion = 0;
 
-const baseURL = VITE_WS_API_URL;
-
 function buildURL(token?: string) {
-  const url = new URL(baseURL + "/ws");
+  const url = new URL(VITE_WS_API_URL + "/ws");
 
   if (token) {
     url.searchParams.append("token", token);
@@ -34,9 +32,13 @@ export function initWSInstance(
       const url = buildURL(token);
 
       const socket = new WebSocket(url);
+
       ws = socket;
 
       socket.onopen = () => {
+        // eslint-disable-next-line no-console
+        console.log("WebSocket connection established");
+
         if (myVersion !== connectionVersion) {
           socket.close();
           return;
@@ -46,6 +48,9 @@ export function initWSInstance(
       };
 
       socket.onerror = () => {
+        // eslint-disable-next-line no-console
+        console.error("WebSocket connection error");
+
         if (myVersion !== connectionVersion) {
           return;
         }
@@ -54,6 +59,9 @@ export function initWSInstance(
       };
 
       socket.onclose = () => {
+        // eslint-disable-next-line no-console
+        console.log("WebSocket connection closed");
+
         if (myVersion !== connectionVersion) {
           return;
         }
@@ -62,7 +70,9 @@ export function initWSInstance(
           if (ws === socket) {
             ws = null;
           }
+
           reject(new Error("WebSocket connection failed"));
+
           return;
         }
 

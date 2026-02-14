@@ -9,3 +9,15 @@ declare module "@env" {
   export const VITE_TURN_SERVER_USERNAME: string;
   export const VITE_TURN_SERVER_CREDENTIAL: string;
 }
+
+declare class TextEncoder {
+  encode(input?: string): Uint8Array;
+}
+
+declare class TextDecoder {
+  decode(input: ArrayBuffer): string;
+}
+
+declare interface Blob {
+  arrayBuffer(): Promise<ArrayBuffer>;
+}
