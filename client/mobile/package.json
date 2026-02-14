@@ -14,6 +14,9 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-clipboard/clipboard": "^1.16.3",
+    "@react-native-documents/picker": "^12.0.1",
+    "@react-native-documents/viewer": "^3.0.1",
     "@react-native-vector-icons/feather": "^12.4.0",
     "@react-navigation/native": "^7.1.28",
     "@react-navigation/native-stack": "^7.12.0",
