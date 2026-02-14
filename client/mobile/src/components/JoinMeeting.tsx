@@ -55,7 +55,7 @@ export default function JoinMeeting() {
             onChangeText={setRoomId}
             placeholder={t("JoinMeeting.EnterRoomID")}
             placeholderTextColor="#71717a"
-            maxLength={128}
+            maxLength={maxRoomIDLength}
             style={styles.input}
           />
 
@@ -67,7 +67,7 @@ export default function JoinMeeting() {
             placeholder={t("JoinMeeting.EnterPassphrase")}
             placeholderTextColor="#71717a"
             secureTextEntry
-            maxLength={128}
+            maxLength={maxRoomIDLength}
             style={styles.input}
           />
 
