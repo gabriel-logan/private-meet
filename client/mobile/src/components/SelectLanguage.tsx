@@ -1,10 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiCheck, FiChevronDown, FiGlobe } from "react-icons/fi";
-import { AnimatePresence, motion } from "motion/react";
+import {
+  Animated,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Feather from "@react-native-vector-icons/feather";
 
 import type { Locale } from "../../../shared/types";
-import { debugHandle } from "../../../shared/utils/general";
 import { resources } from "../constants";
 import { useUserStore } from "../stores/userStore";
 
@@ -55,34 +62,16 @@ const lngCoveragePct = (lngFlat: AnyRecord) => {
   return Math.round((covered / totalEnKeys) * 100);
 };
 
-interface SelectLanguageProps {
-  className: string;
-}
-
-export default function SelectLanguage({
-  className,
-}: Readonly<SelectLanguageProps>) {
+export default function SelectLanguage() {
   const { i18n } = useTranslation();
 
   const { locale, setLocale } = useUserStore();
 
   const [open, setOpen] = useState(false);
 
-  const ref = useRef<HTMLDivElement>(null);
+  const scale = useRef(new Animated.Value(0.95)).current;
 
-  useEffect(() => {
-    debugHandle("SelectLanguage exec useEffect");
-
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handler);
-
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+  const opacity = useRef(new Animated.Value(0)).current;
 
   const languages: {
     value: Locale;
@@ -98,66 +87,160 @@ export default function SelectLanguage({
 
   const current = languages.find(l => l.value === locale)!;
 
-  return (
-    <div ref={ref} className={`relative ${className}`}>
-      <button
-        onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 transition hover:border-zinc-600 focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
-      >
-        <FiGlobe className="text-zinc-400" />
-        <span className="font-medium">{current.value.toUpperCase()}</span>
-        <span className="inline text-zinc-400">{current.label}</span>
-        <FiChevronDown
-          className={`ml-1 transition-transform ${open ? "rotate-180" : ""}`}
-        />
-      </button>
+  const openDropdown = () => {
+    setOpen(true);
 
-      <AnimatePresence>
-        {open && (
-          <motion.ul
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.98 }}
-            transition={{ duration: 0.15 }}
-            className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-md border border-zinc-800 bg-zinc-950 shadow-xl"
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scale, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const closeDropdown = () => {
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: 120,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scale, {
+        toValue: 0.95,
+        duration: 120,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setOpen(false));
+  };
+
+  return (
+    <>
+      <TouchableOpacity style={styles.trigger} onPress={openDropdown}>
+        <Feather name="globe" size={16} color="#a1a1aa" />
+        <Text style={styles.triggerText}>
+          {current.value.toUpperCase()} {current.label}
+        </Text>
+        <Feather name="chevron-down" size={16} color="#a1a1aa" />
+      </TouchableOpacity>
+
+      <Modal transparent visible={open} animationType="none">
+        <Pressable style={styles.overlay} onPress={closeDropdown}>
+          <Animated.View
+            style={[styles.dropdown, { opacity, transform: [{ scale }] }]}
           >
             {languages.map(lng => {
               const active = lng.value === locale;
 
               return (
-                <li key={lng.value}>
-                  <button
-                    onClick={() => {
-                      i18n.changeLanguage(lng.value);
+                <TouchableOpacity
+                  key={lng.value}
+                  onPress={() => {
+                    i18n.changeLanguage(lng.value);
 
-                      setLocale(lng.value);
+                    setLocale(lng.value);
 
-                      setOpen(false);
-                    }}
-                    className={`flex w-full items-center justify-between px-3 py-2 text-sm transition ${
-                      active
-                        ? "bg-indigo-500/10 text-indigo-400"
-                        : "text-zinc-300 hover:bg-zinc-900"
-                    } `}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">
-                        {lng.value.toUpperCase()}
-                      </span>
-                      <span className="text-zinc-400">{lng.label}</span>
-                    </div>
+                    closeDropdown();
+                  }}
+                  style={[styles.item, active && styles.activeItem]}
+                >
+                  <View style={styles.itemLeft}>
+                    <Text style={styles.itemCode}>
+                      {lng.value.toUpperCase()}
+                    </Text>
+                    <Text style={styles.itemLabel}>{lng.label}</Text>
+                  </View>
 
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-zinc-500">{lng.pct}%</span>
-                      {active && <FiCheck />}
-                    </div>
-                  </button>
-                </li>
+                  <View style={styles.itemRight}>
+                    <Text style={styles.itemPct}>{lng.pct}%</Text>
+                    {active && (
+                      <Feather name="check" size={16} color="#6366f1" />
+                    )}
+                  </View>
+                </TouchableOpacity>
               );
             })}
-          </motion.ul>
-        )}
-      </AnimatePresence>
-    </div>
+          </Animated.View>
+        </Pressable>
+      </Modal>
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  trigger: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#27272a",
+    backgroundColor: "#09090b",
+  },
+
+  triggerText: {
+    fontSize: 14,
+    color: "#f4f4f5",
+  },
+
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  dropdown: {
+    width: 240,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#27272a",
+    backgroundColor: "#09090b",
+    paddingVertical: 8,
+  },
+
+  item: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  activeItem: {
+    backgroundColor: "rgba(99,102,241,0.1)",
+  },
+
+  itemLeft: {
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "center",
+  },
+
+  itemCode: {
+    fontWeight: "600",
+    color: "#e4e4e7",
+  },
+
+  itemLabel: {
+    color: "#a1a1aa",
+  },
+
+  itemRight: {
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "center",
+  },
+
+  itemPct: {
+    fontSize: 12,
+    color: "#71717a",
+  },
+});

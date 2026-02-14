@@ -4,14 +4,13 @@ import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 
 import CreateUser from "../components/CreateUser";
 import JoinMeeting from "../components/JoinMeeting";
+import SelectLanguage from "../components/SelectLanguage";
 import { useAuthStore } from "../stores/authStore";
 
 function Header() {
-  const { t } = useTranslation();
-
   return (
     <View style={styles.header}>
-      <Text style={styles.headerTitle}>{t("HomePageTitle")}</Text>
+      <SelectLanguage />
     </View>
   );
 }
@@ -73,6 +72,14 @@ export default function HomePage() {
 }
 
 const styles = StyleSheet.create({
+  header: {
+    marginBottom: 22,
+    width: "100%",
+    maxWidth: 420,
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+
   container: {
     flex: 1,
     justifyContent: "center",
