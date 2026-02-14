@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import Feather from "@react-native-vector-icons/feather";
@@ -32,33 +37,55 @@ export default function CreateUser() {
   }
 
   return (
-    <View style={styles.form}>
-      <Text style={styles.label}>{t("Username")}</Text>
+    <KeyboardAvoidingView
+      // eslint-disable-next-line react-native/no-inline-styles
+      style={{ width: "100%" }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.form}>
+            <Text style={styles.label}>{t("Username")}</Text>
 
-      <TextInput
-        value={username}
-        onChangeText={setUsername}
-        placeholder={t("EnterYourUsername")}
-        placeholderTextColor="#71717a"
-        style={styles.input}
-      />
+            <TextInput
+              value={username}
+              onChangeText={setUsername}
+              placeholder={t("EnterYourUsername")}
+              placeholderTextColor="#71717a"
+              style={styles.input}
+              returnKeyType="done"
+              onSubmitEditing={handleSubmit}
+            />
 
-      <TouchableOpacity
-        activeOpacity={0.85}
-        onPress={handleSubmit}
-        style={styles.button}
-      >
-        <Feather name="user" size={18} color="#fff" />
-        <Text style={styles.buttonText}>{t("CreateUser")}</Text>
-      </TouchableOpacity>
-    </View>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={handleSubmit}
+              style={styles.button}
+            >
+              <Feather name="user" size={18} color="#fff" />
+              <Text style={styles.buttonText}>{t("CreateUser")}</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+  },
+
   form: {
     width: "100%",
     gap: 16,
+    paddingBottom: 32,
   },
 
   label: {
@@ -67,7 +94,6 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    width: "100%",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#27272a",

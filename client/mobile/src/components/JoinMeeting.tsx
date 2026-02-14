@@ -1,11 +1,15 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  TouchableWithoutFeedback,
 } from "react-native";
 import Feather from "@react-native-vector-icons/feather";
 import { useNavigation } from "@react-navigation/native";
@@ -33,96 +37,102 @@ export default function JoinMeeting() {
   const { roomId, setRoomId } = useGenerateRoomID();
 
   return (
-    <View style={styles.container}>
-      <View style={styles.field}>
-        <Text style={styles.label}>{t("JoinMeeting.RoomID")}</Text>
+    <KeyboardAvoidingView
+      // eslint-disable-next-line react-native/no-inline-styles
+      style={{ width: "100%" }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={styles.label}>{t("JoinMeeting.RoomID")}</Text>
 
-        <TextInput
-          value={roomId}
-          onChangeText={setRoomId}
-          placeholder={t("JoinMeeting.EnterRoomID")}
-          placeholderTextColor="#71717a"
-          maxLength={128}
-          style={styles.input}
-        />
-      </View>
+          <TextInput
+            value={roomId}
+            onChangeText={setRoomId}
+            placeholder={t("JoinMeeting.EnterRoomID")}
+            placeholderTextColor="#71717a"
+            maxLength={128}
+            style={styles.input}
+          />
 
-      <View style={styles.field}>
-        <Text style={styles.label}>{t("JoinMeeting.Passphrase")}</Text>
+          <Text style={styles.label}>{t("JoinMeeting.Passphrase")}</Text>
 
-        <TextInput
-          value={passphrase ?? ""}
-          onChangeText={setPassphrase}
-          placeholder={t("JoinMeeting.EnterPassphrase")}
-          placeholderTextColor="#71717a"
-          secureTextEntry
-          maxLength={128}
-          style={styles.input}
-        />
+          <TextInput
+            value={passphrase ?? ""}
+            onChangeText={setPassphrase}
+            placeholder={t("JoinMeeting.EnterPassphrase")}
+            placeholderTextColor="#71717a"
+            secureTextEntry
+            maxLength={128}
+            style={styles.input}
+          />
 
-        <Text style={styles.helper}>
-          {t("JoinMeeting.PText1", { maxRoomIDLength })}
-        </Text>
+          <Text style={styles.helper}>
+            {t("JoinMeeting.PText1", { maxRoomIDLength })}
+          </Text>
 
-        <Text style={styles.helper}>{t("JoinMeeting.PText2")}</Text>
-      </View>
+          <Text style={styles.helper}>{t("JoinMeeting.PText2")}</Text>
 
-      <TouchableOpacity
-        activeOpacity={0.85}
-        onPress={() =>
-          handleJoinRoom({
-            roomId,
-            passphrase,
-            clearPassphrase,
-            navigation,
-          })
-        }
-        style={[styles.button, styles.primaryButton]}
-      >
-        <Feather name="log-in" size={18} color="#fff" />
-        <Text style={styles.primaryButtonText}>
-          {t("JoinMeeting.JoinRoomButton")}
-        </Text>
-      </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() =>
+              handleJoinRoom({
+                roomId,
+                passphrase,
+                clearPassphrase,
+                navigation,
+              })
+            }
+            style={[styles.button, styles.primaryButton]}
+          >
+            <Feather name="log-in" size={18} color="#fff" />
+            <Text style={styles.primaryButtonText}>
+              {t("JoinMeeting.JoinRoomButton")}
+            </Text>
+          </TouchableOpacity>
 
-      <TouchableOpacity
-        activeOpacity={0.85}
-        onPress={handleGenerateRoomIdClick}
-        style={[styles.button, styles.secondaryButton]}
-      >
-        <Feather name="shuffle" size={18} color="#fff" />
-        <Text style={styles.secondaryButtonText}>
-          {t("JoinMeeting.GenerateNewRoomIDButton")}
-        </Text>
-      </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={handleGenerateRoomIdClick}
+            style={[styles.button, styles.secondaryButton]}
+          >
+            <Feather name="shuffle" size={18} color="#fff" />
+            <Text style={styles.secondaryButtonText}>
+              {t("JoinMeeting.GenerateNewRoomIDButton")}
+            </Text>
+          </TouchableOpacity>
 
-      <TouchableOpacity
-        activeOpacity={0.85}
-        onPress={() => handleDeleteUser({ revokeAccessToken })}
-        style={[styles.button, styles.dangerButton]}
-      >
-        <Feather name="trash-2" size={18} color="#f87171" />
-        <Text style={styles.dangerButtonText}>
-          {t("JoinMeeting.DeleteUserButton")}
-        </Text>
-      </TouchableOpacity>
-    </View>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => handleDeleteUser({ revokeAccessToken })}
+            style={[styles.button, styles.dangerButton]}
+          >
+            <Feather name="trash-2" size={18} color="#f87171" />
+            <Text style={styles.dangerButtonText}>
+              {t("JoinMeeting.DeleteUserButton")}
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    gap: 12,
-  },
-
-  field: {
-    gap: 6,
+    paddingBottom: 32,
+    gap: 8,
   },
 
   label: {
     fontSize: 14,
     color: "#d4d4d8",
+    marginTop: 6,
   },
 
   input: {
@@ -139,11 +149,10 @@ const styles = StyleSheet.create({
   helper: {
     fontSize: 12,
     color: "#71717a",
-    marginTop: 2,
   },
 
   button: {
-    marginTop: 6,
+    marginTop: 8,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
