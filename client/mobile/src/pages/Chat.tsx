@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import { Button, Text, TextInput, View } from "react-native";
+import { useEffect } from "react";
+import { Alert, Button, Text, TextInput, View } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { t } from "i18next";
 
@@ -13,11 +13,16 @@ import {
   getTimeLabel,
   isString,
 } from "../../../shared/utils/general";
+import { maxMessageChars } from "../constants";
 import useInitE2ee from "../hooks/useInitE2ee";
 import useMessages from "../hooks/useMessages";
 import useOnlineUsers, { OnlineUser } from "../hooks/useOnlineUsers";
 import useTypingUsers from "../hooks/useTypingUsers";
-import { decryptWireToText, isEncryptedWireMessage } from "../lib/e2ee";
+import {
+  decryptWireToText,
+  encryptTextToWire,
+  isEncryptedWireMessage,
+} from "../lib/e2ee";
 import { parseJwt } from "../lib/jwt";
 import { getWSInstance } from "../lib/wsInstance";
 import { useAuthStore } from "../stores/authStore";
@@ -54,11 +59,13 @@ export default function ChatPage() {
     );
 
     if (!accessToken) {
+      Alert.alert(t("Errors.PleaseCreateAUserFirst"));
       navigation.navigate("Home");
       return;
     }
 
     if (!room) {
+      Alert.alert(t("Errors.InvalidRoom"));
       navigation.navigate("Home");
       return;
     }
@@ -69,11 +76,13 @@ export default function ChatPage() {
       ws = getWSInstance();
     } catch (error) {
       console.error("WebSocket not initialized.", error);
+      Alert.alert(t("Errors.WsInstanceIsNotInitialized"));
       navigation.navigate("Home");
       return;
     }
 
     if (ws.readyState !== WebSocket.OPEN) {
+      Alert.alert(t("Errors.ConnectingDotDotDotTryAgainInAMoment"));
       navigation.navigate("Home");
       return;
     }
@@ -85,6 +94,7 @@ export default function ChatPage() {
         parsed = await parseIncomingWSMessage(event.data);
       } catch (error) {
         console.error("Error parsing incoming WS message:", error);
+        Alert.alert(t("Errors.ErrorProcessingServerMessage"));
         return;
       }
 
@@ -139,7 +149,7 @@ export default function ChatPage() {
         parsed.type === "webrtc.answer" ||
         parsed.type === "webrtc.iceCandidate"
       ) {
-        //void handleSignal(parsed);
+        // void handleSignal(parsed);
         return;
       }
 
@@ -241,7 +251,7 @@ export default function ChatPage() {
           return;
         }
 
-        decryptWireToText(wireText, key, {
+        await decryptWireToText(wireText, key, {
           roomId: room,
           userId: from || undefined,
         })
@@ -268,6 +278,7 @@ export default function ChatPage() {
           ws.send(makeWSMessage("chat.leave", { room }));
         }
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Error leaving room:", error);
       }
 
@@ -307,14 +318,26 @@ export default function ChatPage() {
           <TextInput value={message} onChangeText={setMessage} />
           <Button
             title="Send"
-            onPress={() => {
+            onPress={async () => {
               const ws = getWSInstance();
 
               if (ws.readyState !== WebSocket.OPEN) {
                 return;
               }
 
-              ws.send(makeWSMessage("chat.message", { room, message }));
+              const encryptedWire = await encryptTextToWire(
+                message,
+                e2eeKeyRef.current,
+                {
+                  roomId: room,
+                  userId: me.sub,
+                  maxPlaintextChars: maxMessageChars,
+                },
+              );
+
+              ws.send(
+                makeWSMessage("chat.message", { room, message: encryptedWire }),
+              );
               setMessage("");
             }}
           />
