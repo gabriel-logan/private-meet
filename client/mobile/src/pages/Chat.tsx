@@ -388,6 +388,7 @@ export default function ChatPage() {
                 onlineUsers={onlineUsers}
                 typingSentRef={typingSentRef}
                 typingTimeoutRef={typingTimeoutRef}
+                flatListRef={flatListRef}
               />
             ) : null}
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { FlatList } from "react-native";
 
 type ChatMessage =
@@ -26,11 +26,6 @@ export default function useMessages() {
   const [message, setMessage] = useState("");
 
   const flatListRef = useRef<FlatList<ChatMessage>>(null);
-
-  // Scroll to bottom when a new message is added
-  useEffect(() => {
-    flatListRef.current?.scrollToEnd({ animated: true });
-  }, [messages.length]);
 
   return { flatListRef, messages, setMessages, message, setMessage };
 }

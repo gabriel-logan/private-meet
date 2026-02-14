@@ -1,5 +1,15 @@
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, Text, TextInput, View } from "react-native";
+import {
+  FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import Feather from "@react-native-vector-icons/feather";
 
 import { makeWSMessage } from "../../../../shared/protocol/ws";
@@ -32,6 +42,11 @@ interface SectionMessagesProps {
   typingSentRef: React.RefObject<boolean>;
   onlineUsers: OnlineUser[];
   me: { sub?: string; username?: string };
+  flatListRef: React.RefObject<FlatList<any> | null>;
+}
+
+function MessageSeparator() {
+  return <View style={localStyles.separator} />;
 }
 
 export default function SectionMessages({
@@ -48,8 +63,35 @@ export default function SectionMessages({
   typingSentRef,
   onlineUsers,
   me,
+  flatListRef,
 }: Readonly<SectionMessagesProps>) {
   const { t } = useTranslation();
+
+  const isUserNearBottomRef = useRef(true);
+
+  useEffect(() => {
+    if (!isUserNearBottomRef.current) {
+      return;
+    }
+
+    const timeout = globalThis.setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 0);
+
+    return () => {
+      globalThis.clearTimeout(timeout);
+    };
+  }, [flatListRef, messages.length]);
+
+  function handleMessageListScroll(
+    event: NativeSyntheticEvent<NativeScrollEvent>,
+  ) {
+    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+    const distanceFromBottom =
+      contentSize.height - (contentOffset.y + layoutMeasurement.height);
+
+    isUserNearBottomRef.current = distanceFromBottom <= 32;
+  }
 
   async function handleSendText() {
     if (onlineUsers.length <= 1) {
@@ -123,37 +165,49 @@ export default function SectionMessages({
       </View>
 
       <View style={styles.sectionBody}>
-        <View style={styles.messagesList}>
-          {messages.length > 0 ? (
-            messages.map(item => (
-              <View
-                key={item.id}
-                style={[
-                  styles.messageBubble,
-                  item.isMe
-                    ? styles.messageBubbleMine
-                    : styles.messageBubbleOther,
-                ]}
-              >
-                <View style={styles.messageMeta}>
-                  <Text style={styles.messageAuthor} numberOfLines={1}>
-                    {item.author || t("Errors.UnknownError")}
-                  </Text>
-                  <Text style={styles.messageTimestamp}>{item.timestamp}</Text>
-                </View>
-
-                <Text style={styles.messageText}>{item.text || ""}</Text>
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={item => item.id}
+          style={styles.messagesList}
+          onScroll={handleMessageListScroll}
+          scrollEventThrottle={16}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator
+          persistentScrollbar
+          ItemSeparatorComponent={MessageSeparator}
+          contentContainerStyle={
+            messages.length === 0 ? localStyles.emptyContainer : undefined
+          }
+          renderItem={({ item }) => (
+            <View
+              style={[
+                styles.messageBubble,
+                item.isMe
+                  ? styles.messageBubbleMine
+                  : styles.messageBubbleOther,
+                item.isMe ? localStyles.mineBubble : localStyles.otherBubble,
+              ]}
+            >
+              <View style={styles.messageMeta}>
+                <Text style={styles.messageAuthor} numberOfLines={1}>
+                  {item.author || t("Errors.UnknownError")}
+                </Text>
+                <Text style={styles.messageTimestamp}>{item.timestamp}</Text>
               </View>
-            ))
-          ) : (
+
+              <Text style={styles.messageText}>{item.text || ""}</Text>
+            </View>
+          )}
+          ListEmptyComponent={
             <View style={styles.emptyState}>
               <Text style={styles.emptyStateTitle}>{t("Chat.Chat")}</Text>
               <Text style={styles.emptyStateSubtitle}>
                 {t("Chat.MsgsAreSentViaWsE2EEEncryption")}
               </Text>
             </View>
-          )}
-        </View>
+          }
+        />
 
         <View style={styles.composerWrap}>
           <View style={styles.composerInfoRow}>
@@ -231,3 +285,24 @@ export default function SectionMessages({
     </View>
   );
 }
+
+const localStyles = StyleSheet.create({
+  separator: {
+    height: 10,
+  },
+  emptyContainer: {
+    flexGrow: 1,
+  },
+  mineBubble: {
+    alignSelf: "flex-end",
+    width: "auto",
+    minWidth: "65%",
+    maxWidth: "90%",
+  },
+  otherBubble: {
+    alignSelf: "flex-start",
+    width: "auto",
+    minWidth: "65%",
+    maxWidth: "90%",
+  },
+});
