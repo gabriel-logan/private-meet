@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Button, Text, TextInput, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { t } from "i18next";
 
@@ -299,56 +299,9 @@ export default function ChatPage() {
     setTypingUsers,
   ]);
 
-  return (
-    <View>
-      <Text>Chat Page for Room: {roomId}</Text>
-      <View>
-        <Text>Messages:</Text>
-        {messages.map(
-          msg =>
-            msg.kind === "text" && (
-              <View key={msg.id}>
-                <Text>
-                  {msg.author} ({msg.timestamp}): {msg.text}
-                </Text>
-              </View>
-            ),
-        )}
-
-        <View>
-          <Text>Input message here...</Text>
-          <TextInput value={message} onChangeText={setMessage} />
-          <Button
-            title="Send"
-            onPress={async () => {
-              const ws = getWSInstance();
-
-              if (ws.readyState !== WebSocket.OPEN) {
-                return;
-              }
-
-              const encryptedWire = await encryptTextToWire(
-                message,
-                e2eeKeyRef.current,
-                {
-                  roomId: room,
-                  userId: me.sub,
-                  maxPlaintextChars: maxMessageChars,
-                },
-              );
-
-              ws.send(
-                makeWSMessage("chat.message", { room, message: encryptedWire }),
-              );
-              setMessage("");
-            }}
-          />
-        </View>
-      </View>
-
-      <View>
-        <Text>Typing: {typingLabel}</Text>
-      </View>
-    </View>
-  );
+  return <View />;
 }
+
+function SectionOnlineUsers() {}
+function SectionVideoCall() {}
+function SectionMessages() {}
