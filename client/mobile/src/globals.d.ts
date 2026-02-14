@@ -21,3 +21,6 @@ declare class TextDecoder {
 declare interface Blob {
   arrayBuffer(): Promise<ArrayBuffer>;
 }
+
+declare const atob: (input: string) => string;
+declare const btoa: (input: string) => string;
