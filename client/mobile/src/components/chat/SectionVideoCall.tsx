@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { Text, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import Feather from "@react-native-vector-icons/feather";
+import { useNavigation } from "@react-navigation/native";
 
 import type { ChatStyles } from "../../pages/ChatStyles";
 
@@ -17,6 +18,8 @@ export default function SectionVideoCall({
   styles,
 }: Readonly<SectionVideoCallProps>) {
   const { t } = useTranslation();
+
+  const navigation = useNavigation();
 
   return (
     <View style={styles.sectionCard}>
@@ -42,31 +45,36 @@ export default function SectionVideoCall({
         </View>
 
         <View style={styles.videoActions}>
-          <View style={styles.videoActionButton}>
+          <TouchableOpacity style={styles.videoActionButton}>
             <Feather name="mic" size={14} color="#e4e4e7" />
-          </View>
-          <View style={styles.videoActionButton}>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.videoActionButton}>
             <Feather name="video" size={14} color="#e4e4e7" />
-          </View>
-          <View style={styles.videoActionButton}>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.videoActionButton}>
             <Feather name="monitor" size={14} color="#e4e4e7" />
-          </View>
-          <View style={styles.videoActionButtonDanger}>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.videoActionButtonDanger}
+            onPress={() => {
+              navigation.goBack();
+            }}
+          >
             <Feather name="log-out" size={14} color="#fca5a5" />
-          </View>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.speakerRow}>
           <Text style={styles.speakerLabel}>{t("Chat.AudioStartsOn")}</Text>
 
           <View style={styles.speakerToggleMock}>
-            <View style={styles.speakerToggleSideActive}>
+            <TouchableOpacity style={styles.speakerToggleSideActive}>
               <Feather name="volume-2" size={14} color="#ffffff" />
-            </View>
+            </TouchableOpacity>
             <View style={styles.speakerDivider} />
-            <View style={styles.speakerToggleSideMuted}>
+            <TouchableOpacity style={styles.speakerToggleSideMuted}>
               <Feather name="volume-x" size={14} color="#fca5a5" />
-            </View>
+            </TouchableOpacity>
           </View>
         </View>
 
