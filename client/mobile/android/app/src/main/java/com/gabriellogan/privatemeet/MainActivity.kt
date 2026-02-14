@@ -6,6 +6,7 @@ import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
+import androidx.appcompat.app.AppCompatDelegate
 
 class MainActivity : ReactActivity() {
 
@@ -23,6 +24,8 @@ class MainActivity : ReactActivity() {
       DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 
   override fun onCreate(savedInstanceState: Bundle?) {
+      AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+
       supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
       super.onCreate(savedInstanceState)
   }
