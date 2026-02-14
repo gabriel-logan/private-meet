@@ -62,15 +62,15 @@ export default function ChatPage() {
 
   const { params } = useRoute<ChatPageProps["route"]>();
 
-  const { roomId } = params;
+  const { roomId: rawRoomId } = params;
 
-  const room = normalizeRoomId(roomId);
+  const room = normalizeRoomId(rawRoomId);
 
   const me = parseJwt(accessToken);
 
   const navigation = useNavigation();
 
-  const { e2eeKeyRef, e2eeReady } = useInitE2ee({ rawRoomId: roomId });
+  const { e2eeKeyRef, e2eeReady } = useInitE2ee({ rawRoomId: rawRoomId });
 
   const { flatListRef, message, messages, setMessage, setMessages } =
     useMessages();
@@ -377,6 +377,7 @@ export default function ChatPage() {
             {activeScreen === "chat" ? (
               <SectionMessages
                 room={room}
+                rawRoomId={rawRoomId}
                 messages={messages}
                 message={message}
                 setMessage={setMessage}
@@ -386,12 +387,16 @@ export default function ChatPage() {
             ) : null}
 
             {activeScreen === "users" ? (
-              <SectionOnlineUsers onlineUsers={onlineUsers} room={room} />
+              <SectionOnlineUsers
+                onlineUsers={onlineUsers}
+                rawRoomId={rawRoomId}
+              />
             ) : null}
 
             {activeScreen === "stage" ? (
               <SectionVideoCall
                 room={room}
+                rawRoomId={rawRoomId}
                 onlineUsersCount={onlineUsers.length}
               />
             ) : null}
@@ -494,9 +499,12 @@ export default function ChatPage() {
 }
 
 function SectionOnlineUsers(
-  props: Readonly<{ onlineUsers: OnlineUser[]; room: string }>,
+  props: Readonly<{
+    onlineUsers: OnlineUser[];
+    rawRoomId: string;
+  }>,
 ) {
-  const { onlineUsers, room } = props;
+  const { onlineUsers, rawRoomId } = props;
 
   return (
     <View style={styles.sectionCard}>
@@ -511,9 +519,9 @@ function SectionOnlineUsers(
       </View>
 
       <View style={styles.sectionBody}>
-        <Text style={styles.sectionCaption}>
+        <Text style={styles.sectionCaption} numberOfLines={1}>
           {t("Chat.RoomColon")}
-          {room || "-"}
+          {rawRoomId || "-"}
         </Text>
 
         {onlineUsers.length > 0 ? (
@@ -549,9 +557,13 @@ function SectionOnlineUsers(
 }
 
 function SectionVideoCall(
-  props: Readonly<{ room: string; onlineUsersCount: number }>,
+  props: Readonly<{
+    room: string;
+    rawRoomId: string;
+    onlineUsersCount: number;
+  }>,
 ) {
-  const { room, onlineUsersCount } = props;
+  const { room, rawRoomId, onlineUsersCount } = props;
 
   return (
     <View style={styles.sectionCard}>
@@ -560,8 +572,8 @@ function SectionVideoCall(
           <Feather name="video" size={15} color="#d4d4d8" />
           <Text style={styles.sectionTitle}>{t("Chat.Stage")}</Text>
         </View>
-        <Text style={styles.sectionHint}>
-          {t("Chat.RoomColon")} {room || "-"}
+        <Text style={styles.sectionHint} numberOfLines={1}>
+          {t("Chat.RoomColon")} {rawRoomId || "-"}
         </Text>
       </View>
 
@@ -616,6 +628,7 @@ function SectionVideoCall(
 function SectionMessages(
   props: Readonly<{
     room: string;
+    rawRoomId: string;
     messages: {
       id: string;
       author: string;
@@ -629,7 +642,15 @@ function SectionMessages(
     e2eeReady: boolean;
   }>,
 ) {
-  const { room, messages, message, setMessage, typingLabel, e2eeReady } = props;
+  const {
+    room,
+    rawRoomId,
+    messages,
+    message,
+    setMessage,
+    typingLabel,
+    e2eeReady,
+  } = props;
 
   return (
     <View style={styles.sectionCard}>
@@ -638,9 +659,9 @@ function SectionMessages(
           <Feather name="send" size={15} color="#d4d4d8" />
           <Text style={styles.sectionTitle}>{t("Chat.Chat")}</Text>
         </View>
-        <Text style={styles.sectionHint}>
+        <Text style={styles.sectionHint} numberOfLines={1}>
           {t("Chat.RoomColon")}
-          {room || "-"}
+          {rawRoomId || "-"}
         </Text>
       </View>
 
@@ -858,6 +879,8 @@ const styles = StyleSheet.create({
   sectionHint: {
     color: "#a1a1aa",
     fontSize: 12,
+    width: "50%",
+    textAlign: "right",
   },
 
   badge: {

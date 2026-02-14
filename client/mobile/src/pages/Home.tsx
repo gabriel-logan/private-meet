@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
     maxWidth: 420,
     flexDirection: "row",
     justifyContent: "flex-end",
+    paddingVertical: 32,
   },
 
   headerBase: {
