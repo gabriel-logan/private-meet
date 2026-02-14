@@ -1,6 +1,7 @@
 import { getLocales } from "react-native-localize";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 import type { Locale } from "../../../shared/types";
 import { resources, userStorageKey } from "../constants";
@@ -43,6 +44,7 @@ export const useUserStore = create<UserStore>()(
     }),
     {
       name: userStorageKey,
+      storage: createJSONStorage(() => AsyncStorage),
     },
   ),
 );
