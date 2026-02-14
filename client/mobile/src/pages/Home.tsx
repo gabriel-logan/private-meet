@@ -1,6 +1,14 @@
 import React, { useEffect, useRef } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { Animated, Easing, StyleSheet, Text, View } from "react-native";
+import {
+  Animated,
+  Easing,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import CreateUser from "../components/CreateUser";
 import JoinMeeting from "../components/JoinMeeting";
@@ -8,9 +16,26 @@ import SelectLanguage from "../components/SelectLanguage";
 import { useAuthStore } from "../stores/authStore";
 
 function Header() {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.header}>
-      <SelectLanguage />
+      <View style={styles.headerBase}>
+        <View style={styles.headerAboutView}>
+          <TouchableOpacity
+            onPress={async () => {
+              const url = "https://private-meet-76by.onrender.com/about";
+
+              if (await Linking.canOpenURL(url)) {
+                await Linking.openURL(url);
+              }
+            }}
+          >
+            <Text style={styles.headerAboutText}>{t("Header.About")}</Text>
+          </TouchableOpacity>
+        </View>
+        <SelectLanguage />
+      </View>
     </View>
   );
 }
@@ -78,6 +103,20 @@ const styles = StyleSheet.create({
     maxWidth: 420,
     flexDirection: "row",
     justifyContent: "flex-end",
+  },
+
+  headerBase: {
+    gap: 12,
+  },
+
+  headerAboutView: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.1)",
+  },
+
+  headerAboutText: {
+    color: "#f4f4f5",
   },
 
   container: {
