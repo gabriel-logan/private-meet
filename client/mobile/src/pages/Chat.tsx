@@ -6,9 +6,13 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  useWindowDimensions,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import Feather from "@react-native-vector-icons/feather";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { t } from "i18next";
@@ -44,6 +48,16 @@ type ChatPageProps = RootNativeStackScreenProps<"Chat">;
 type ActiveScreen = "users" | "stage" | "chat";
 
 export default function ChatPage() {
+  const { width: viewportWidth } = useWindowDimensions();
+
+  const insets = useSafeAreaInsets();
+
+  const isSmallDevice = viewportWidth < 360;
+  const isLargeDevice = viewportWidth >= 520;
+  const contentMaxWidth = isLargeDevice ? 540 : 480;
+  const tabBarBottomPadding = Math.max(insets.bottom, 12);
+  const tabBarHeight = 64 + tabBarBottomPadding;
+
   const accessToken = useAuthStore(state => state.accessToken);
 
   const { params } = useRoute<ChatPageProps["route"]>();
@@ -322,123 +336,157 @@ export default function ChatPage() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={Platform.OS === "ios" ? 8 : 0}
       >
-        <View style={styles.pageHeader}>
-          <View>
-            <Text style={styles.pageTitle}>{t("Chat.MeetingRoom")}</Text>
-            <Text style={styles.pageSubTitle}>{room || "-"}</Text>
-          </View>
-
-          <View style={styles.headerPills}>
-            <View style={styles.headerPill}>
-              <View style={styles.headerPillDot} />
-              <Text style={styles.headerPillText}>{t("Chat.Connected")}</Text>
+        <View style={[styles.contentWrap, { maxWidth: contentMaxWidth }]}>
+          <View
+            style={[styles.pageHeader, isSmallDevice && styles.pageHeaderSmall]}
+          >
+            <View>
+              <Text
+                style={[
+                  styles.pageTitle,
+                  isSmallDevice && styles.pageTitleSmall,
+                ]}
+              >
+                {t("Chat.MeetingRoom")}
+              </Text>
+              <Text style={styles.pageSubTitle}>{room || "-"}</Text>
             </View>
 
-            <View style={styles.headerPill}>
-              <Feather name="users" size={12} color="#d4d4d8" />
-              <Text style={styles.headerPillText}>{onlineUsers.length}</Text>
+            <View style={styles.headerPills}>
+              <View style={styles.headerPill}>
+                <View style={styles.headerPillDot} />
+                <Text style={styles.headerPillText}>{t("Chat.Connected")}</Text>
+              </View>
+
+              <View style={styles.headerPill}>
+                <Feather name="users" size={12} color="#d4d4d8" />
+                <Text style={styles.headerPillText}>{onlineUsers.length}</Text>
+              </View>
             </View>
           </View>
-        </View>
 
-        <View style={styles.sectionViewport}>
-          {activeScreen === "chat" ? (
-            <SectionMessages
-              room={room}
-              messages={messages}
-              message={message}
-              setMessage={setMessage}
-              typingLabel={typingLabel}
-              e2eeReady={e2eeReady}
-            />
-          ) : null}
-
-          {activeScreen === "users" ? (
-            <SectionOnlineUsers onlineUsers={onlineUsers} room={room} />
-          ) : null}
-
-          {activeScreen === "stage" ? (
-            <SectionVideoCall
-              room={room}
-              onlineUsersCount={onlineUsers.length}
-            />
-          ) : null}
-        </View>
-
-        <View style={styles.bottomTabs}>
-          <Pressable
-            onPress={() => setActiveScreen("users")}
+          <View
             style={[
-              styles.bottomTabButton,
-              activeScreen === "users" && styles.bottomTabButtonActive,
+              styles.sectionViewport,
+              {
+                paddingBottom: tabBarHeight + 10,
+              },
+              isSmallDevice && styles.sectionViewportSmall,
             ]}
           >
-            <Feather
-              name="users"
-              size={15}
-              color={activeScreen === "users" ? "#ffffff" : "#d4d4d8"}
-            />
-            <Text
-              style={[
-                styles.bottomTabText,
-                activeScreen === "users" && styles.bottomTabTextActive,
-              ]}
-            >
-              {t("Chat.Users")}
-            </Text>
-          </Pressable>
+            {activeScreen === "chat" ? (
+              <SectionMessages
+                room={room}
+                messages={messages}
+                message={message}
+                setMessage={setMessage}
+                typingLabel={typingLabel}
+                e2eeReady={e2eeReady}
+              />
+            ) : null}
 
-          <Pressable
-            onPress={() => setActiveScreen("stage")}
+            {activeScreen === "users" ? (
+              <SectionOnlineUsers onlineUsers={onlineUsers} room={room} />
+            ) : null}
+
+            {activeScreen === "stage" ? (
+              <SectionVideoCall
+                room={room}
+                onlineUsersCount={onlineUsers.length}
+              />
+            ) : null}
+          </View>
+
+          <View
             style={[
-              styles.bottomTabButton,
-              activeScreen === "stage" && styles.bottomTabButtonActive,
+              styles.bottomTabs,
+              {
+                height: tabBarHeight,
+                paddingBottom: tabBarBottomPadding,
+              },
+              isSmallDevice && styles.bottomTabsSmall,
             ]}
           >
-            <Feather
-              name="video"
-              size={15}
-              color={activeScreen === "stage" ? "#ffffff" : "#d4d4d8"}
-            />
-            <Text
+            <Pressable
+              onPress={() => setActiveScreen("users")}
               style={[
-                styles.bottomTabText,
-                activeScreen === "stage" && styles.bottomTabTextActive,
+                styles.bottomTabButton,
+                activeScreen === "users" && styles.bottomTabButtonActive,
+                isSmallDevice && styles.bottomTabButtonSmall,
               ]}
             >
-              {t("Chat.Stage")}
-            </Text>
-          </Pressable>
+              <Feather
+                name="users"
+                size={15}
+                color={activeScreen === "users" ? "#ffffff" : "#d4d4d8"}
+              />
+              <Text
+                style={[
+                  styles.bottomTabText,
+                  activeScreen === "users" && styles.bottomTabTextActive,
+                  isSmallDevice && styles.bottomTabTextSmall,
+                ]}
+              >
+                {t("Chat.Users")}
+              </Text>
+            </Pressable>
 
-          <Pressable
-            onPress={() => setActiveScreen("chat")}
-            style={[
-              styles.bottomTabButton,
-              activeScreen === "chat" && styles.bottomTabButtonActive,
-            ]}
-          >
-            <Feather
-              name="send"
-              size={15}
-              color={activeScreen === "chat" ? "#ffffff" : "#d4d4d8"}
-            />
-            <Text
+            <Pressable
+              onPress={() => setActiveScreen("stage")}
               style={[
-                styles.bottomTabText,
-                activeScreen === "chat" && styles.bottomTabTextActive,
+                styles.bottomTabButton,
+                activeScreen === "stage" && styles.bottomTabButtonActive,
+                isSmallDevice && styles.bottomTabButtonSmall,
               ]}
             >
-              {t("Chat.Chat")}
-            </Text>
-          </Pressable>
-        </View>
+              <Feather
+                name="video"
+                size={15}
+                color={activeScreen === "stage" ? "#ffffff" : "#d4d4d8"}
+              />
+              <Text
+                style={[
+                  styles.bottomTabText,
+                  activeScreen === "stage" && styles.bottomTabTextActive,
+                  isSmallDevice && styles.bottomTabTextSmall,
+                ]}
+              >
+                {t("Chat.Stage")}
+              </Text>
+            </Pressable>
 
-        <View style={styles.devKeepRefsHidden}>
-          <Text>
-            {String(Boolean(flatListRef))}
-            {String(Boolean(typingSentRef.current))}
-            {String(Boolean(typingTimeoutRef.current))}
-          </Text>
+            <Pressable
+              onPress={() => setActiveScreen("chat")}
+              style={[
+                styles.bottomTabButton,
+                activeScreen === "chat" && styles.bottomTabButtonActive,
+                isSmallDevice && styles.bottomTabButtonSmall,
+              ]}
+            >
+              <Feather
+                name="send"
+                size={15}
+                color={activeScreen === "chat" ? "#ffffff" : "#d4d4d8"}
+              />
+              <Text
+                style={[
+                  styles.bottomTabText,
+                  activeScreen === "chat" && styles.bottomTabTextActive,
+                  isSmallDevice && styles.bottomTabTextSmall,
+                ]}
+              >
+                {t("Chat.Chat")}
+              </Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.devKeepRefsHidden}>
+            <Text>
+              {String(Boolean(flatListRef))}
+              {String(Boolean(typingSentRef.current))}
+              {String(Boolean(typingTimeoutRef.current))}
+            </Text>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -687,22 +735,36 @@ const styles = StyleSheet.create({
   },
   screen: {
     flex: 1,
-    paddingTop: 10,
+  },
+  contentWrap: {
+    flex: 1,
+    width: "100%",
+    alignSelf: "center",
+    position: "relative",
   },
 
   pageHeader: {
-    paddingHorizontal: 12,
-    paddingBottom: 10,
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
 
+  pageHeaderSmall: {
+    paddingHorizontal: 12,
+    paddingTop: 8,
+  },
+
   pageTitle: {
     color: "#fafafa",
-    fontSize: 20,
+    fontSize: 21,
     fontWeight: "700",
-    letterSpacing: -0.3,
+    letterSpacing: -0.4,
+  },
+  pageTitleSmall: {
+    fontSize: 19,
   },
 
   pageSubTitle: {
@@ -744,8 +806,11 @@ const styles = StyleSheet.create({
 
   sectionViewport: {
     flex: 1,
+    paddingHorizontal: 14,
+  },
+
+  sectionViewportSmall: {
     paddingHorizontal: 12,
-    paddingBottom: 90,
   },
 
   hiddenSection: {
@@ -756,13 +821,13 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     borderColor: "#27272a",
-    backgroundColor: "#18181b",
-    borderRadius: 16,
+    backgroundColor: "#111218",
+    borderRadius: 18,
     overflow: "hidden",
   },
 
   sectionHeader: {
-    height: 58,
+    height: 56,
     paddingHorizontal: 14,
     borderBottomWidth: 1,
     borderBottomColor: "#27272a",
@@ -815,7 +880,7 @@ const styles = StyleSheet.create({
 
   sectionBody: {
     flex: 1,
-    padding: 12,
+    padding: 14,
     gap: 12,
   },
 
@@ -902,15 +967,16 @@ const styles = StyleSheet.create({
   },
 
   videoActions: {
-    height: 64,
+    minHeight: 64,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.1)",
     backgroundColor: "rgba(24,24,27,0.7)",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
+    justifyContent: "space-between",
+    gap: 6,
+    paddingHorizontal: 8,
   },
 
   videoActionButton: {
@@ -1000,15 +1066,15 @@ const styles = StyleSheet.create({
 
   messageBubble: {
     borderRadius: 12,
-    borderWidth: 1,
+    backgroundColor: "#172554",
     paddingHorizontal: 10,
-    paddingVertical: 8,
+    maxWidth: "92%",
   },
 
   messageBubbleMine: {
     borderColor: "#3f3f46",
     backgroundColor: "#0f172a",
-    alignSelf: "flex-end",
+    maxWidth: "92%",
     width: "92%",
   },
 
@@ -1091,7 +1157,7 @@ const styles = StyleSheet.create({
   },
 
   composerInput: {
-    minHeight: 72,
+    minHeight: 76,
     maxHeight: 140,
     borderRadius: 10,
     borderWidth: 1,
@@ -1124,7 +1190,7 @@ const styles = StyleSheet.create({
 
   sendButton: {
     height: 38,
-    minWidth: 92,
+    minWidth: 96,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#4338ca",
@@ -1169,25 +1235,30 @@ const styles = StyleSheet.create({
 
   bottomTabs: {
     position: "absolute",
-    left: 0,
-    right: 0,
+    left: 14,
+    right: 14,
     bottom: 0,
-    height: 78,
-    paddingHorizontal: 12,
-    paddingTop: 10,
-    paddingBottom: 14,
+    paddingHorizontal: 8,
+    paddingTop: 8,
+    borderRadius: 16,
     borderTopWidth: 1,
     borderTopColor: "#27272a",
-    backgroundColor: "#09090b",
+    backgroundColor: "#0f1016",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 8,
   },
 
+  bottomTabsSmall: {
+    left: 12,
+    right: 12,
+    paddingHorizontal: 6,
+  },
+
   bottomTabButton: {
     flex: 1,
-    height: 44,
+    height: 42,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#3f3f46",
@@ -1196,6 +1267,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flexDirection: "row",
     gap: 6,
+  },
+
+  bottomTabButtonSmall: {
+    height: 40,
+    gap: 5,
   },
 
   bottomTabButtonActive: {
@@ -1207,6 +1283,10 @@ const styles = StyleSheet.create({
     color: "#d4d4d8",
     fontSize: 13,
     fontWeight: "600",
+  },
+
+  bottomTabTextSmall: {
+    fontSize: 12,
   },
 
   bottomTabTextActive: {
