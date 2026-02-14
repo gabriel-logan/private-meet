@@ -1,10 +1,10 @@
+import { iceServers } from "../../../../shared/constants";
+
 const isTurnServerEnabled = import.meta.env.VITE_HAS_TURN_SERVER === "true";
 
 const turnServerURL = import.meta.env.VITE_TURN_SERVER_URL;
 const turnServerUsername = import.meta.env.VITE_TURN_SERVER_USERNAME;
 const turnServerCredential = import.meta.env.VITE_TURN_SERVER_CREDENTIAL;
-
-const iceServers: RTCIceServer[] = [{ urls: "stun:stun.l.google.com:19302" }];
 
 if (isTurnServerEnabled) {
   iceServers.push({
