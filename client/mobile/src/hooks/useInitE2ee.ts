@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { toast } from "react-toastify";
 
-import { debugHandle } from "../../../../shared/utils/general";
+import { debugHandle } from "../../../shared/utils/general";
 import { initE2EE } from "../lib/e2ee";
 import { useSecretStore } from "../stores/secretStore";
 
@@ -10,11 +9,11 @@ interface UseInitE2eeProps {
 }
 
 export default function useInitE2ee({ rawRoomId }: UseInitE2eeProps) {
-  const e2eeKeyRef = useRef<CryptoKey | null>(null);
+  const e2eeKeyRef = useRef(null);
 
   const [e2eeReady, setE2eeReady] = useState(false);
 
-  const passphrase = useSecretStore((state) => state.passphrase);
+  const passphrase = useSecretStore(state => state.passphrase);
 
   useEffect(() => {
     debugHandle("useInitE2ee exec useEffect");
@@ -42,7 +41,6 @@ export default function useInitE2ee({ rawRoomId }: UseInitE2eeProps) {
       } catch (error) {
         console.error("Failed to initialize E2EE:", error);
         if (!cancelled) {
-          toast.error("Failed to initialize E2EE.");
           setE2eeReady(false);
         }
       }

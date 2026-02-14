@@ -2,6 +2,11 @@ import { E2EE_WIRE_PREFIX } from "@env";
 
 import { maxMessageChars } from "../constants";
 
+// @ts-ignore
+const crypto = global.crypto; // nosonar
+
+type CryptoKey = any; // nosonar
+
 // AES-GCM standard IV length
 export const ivBytes = 12;
 // PBKDF2 work factor (tune based on target devices)
@@ -12,7 +17,7 @@ export const saltBytes = 16;
 // (Rough guard; final size depends on base64 and envelope overhead.)
 export const maxWireCharsDefault = 5000;
 
-export const wirePrefix = E2EE_WIRE_PREFIX;
+export const wirePrefix = E2EE_WIRE_PREFIX + ":";
 
 export type AesGcmAlg = "AES-GCM";
 

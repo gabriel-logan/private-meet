@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Text, View } from "react-native";
+import { useEffect, useRef } from "react";
+import { Button, Text, TextInput, View } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { t } from "i18next";
 
@@ -13,13 +13,16 @@ import {
   getTimeLabel,
   isString,
 } from "../../../shared/utils/general";
+import useInitE2ee from "../hooks/useInitE2ee";
 import useMessages from "../hooks/useMessages";
 import useOnlineUsers, { OnlineUser } from "../hooks/useOnlineUsers";
 import useTypingUsers from "../hooks/useTypingUsers";
+import { decryptWireToText, isEncryptedWireMessage } from "../lib/e2ee";
 import { parseJwt } from "../lib/jwt";
 import { getWSInstance } from "../lib/wsInstance";
 import { useAuthStore } from "../stores/authStore";
 import { RootNativeStackScreenProps } from "../types/Navigation";
+import { normalizeRoomId } from "../utils/general";
 
 export default function ChatPage() {
   const accessToken = useAuthStore(state => state.accessToken);
@@ -28,11 +31,13 @@ export default function ChatPage() {
 
   const { roomId } = params;
 
-  const room = roomId;
+  const room = normalizeRoomId(roomId);
 
   const me = parseJwt(accessToken);
 
   const navigation = useNavigation();
+
+  const { e2eeKeyRef, e2eeReady } = useInitE2ee({ rawRoomId: roomId });
 
   const { flatListRef, message, messages, setMessage, setMessages } =
     useMessages();
@@ -236,7 +241,7 @@ export default function ChatPage() {
           return;
         }
 
-        void decryptWireToText(wireText, key, {
+        decryptWireToText(wireText, key, {
           roomId: room,
           userId: from || undefined,
         })
@@ -247,7 +252,7 @@ export default function ChatPage() {
             append(t("Errors.E2EECanNotDecryptMessage"));
           });
 
-        return;
+        return undefined;
       }
     };
 
@@ -270,6 +275,7 @@ export default function ChatPage() {
     };
   }, [
     accessToken,
+    e2eeKeyRef,
     me.sub,
     me.username,
     navigation,
@@ -283,6 +289,41 @@ export default function ChatPage() {
   return (
     <View>
       <Text>Chat Page for Room: {roomId}</Text>
+      <View>
+        <Text>Messages:</Text>
+        {messages.map(
+          msg =>
+            msg.kind === "text" && (
+              <View key={msg.id}>
+                <Text>
+                  {msg.author} ({msg.timestamp}): {msg.text}
+                </Text>
+              </View>
+            ),
+        )}
+
+        <View>
+          <Text>Input message here...</Text>
+          <TextInput value={message} onChangeText={setMessage} />
+          <Button
+            title="Send"
+            onPress={() => {
+              const ws = getWSInstance();
+
+              if (ws.readyState !== WebSocket.OPEN) {
+                return;
+              }
+
+              ws.send(makeWSMessage("chat.message", { room, message }));
+              setMessage("");
+            }}
+          />
+        </View>
+      </View>
+
+      <View>
+        <Text>Typing: {typingLabel}</Text>
+      </View>
     </View>
   );
 }

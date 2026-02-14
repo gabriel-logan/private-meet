@@ -1,3 +1,9 @@
+import "react-native-get-random-values";
+
+import { install } from "react-native-quick-crypto";
+
+install();
+
 import "fast-text-encoding";
 import "./src/utils/i18n";
 
