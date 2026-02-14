@@ -336,28 +336,35 @@ const styles = StyleSheet.create({
 
   messagesList: {
     flex: 1,
-    gap: 10,
+  },
+
+  messagesListEmptyContent: {
+    flexGrow: 1,
   },
 
   messageBubble: {
-    borderRadius: 12,
-    backgroundColor: "#172554",
+    borderRadius: 14,
+    borderWidth: 1,
     padding: 10,
-    maxWidth: "92%",
+    width: "auto",
+    minWidth: "42%",
+    maxWidth: "90%",
+  },
+
+  messageBubbleGap: {
+    marginBottom: 10,
   },
 
   messageBubbleMine: {
-    borderColor: "#3f3f46",
-    backgroundColor: "#0f172a",
-    maxWidth: "92%",
-    width: "92%",
+    borderColor: "#2d3f8f",
+    backgroundColor: "#1e2f68",
+    alignSelf: "flex-end",
   },
 
   messageBubbleOther: {
-    borderColor: "#27272a",
-    backgroundColor: "#141416",
+    borderColor: "#2f2f36",
+    backgroundColor: "#1a1a1f",
     alignSelf: "flex-start",
-    width: "92%",
   },
 
   messageMeta: {

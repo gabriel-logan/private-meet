@@ -5,7 +5,6 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   Pressable,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -43,10 +42,6 @@ interface SectionMessagesProps {
   onlineUsers: OnlineUser[];
   me: { sub?: string; username?: string };
   flatListRef: React.RefObject<FlatList<any> | null>;
-}
-
-function MessageSeparator() {
-  return <View style={localStyles.separator} />;
 }
 
 export default function SectionMessages({
@@ -175,18 +170,18 @@ export default function SectionMessages({
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator
           persistentScrollbar
-          ItemSeparatorComponent={MessageSeparator}
+          indicatorStyle="white"
           contentContainerStyle={
-            messages.length === 0 ? localStyles.emptyContainer : undefined
+            messages.length === 0 ? styles.messagesListEmptyContent : undefined
           }
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <View
               style={[
                 styles.messageBubble,
                 item.isMe
                   ? styles.messageBubbleMine
                   : styles.messageBubbleOther,
-                item.isMe ? localStyles.mineBubble : localStyles.otherBubble,
+                index !== messages.length - 1 && styles.messageBubbleGap,
               ]}
             >
               <View style={styles.messageMeta}>
@@ -285,24 +280,3 @@ export default function SectionMessages({
     </View>
   );
 }
-
-const localStyles = StyleSheet.create({
-  separator: {
-    height: 10,
-  },
-  emptyContainer: {
-    flexGrow: 1,
-  },
-  mineBubble: {
-    alignSelf: "flex-end",
-    width: "auto",
-    minWidth: "65%",
-    maxWidth: "90%",
-  },
-  otherBubble: {
-    alignSelf: "flex-start",
-    width: "auto",
-    minWidth: "65%",
-    maxWidth: "90%",
-  },
-});
