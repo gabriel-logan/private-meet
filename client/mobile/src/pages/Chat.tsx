@@ -349,7 +349,9 @@ export default function ChatPage() {
               >
                 {t("Chat.MeetingRoom")}
               </Text>
-              <Text style={styles.pageSubTitle}>{room || "-"}</Text>
+              <Text style={styles.pageSubTitle} numberOfLines={1}>
+                {t("Chat.RoomColon")} {rawRoomId || "-"}
+              </Text>
             </View>
 
             <View style={styles.headerPills}>
@@ -792,6 +794,7 @@ const styles = StyleSheet.create({
     color: "#a1a1aa",
     fontSize: 12,
     marginTop: 2,
+    width: "80%",
   },
 
   headerPills: {
