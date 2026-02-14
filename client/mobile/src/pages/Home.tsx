@@ -3,7 +3,10 @@ import { Trans, useTranslation } from "react-i18next";
 import {
   Animated,
   Easing,
+  KeyboardAvoidingView,
   Linking,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -69,30 +72,41 @@ export default function HomePage() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header />
-
-      <View style={styles.card}>
-        <Animated.Text
-          style={[
-            styles.title,
-            // eslint-disable-next-line react-native/no-inline-styles
-            {
-              opacity,
-              textShadowColor: "rgba(99,102,241,0.6)",
-              textShadowRadius: 12,
-              textShadowOffset: { width: 0, height: 0 },
-            },
-          ]}
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoiding}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <Trans i18nKey="WelcomeMessage" t={t}>
-            Welcome to <Text style={styles.highlight}>Private Meet</Text>
-          </Trans>
-        </Animated.Text>
+          <Header />
 
-        <Text style={styles.subtitle}>{t("IntroductionText")}</Text>
+          <View style={styles.card}>
+            <Animated.Text
+              style={[
+                styles.title,
+                // eslint-disable-next-line react-native/no-inline-styles
+                {
+                  opacity,
+                  textShadowColor: "rgba(99,102,241,0.6)",
+                  textShadowRadius: 12,
+                  textShadowOffset: { width: 0, height: 0 },
+                },
+              ]}
+            >
+              <Trans i18nKey="WelcomeMessage" t={t}>
+                Welcome to <Text style={styles.highlight}>Private Meet</Text>
+              </Trans>
+            </Animated.Text>
 
-        {accessToken ? <JoinMeeting /> : <CreateUser />}
-      </View>
+            <Text style={styles.subtitle}>{t("IntroductionText")}</Text>
+
+            {accessToken ? <JoinMeeting /> : <CreateUser />}
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -122,10 +136,18 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
+    backgroundColor: "#09090b",
+  },
+
+  keyboardAvoiding: {
+    flex: 1,
+  },
+
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 16,
-    backgroundColor: "#09090b",
   },
 
   card: {
