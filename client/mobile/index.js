@@ -9,6 +9,9 @@ install();
 
 registerGlobals();
 
+import "fast-text-encoding";
+import "./src/utils/i18n";
+
 import App from "./App";
 
 import { name as appName } from "./app.json";
