@@ -18,6 +18,12 @@ This demo is hosted on Render.com and may have limitations on usage.
 We are not using TURN servers in the demo, so connectivity may vary based on your network conditions.
 We are using free instances, so performance may vary.
 
+## Mobile (Android)
+
+Download the Android APK here:
+
+- [Private Meet 1.0.0 Apk Experimental](https://github.com/gabriel-logan/private-meet/raw/refs/heads/main/distribution/android/app-experimental.apk)
+
 ## Desktop (Windows)
 
 Download the desktop installer here:
