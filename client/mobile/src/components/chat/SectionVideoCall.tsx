@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
 import Feather from "@react-native-vector-icons/feather";
@@ -18,6 +19,11 @@ export default function SectionVideoCall({
   styles,
 }: Readonly<SectionVideoCallProps>) {
   const { t } = useTranslation();
+
+  const [micOn, setMicOn] = useState(true);
+  const [cameraOn, setCameraOn] = useState(false);
+  const [screenShareOn, setScreenShareOn] = useState(false);
+  const [speakerOn, setSpeakerOn] = useState(true);
 
   const navigation = useNavigation();
 
@@ -45,14 +51,35 @@ export default function SectionVideoCall({
         </View>
 
         <View style={styles.videoActions}>
-          <TouchableOpacity style={styles.videoActionButton}>
-            <Feather name="mic" size={14} color="#e4e4e7" />
+          <TouchableOpacity
+            style={styles.videoActionButton}
+            onPress={() => setMicOn(!micOn)}
+          >
+            <Feather
+              name={micOn ? "mic" : "mic-off"}
+              size={14}
+              color="#e4e4e7"
+            />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.videoActionButton}>
-            <Feather name="video" size={14} color="#e4e4e7" />
+          <TouchableOpacity
+            style={styles.videoActionButton}
+            onPress={() => setCameraOn(!cameraOn)}
+          >
+            <Feather
+              name={cameraOn ? "video" : "video-off"}
+              size={14}
+              color="#e4e4e7"
+            />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.videoActionButton}>
-            <Feather name="monitor" size={14} color="#e4e4e7" />
+          <TouchableOpacity
+            style={styles.videoActionButton}
+            onPress={() => setScreenShareOn(!screenShareOn)}
+          >
+            <Feather
+              name={screenShareOn ? "monitor" : "moon"}
+              size={14}
+              color="#e4e4e7"
+            />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.videoActionButtonDanger}
@@ -68,11 +95,17 @@ export default function SectionVideoCall({
           <Text style={styles.speakerLabel}>{t("Chat.AudioStartsOn")}</Text>
 
           <View style={styles.speakerToggleMock}>
-            <TouchableOpacity style={styles.speakerToggleSideActive}>
+            <TouchableOpacity
+              style={styles.speakerToggleSideActive}
+              onPress={() => setSpeakerOn(true)}
+            >
               <Feather name="volume-2" size={14} color="#ffffff" />
             </TouchableOpacity>
             <View style={styles.speakerDivider} />
-            <TouchableOpacity style={styles.speakerToggleSideMuted}>
+            <TouchableOpacity
+              style={styles.speakerToggleSideMuted}
+              onPress={() => setSpeakerOn(false)}
+            >
               <Feather name="volume-x" size={14} color="#fca5a5" />
             </TouchableOpacity>
           </View>
