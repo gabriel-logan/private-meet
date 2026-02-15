@@ -29,3 +29,6 @@ export const webRTCMaxPeerConnections = 8;
 export const webRTCFileChannelLabel = WEBRTC_FILE_CHANNEL_LABEL + ":"; // nosonar
 export const webRTCImageChunkSizeBytes = 16 * 1024; // 16KB
 export const webRTCFileChannelMaxBufferedAmountBytes = 2 * 1024 * 1024; // 2MB
+
+// @ts-ignore
+export const crypto = global.crypto; // nosonar

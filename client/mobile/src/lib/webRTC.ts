@@ -27,13 +27,7 @@ if (isTurnServerEnabled) {
   });
 }
 
-type WebRTCConfig = ConstructorParameters<typeof RTCPeerConnection>[0];
-type SessionDescriptionInit = NonNullable<
-  ConstructorParameters<typeof RTCSessionDescription>[0]
->;
-type IceCandidateInit = ConstructorParameters<typeof RTCIceCandidate>[0];
-
-export const webRTCConfig: WebRTCConfig = {
+export const webRTCConfig: RTCConfiguration = {
   iceServers,
 };
 
@@ -58,7 +52,7 @@ export function createPeerConnection({
     pc.addTrack(track, localStream);
   });
 
-  (pc as any).ontrack = (event: any) => {
+  (pc as any).ontrack = (event: RTCTrackEvent) => {
     const [remoteStream] = event.streams;
 
     if (remoteStream) {
@@ -66,7 +60,7 @@ export function createPeerConnection({
     }
   };
 
-  (pc as any).onicecandidate = (event: any) => {
+  (pc as any).onicecandidate = (event: RTCPeerConnectionIceEvent) => {
     if (event.candidate) {
       onIceCandidateCB(event.candidate);
     }
@@ -77,7 +71,7 @@ export function createPeerConnection({
 
 export async function createOffer(
   pc: RTCPeerConnection,
-): Promise<SessionDescriptionInit> {
+): Promise<RTCSessionDescriptionInit> {
   const offer = await pc.createOffer();
 
   await pc.setLocalDescription(offer);
@@ -87,7 +81,7 @@ export async function createOffer(
 
 export async function createAnswer(
   pc: RTCPeerConnection,
-): Promise<SessionDescriptionInit> {
+): Promise<RTCSessionDescriptionInit> {
   const answer = await pc.createAnswer();
 
   await pc.setLocalDescription(answer);
@@ -97,14 +91,14 @@ export async function createAnswer(
 
 export async function setRemoteDescription(
   pc: RTCPeerConnection,
-  sdp: SessionDescriptionInit,
+  sdp: RTCSessionDescriptionInit,
 ): Promise<void> {
   await pc.setRemoteDescription(new RTCSessionDescription(sdp));
 }
 
 export async function addIceCandidate(
   pc: RTCPeerConnection,
-  candidate: IceCandidateInit,
+  candidate: RTCIceCandidateInit,
 ): Promise<void> {
   await pc.addIceCandidate(new RTCIceCandidate(candidate));
 }

@@ -29,3 +29,10 @@ declare const queueMicrotask: (callback: () => void) => void;
 
 declare type CryptoKey = any;
 declare type MessageEvent = any;
+
+declare type RTCConfiguration = any;
+declare type RTCTrackEvent = any;
+declare type RTCPeerConnectionIceEvent = any;
+declare type RTCIceCandidateInit = any;
+declare type RTCSessionDescriptionInit = any;
+declare type RTCDataChannel = any;

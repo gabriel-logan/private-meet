@@ -1,9 +1,6 @@
 import { E2EE_WIRE_PREFIX } from "@env";
 
-import { maxMessageChars } from "../constants";
-
-// @ts-ignore
-const crypto = global.crypto; // nosonar
+import { crypto, maxMessageChars } from "../constants";
 
 // AES-GCM standard IV length
 export const ivBytes = 12;
