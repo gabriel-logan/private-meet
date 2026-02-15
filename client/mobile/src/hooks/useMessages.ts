@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import type { FlatList } from "react-native";
 
-type ChatMessage =
+export type ChatMessage =
   | {
       id: string;
       author: string;

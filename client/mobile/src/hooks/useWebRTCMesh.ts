@@ -14,7 +14,6 @@ import {
 import type { IncomingFileTransferProgress } from "../../../shared/types";
 import { debugHandle } from "../../../shared/utils/general";
 import {
-  crypto,
   webRTCFileChannelLabel,
   webRTCFileChannelMaxBufferedAmountBytes,
   webRTCImageChunkSizeBytes,
@@ -76,8 +75,43 @@ type IncomingImageTransfer = {
   totalChunks: number;
   receivedChunks: number;
   receivedBytes: number;
-  chunks: ArrayBuffer[];
+  chunks: string[];
 };
+
+function toB64(bytes: Uint8Array): string {
+  const chunkSize = 0x8000;
+
+  let binary = "";
+
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+
+  return btoa(binary);
+}
+
+function arrayBufferToB64(input: ArrayBuffer): string {
+  return toB64(new Uint8Array(input));
+}
+
+function base64ByteLength(base64: string): number {
+  const len = base64.length;
+
+  if (len === 0) {
+    return 0;
+  }
+
+  let padding = 0;
+
+  if (base64.endsWith("==")) {
+    padding = 2;
+  } else if (base64.endsWith("=")) {
+    padding = 1;
+  }
+
+  return (len * 3) / 4 - padding;
+}
 
 function wsSend(payload: Uint8Array) {
   let ws: WebSocket;
@@ -131,12 +165,14 @@ export default function useWebRTCMesh({
   const [micEnabled, setMicEnabled] = useState(true);
   const [cameraEnabled, setCameraEnabled] = useState(false);
   const [screenShareEnabled, setScreenShareEnabled] = useState(false);
+  const [speakerEnabled, setSpeakerEnabled] = useState(true);
 
   const peersRef = useRef<Map<string, PeerEntry>>(new Map());
   const creatingPeersRef = useRef<Map<string, Promise<PeerEntry>>>(new Map());
   const roomUserIdsRef = useRef<Set<string>>(new Set());
   const syncTimeoutRef = useRef<number | undefined>(undefined);
   const lastSyncUsersRef = useRef<string>("");
+  const speakerEnabledRef = useRef(true);
 
   const onImageReceivedRef =
     useRef<UseWebRTCMeshOptions["onImageReceived"]>(onImageReceived);
@@ -186,6 +222,27 @@ export default function useWebRTCMesh({
       { peerID, kind: "camera", stream: streams.camera },
       { peerID, kind: "screen", stream: streams.screen },
     ],
+  );
+
+  useEffect(() => {
+    speakerEnabledRef.current = speakerEnabled;
+  }, [speakerEnabled]);
+
+  const applySpeakerEnabled = useCallback((enabled: boolean) => {
+    for (const entry of peersRef.current.values()) {
+      for (const track of entry.remoteCameraStream.getAudioTracks()) {
+        track.enabled = enabled;
+      }
+    }
+  }, []);
+
+  const setSpeakerEnabledValue = useCallback(
+    (enabled: boolean) => {
+      speakerEnabledRef.current = enabled;
+      setSpeakerEnabled(enabled);
+      applySpeakerEnabled(enabled);
+    },
+    [applySpeakerEnabled],
   );
 
   const refreshCameraDevices = useCallback(async () => {
@@ -306,6 +363,10 @@ export default function useWebRTCMesh({
       entry.makingOffer = true;
 
       try {
+        if (pc.signalingState !== "stable") {
+          return;
+        }
+
         const offer = await createOffer(pc);
 
         const sdp = pc.localDescription?.sdp ?? offer.sdp;
@@ -322,7 +383,21 @@ export default function useWebRTCMesh({
           }),
         );
       } catch (error) {
-        console.error("[useWebRTCMesh] Failed to negotiate", error);
+        const message =
+          typeof error === "string"
+            ? error
+            : error instanceof Error
+              ? error.message
+              : "Unknown error";
+
+        const isExpectedRace =
+          message.includes("Called in wrong state") ||
+          message.includes("have-remote-offer") ||
+          message.includes("set local offer sdp");
+
+        if (!isExpectedRace) {
+          console.error("[useWebRTCMesh] Failed to negotiate", error);
+        }
       } finally {
         entry.makingOffer = false;
       }
@@ -403,6 +478,7 @@ export default function useWebRTCMesh({
                   chunkSize: number;
                   totalChunks: number;
                 }
+              | { t: "img-chunk"; id: string; d: string }
               | { t: "img-end"; id: string };
 
             if (parsed?.t === "img-start") {
@@ -444,6 +520,35 @@ export default function useWebRTCMesh({
               return;
             }
 
+            if (parsed?.t === "img-chunk") {
+              const byId = incomingTransfersRef.current.get(peerID);
+
+              const transfer = byId?.get(parsed.id);
+
+              if (!transfer) {
+                return;
+              }
+
+              transfer.chunks.push(parsed.d);
+              transfer.receivedChunks += 1;
+              transfer.receivedBytes += base64ByteLength(parsed.d);
+
+              setIncomingFileTransfers(prev =>
+                prev.map(t => {
+                  if (t.peerID !== peerID || t.id !== transfer.id) {
+                    return t;
+                  }
+
+                  return {
+                    ...t,
+                    receivedBytes: transfer.receivedBytes,
+                  };
+                }),
+              );
+
+              return;
+            }
+
             if (parsed?.t === "img-end") {
               const byId = incomingTransfersRef.current.get(peerID);
 
@@ -453,9 +558,7 @@ export default function useWebRTCMesh({
                 return;
               }
 
-              const blob = new Blob(transfer.chunks, { type: transfer.mime });
-
-              const url = URL.createObjectURL(blob);
+              const url = `data:${transfer.mime};base64,${transfer.chunks.join("")}`;
 
               onImageReceivedRef.current?.({
                 peerID,
@@ -489,9 +592,11 @@ export default function useWebRTCMesh({
               return;
             }
 
-            transfer.chunks.push(data);
+            const b64 = arrayBufferToB64(data);
+
+            transfer.chunks.push(b64);
             transfer.receivedChunks += 1;
-            transfer.receivedBytes += data.byteLength;
+            transfer.receivedBytes += base64ByteLength(b64);
 
             setIncomingFileTransfers(prev =>
               prev.map(t => {
@@ -510,8 +615,7 @@ export default function useWebRTCMesh({
               transfer.receivedChunks >= transfer.totalChunks ||
               transfer.receivedBytes >= transfer.size
             ) {
-              const blob = new Blob(transfer.chunks, { type: transfer.mime });
-              const url = URL.createObjectURL(blob);
+              const url = `data:${transfer.mime};base64,${transfer.chunks.join("")}`;
 
               onImageReceivedRef.current?.({
                 peerID,
@@ -600,7 +704,7 @@ export default function useWebRTCMesh({
       }
 
       const transferId =
-        crypto?.randomUUID?.() ??
+        (globalThis as any).crypto?.randomUUID?.() ??
         `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
       const totalChunks = Math.max(
@@ -629,12 +733,20 @@ export default function useWebRTCMesh({
 
         const buf = await slice.arrayBuffer();
 
+        const chunkB64 = arrayBufferToB64(buf);
+
+        const chunkMsg = JSON.stringify({
+          t: "img-chunk",
+          id: transferId,
+          d: chunkB64,
+        });
+
         for (const peerID of expected) {
           const ch = peersRef.current.get(peerID)!.fileChannel!;
 
           await waitForBufferedLow(ch);
 
-          ch.send(buf);
+          ch.send(chunkMsg);
         }
 
         offset += buf.byteLength;
@@ -1024,17 +1136,12 @@ export default function useWebRTCMesh({
       const existing = peersRef.current.get(peerID);
 
       if (existing) {
-        console.log(`[useWebRTCMesh] Peer ${peerID} already exists, reusing`);
         return existing;
       }
 
       const pending = creatingPeersRef.current.get(peerID);
 
       if (pending) {
-        console.log(
-          `[useWebRTCMesh] Peer ${peerID} already being created, waiting`,
-        );
-
         return pending;
       }
 
@@ -1115,6 +1222,8 @@ export default function useWebRTCMesh({
           const track = event.track;
 
           if (track.kind === "audio") {
+            track.enabled = speakerEnabledRef.current;
+
             if (!entry.remoteCameraStream.getAudioTracks().includes(track)) {
               entry.remoteCameraStream.addTrack(track);
             }
@@ -1224,10 +1333,6 @@ export default function useWebRTCMesh({
         .join(",");
 
       if (userListKey === lastSyncUsersRef.current) {
-        console.log(
-          "[useWebRTCMesh] Ignoring duplicate syncPeersFromRoomUsers call",
-        );
-
         return;
       }
 
@@ -1241,11 +1346,11 @@ export default function useWebRTCMesh({
       }
 
       syncTimeoutRef.current = globalThis.setTimeout(() => {
-        console.log(`[useWebRTCMesh] Syncing peers: ${ids.size} users in room`);
+        debugHandle(`[useWebRTCMesh] Syncing peers: ${ids.size} users in room`);
 
         for (const existingID of Array.from(peersRef.current.keys())) {
           if (!ids.has(existingID)) {
-            console.log(
+            debugHandle(
               `[useWebRTCMesh] Closing peer ${existingID} (left room)`,
             );
 
@@ -1501,6 +1606,9 @@ export default function useWebRTCMesh({
     screenShareEnabled,
     startScreenShare,
     stopScreenShare,
+
+    speakerEnabled,
+    setSpeakerEnabled: setSpeakerEnabledValue,
 
     handleSignal,
     syncPeersFromRoomUsers,

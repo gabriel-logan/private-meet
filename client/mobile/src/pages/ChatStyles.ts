@@ -243,6 +243,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
+  videoTilesWrap: {
+    width: "100%",
+    height: "100%",
+    gap: 8,
+  },
+
+  videoRtcTile: {
+    flex: 1,
+    borderRadius: 12,
+  },
+
   videoActions: {
     minHeight: 64,
     borderRadius: 12,
@@ -393,6 +404,16 @@ const styles = StyleSheet.create({
     color: "#f4f4f5",
     fontSize: 14,
     lineHeight: 20,
+  },
+
+  messageImage: {
+    width: "100%",
+    height: 180,
+    borderRadius: 10,
+  },
+
+  messageImageName: {
+    marginTop: 6,
   },
 
   composerWrap: {

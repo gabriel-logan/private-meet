@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   FlatList,
+  Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Pressable,
@@ -9,23 +10,43 @@ import {
   TextInput,
   View,
 } from "react-native";
+import {
+  errorCodes,
+  isErrorWithCode,
+  pick,
+  types,
+} from "@react-native-documents/picker";
 import Feather from "@react-native-vector-icons/feather";
 
 import { makeWSMessage } from "../../../../shared/protocol/ws";
-import { maxMessageChars } from "../../constants";
+import type { IncomingFileTransferProgress } from "../../../../shared/types";
+import { getTimeLabel } from "../../../../shared/utils/general";
+import { chatMaxImageBytes, maxMessageChars } from "../../constants";
+import type { ChatMessage } from "../../hooks/useMessages";
 import type { OnlineUser } from "../../hooks/useOnlineUsers";
 import { encryptTextToWire } from "../../lib/e2ee";
 import { getWSInstance } from "../../lib/wsInstance";
 import type { ChatStyles } from "../../pages/ChatStyles";
 import toast from "../../utils/toast";
 
-type MessageItem = {
-  id: string;
-  author: string;
-  text?: string;
-  timestamp: string;
-  isMe: boolean;
-};
+type MessageItem = ChatMessage;
+
+function toB64(bytes: Uint8Array): string {
+  const chunkSize = 0x8000;
+
+  let binary = "";
+
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+
+  return btoa(binary);
+}
+
+function arrayBufferToB64(input: ArrayBuffer): string {
+  return toB64(new Uint8Array(input));
+}
 
 interface SectionMessagesProps {
   room: string;
@@ -42,6 +63,11 @@ interface SectionMessagesProps {
   onlineUsers: OnlineUser[];
   me: { sub?: string; username?: string };
   flatListRef: React.RefObject<FlatList<any> | null>;
+  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+  canSendImages: boolean;
+  expectedPeersCount: number;
+  sendImage: (file: File) => Promise<void>;
+  incomingFileTransfers: IncomingFileTransferProgress[];
 }
 
 export default function SectionMessages({
@@ -59,6 +85,11 @@ export default function SectionMessages({
   onlineUsers,
   me,
   flatListRef,
+  setMessages,
+  canSendImages,
+  expectedPeersCount,
+  sendImage,
+  incomingFileTransfers,
 }: Readonly<SectionMessagesProps>) {
   const { t } = useTranslation();
 
@@ -86,6 +117,85 @@ export default function SectionMessages({
       contentSize.height - (contentOffset.y + layoutMeasurement.height);
 
     isUserNearBottomRef.current = distanceFromBottom <= 32;
+  }
+
+  async function handlePickAndSendImage() {
+    if (onlineUsers.length <= 1) {
+      toast.info(t("Errors.NoOneInTheRoomToSendFile"));
+      return;
+    }
+
+    if (!(expectedPeersCount > 0 && canSendImages)) {
+      toast.info(t("Errors.ImageSendingIsOnlyAllowedAfterWebRTCIsConnected"));
+      return;
+    }
+
+    let pendingMessageId = "";
+
+    try {
+      const [selected] = await pick({
+        type: [types.images],
+        allowMultiSelection: false,
+      });
+
+      const mime = selected.type || "application/octet-stream";
+      const name = selected.name || "image.jpg";
+      const size = selected.size ?? 0;
+
+      if (!mime.startsWith("image/")) {
+        toast.error(t("Errors.OnlyImagesAreSupportedForNow"));
+        return;
+      }
+
+      if (size > chatMaxImageBytes) {
+        toast.error(
+          t("Errors.ImageTooLarge", {
+            maxImageSizeMB: chatMaxImageBytes / (1024 * 1024),
+          }),
+        );
+        return;
+      }
+
+      const response = await fetch(selected.uri);
+      const blob = await response.blob();
+      const imageB64 = arrayBufferToB64(await blob.arrayBuffer());
+      const localPreviewUrl = `data:${mime};base64,${imageB64}`;
+      const file = new File([blob], name, { type: mime });
+
+      const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      pendingMessageId = id;
+
+      setMessages(prev => [
+        ...prev,
+        {
+          id,
+          author: me.username || "You",
+          timestamp: getTimeLabel(),
+          isMe: true,
+          kind: "image",
+          url: localPreviewUrl,
+          name,
+          mime,
+        },
+      ]);
+
+      await sendImage(file);
+    } catch (error) {
+      if (
+        isErrorWithCode(error) &&
+        error.code === errorCodes.OPERATION_CANCELED
+      ) {
+        return;
+      }
+
+      toast.error(t("Errors.FailedToSendImageOverWebRTC"));
+
+      if (!pendingMessageId) {
+        return;
+      }
+
+      setMessages(prev => prev.filter(m => m.id !== pendingMessageId));
+    }
   }
 
   async function handleSendText() {
@@ -138,7 +248,6 @@ export default function SectionMessages({
       ws.send(makeWSMessage("chat.message", { room, message: encryptedWire }));
 
       setMessage("");
-      // setEmojiOpen(false);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Error sending message:", error);
@@ -191,7 +300,24 @@ export default function SectionMessages({
                 <Text style={styles.messageTimestamp}>{item.timestamp}</Text>
               </View>
 
-              <Text style={styles.messageText}>{item.text || ""}</Text>
+              {item.kind === "text" ? (
+                <Text style={styles.messageText}>{item.text || ""}</Text>
+              ) : null}
+
+              {item.kind === "image" ? (
+                <>
+                  <Image
+                    source={{ uri: item.url }}
+                    style={styles.messageImage}
+                    resizeMode="cover"
+                  />
+                  <Text
+                    style={[styles.messageTimestamp, styles.messageImageName]}
+                  >
+                    {item.name || t("Chat.InvalidName")}
+                  </Text>
+                </>
+              ) : null}
             </View>
           )}
           ListEmptyComponent={
@@ -214,7 +340,12 @@ export default function SectionMessages({
           </View>
 
           <View style={styles.composerToolsRow}>
-            <Pressable style={styles.toolIconButton}>
+            <Pressable
+              style={styles.toolIconButton}
+              onPress={() => {
+                handlePickAndSendImage().catch(() => undefined);
+              }}
+            >
               <Feather name="image" size={16} color="#e4e4e7" />
             </Pressable>
 
@@ -224,6 +355,19 @@ export default function SectionMessages({
 
             <Text style={styles.attachHint}>{t("Chat.AttachImage")}</Text>
           </View>
+
+          {incomingFileTransfers.length > 0 ? (
+            <View style={styles.composerInfoRow}>
+              {incomingFileTransfers.map(transfer => (
+                <Text
+                  key={`${transfer.peerID}:${transfer.id}`}
+                  style={styles.composerInfoText}
+                >
+                  {transfer.name} {transfer.receivedBytes}/{transfer.size}
+                </Text>
+              ))}
+            </View>
+          ) : null}
 
           <TextInput
             value={message}
@@ -270,7 +414,12 @@ export default function SectionMessages({
               {Array.from(message).length}/{maxMessageChars}
             </Text>
 
-            <Pressable style={styles.sendButton} onPress={handleSendText}>
+            <Pressable
+              style={styles.sendButton}
+              onPress={() => {
+                handleSendText().catch(() => undefined);
+              }}
+            >
               <Feather name="send" size={15} color="#fff" />
               <Text style={styles.sendButtonText}>{t("Chat.Send")}</Text>
             </Pressable>

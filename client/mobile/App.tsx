@@ -1,8 +1,10 @@
 import "react-native-get-random-values";
 
 import { install } from "react-native-quick-crypto";
+import { registerGlobals } from "react-native-webrtc";
 
 install();
+registerGlobals();
 
 import "fast-text-encoding";
 import "./src/utils/i18n";

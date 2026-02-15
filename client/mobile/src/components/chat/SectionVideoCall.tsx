@@ -1,9 +1,10 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
+import { type MediaStream, RTCView } from "react-native-webrtc";
 import Feather from "@react-native-vector-icons/feather";
 import { useNavigation } from "@react-navigation/native";
 
+import type { RemotePeerMedia } from "../../hooks/useWebRTCMesh";
 import type { ChatStyles } from "../../pages/ChatStyles";
 
 interface SectionVideoCallProps {
@@ -11,21 +12,106 @@ interface SectionVideoCallProps {
   rawRoomId: string;
   onlineUsersCount: number;
   styles: ChatStyles;
+  localCameraStream: MediaStream;
+  localScreenStream: MediaStream;
+  remotePeers: RemotePeerMedia[];
+  micEnabled: boolean;
+  setMicEnabled: (enabled: boolean) => Promise<void>;
+  cameraEnabled: boolean;
+  startCamera: (deviceId?: string) => Promise<void>;
+  stopCamera: () => Promise<void>;
+  canSwitchCamera: boolean;
+  switchCamera: () => Promise<void>;
+  screenShareEnabled: boolean;
+  startScreenShare: () => Promise<void>;
+  stopScreenShare: () => Promise<void>;
+  speakerEnabled: boolean;
+  setSpeakerEnabled: (enabled: boolean) => void;
+  expectedPeersCount: number;
+  connectedPeersCount: number;
 }
 
 export default function SectionVideoCall({
   rawRoomId,
   onlineUsersCount,
   styles,
+  localCameraStream,
+  localScreenStream,
+  remotePeers,
+  micEnabled,
+  setMicEnabled,
+  cameraEnabled,
+  startCamera,
+  stopCamera,
+  canSwitchCamera,
+  switchCamera,
+  screenShareEnabled,
+  startScreenShare,
+  stopScreenShare,
+  speakerEnabled,
+  setSpeakerEnabled,
+  expectedPeersCount,
+  connectedPeersCount,
 }: Readonly<SectionVideoCallProps>) {
   const { t } = useTranslation();
 
-  const [micOn, setMicOn] = useState(true);
-  const [cameraOn, setCameraOn] = useState(false);
-  const [screenShareOn, setScreenShareOn] = useState(false);
-  const [speakerOn, setSpeakerOn] = useState(true);
-
   const navigation = useNavigation();
+
+  const hasVideo = (stream: MediaStream | null | undefined): boolean =>
+    Boolean(stream && stream.getVideoTracks().length > 0);
+
+  const tiles = (() => {
+    const all: Array<{ key: string; stream: MediaStream; mirror: boolean }> =
+      [];
+
+    if (hasVideo(localCameraStream)) {
+      all.push({
+        key: "local:camera",
+        stream: localCameraStream,
+        mirror: true,
+      });
+    }
+
+    if (hasVideo(localScreenStream)) {
+      all.push({
+        key: "local:screen",
+        stream: localScreenStream,
+        mirror: false,
+      });
+    }
+
+    for (const p of remotePeers) {
+      if (!hasVideo(p.stream)) {
+        continue;
+      }
+
+      all.push({
+        key: `remote:${p.peerID}:${p.kind}`,
+        stream: p.stream,
+        mirror: false,
+      });
+    }
+
+    return all;
+  })();
+
+  const toggleCamera = async () => {
+    if (cameraEnabled) {
+      await stopCamera();
+      return;
+    }
+
+    await startCamera();
+  };
+
+  const toggleScreenShare = async () => {
+    if (screenShareEnabled) {
+      await stopScreenShare();
+      return;
+    }
+
+    await startScreenShare();
+  };
 
   return (
     <View style={styles.sectionCard}>
@@ -41,42 +127,74 @@ export default function SectionVideoCall({
 
       <View style={styles.sectionBody}>
         <View style={styles.videoStage}>
-          <View style={styles.videoIconWrap}>
-            <Feather name="video" size={24} color="#a5b4fc" />
-          </View>
-          <Text style={styles.videoStageTitle}>{t("Chat.NoVideoYet")}</Text>
-          <Text style={styles.videoStageSubtitle}>
-            {t("Chat.TurnOnCameraOrShareScreen")}
-          </Text>
+          {tiles.length === 0 ? (
+            <>
+              <View style={styles.videoIconWrap}>
+                <Feather name="video" size={24} color="#a5b4fc" />
+              </View>
+              <Text style={styles.videoStageTitle}>{t("Chat.NoVideoYet")}</Text>
+              <Text style={styles.videoStageSubtitle}>
+                {t("Chat.TurnOnCameraOrShareScreen")}
+              </Text>
+            </>
+          ) : (
+            <View style={styles.videoTilesWrap}>
+              {tiles.map(tile => (
+                <RTCView
+                  key={tile.key}
+                  streamURL={tile.stream.toURL()}
+                  mirror={tile.mirror}
+                  objectFit="cover"
+                  style={styles.videoRtcTile}
+                />
+              ))}
+            </View>
+          )}
         </View>
 
         <View style={styles.videoActions}>
           <TouchableOpacity
             style={styles.videoActionButton}
-            onPress={() => setMicOn(!micOn)}
+            onPress={() => {
+              setMicEnabled(!micEnabled).catch(() => undefined);
+            }}
           >
             <Feather
-              name={micOn ? "mic" : "mic-off"}
+              name={micEnabled ? "mic" : "mic-off"}
               size={14}
               color="#e4e4e7"
             />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.videoActionButton}
-            onPress={() => setCameraOn(!cameraOn)}
+            onPress={() => {
+              toggleCamera().catch(() => undefined);
+            }}
           >
             <Feather
-              name={cameraOn ? "video" : "video-off"}
+              name={cameraEnabled ? "video" : "video-off"}
               size={14}
               color="#e4e4e7"
             />
           </TouchableOpacity>
+          {canSwitchCamera && cameraEnabled ? (
+            <TouchableOpacity
+              style={styles.videoActionButton}
+              onPress={() => {
+                switchCamera().catch(() => undefined);
+              }}
+            >
+              <Feather name="refresh-cw" size={14} color="#e4e4e7" />
+            </TouchableOpacity>
+          ) : null}
           <TouchableOpacity
             style={styles.videoActionButton}
-            onPress={() => setScreenShareOn(!screenShareOn)}
+            onPress={() => {
+              toggleScreenShare().catch(() => undefined);
+            }}
           >
             <Feather
-              name={screenShareOn ? "monitor" : "moon"}
+              name={screenShareEnabled ? "monitor" : "moon"}
               size={14}
               color="#e4e4e7"
             />
@@ -97,22 +215,35 @@ export default function SectionVideoCall({
           <View style={styles.speakerToggleMock}>
             <TouchableOpacity
               style={styles.speakerToggleSideActive}
-              onPress={() => setSpeakerOn(true)}
+              onPress={() => {
+                setSpeakerEnabled(true);
+              }}
             >
-              <Feather name="volume-2" size={14} color="#ffffff" />
+              <Feather
+                name="volume-2"
+                size={14}
+                color={speakerEnabled ? "#ffffff" : "#a1a1aa"}
+              />
             </TouchableOpacity>
             <View style={styles.speakerDivider} />
             <TouchableOpacity
               style={styles.speakerToggleSideMuted}
-              onPress={() => setSpeakerOn(false)}
+              onPress={() => {
+                setSpeakerEnabled(false);
+              }}
             >
-              <Feather name="volume-x" size={14} color="#fca5a5" />
+              <Feather
+                name="volume-x"
+                size={14}
+                color={speakerEnabled ? "#fca5a5" : "#ffffff"}
+              />
             </TouchableOpacity>
           </View>
         </View>
 
         <Text style={styles.videoFooterHint}>
-          {t("Chat.Users")} {onlineUsersCount} • {t("Chat.AudioStartsOn")}
+          {t("Chat.Users")} {onlineUsersCount} • WebRTC {connectedPeersCount}/
+          {expectedPeersCount}
         </Text>
       </View>
     </View>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -32,6 +32,7 @@ import useInitE2ee from "../hooks/useInitE2ee";
 import useMessages from "../hooks/useMessages";
 import useOnlineUsers, { OnlineUser } from "../hooks/useOnlineUsers";
 import useTypingUsers from "../hooks/useTypingUsers";
+import useWebRTCMesh from "../hooks/useWebRTCMesh";
 import { decryptWireToText, isEncryptedWireMessage } from "../lib/e2ee";
 import { parseJwt } from "../lib/jwt";
 import { getWSInstance } from "../lib/wsInstance";
@@ -76,6 +77,69 @@ export default function ChatPage() {
 
   const { setTypingUsers, typingLabel, typingSentRef, typingTimeoutRef } =
     useTypingUsers();
+
+  const handleIncomingImage = (payload: {
+    peerID: string;
+    url: string;
+    mime: string;
+    name: string;
+    size: number;
+  }) => {
+    const author =
+      onlineUsersRef.current.find(u => u.id === payload.peerID)?.name ||
+      payload.peerID.slice(0, 8);
+
+    setMessages(prev => [
+      ...prev,
+      {
+        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        author,
+        timestamp: getTimeLabel(),
+        isMe: false,
+        kind: "image",
+        url: payload.url,
+        name: payload.name,
+        mime: payload.mime,
+      },
+    ]);
+  };
+
+  const {
+    localCameraStream,
+    localScreenStream,
+    remotePeers,
+    micEnabled,
+    setMicEnabled,
+    cameraEnabled,
+    startCamera,
+    stopCamera,
+    canSwitchCamera,
+    switchCamera,
+    screenShareEnabled,
+    startScreenShare,
+    stopScreenShare,
+    speakerEnabled,
+    setSpeakerEnabled,
+    handleSignal,
+    syncPeersFromRoomUsers,
+    incomingFileTransfers,
+    canSendImages,
+    expectedPeersCount,
+    connectedPeersCount,
+    sendImage,
+  } = useWebRTCMesh({
+    room,
+    myID: me.sub || "",
+    onImageReceived: handleIncomingImage,
+  });
+
+  const syncPeersRef = useRef(syncPeersFromRoomUsers);
+
+  useEffect(() => {
+    debugHandle("ChatPage exec useEffect to update syncPeersRef");
+
+    syncPeersRef.current = syncPeersFromRoomUsers;
+  }, [syncPeersFromRoomUsers]);
 
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>("chat");
 
@@ -166,7 +230,7 @@ export default function ChatPage() {
 
         setOnlineUsers(users);
 
-        // void syncPeersRef.current(parsed.data.users);
+        syncPeersRef.current(parsed.data.users).catch(() => undefined);
 
         return;
       }
@@ -176,7 +240,7 @@ export default function ChatPage() {
         parsed.type === "webrtc.answer" ||
         parsed.type === "webrtc.iceCandidate"
       ) {
-        // void handleSignal(parsed);
+        handleSignal(parsed).catch(() => undefined);
         return;
       }
 
@@ -313,6 +377,7 @@ export default function ChatPage() {
   }, [
     accessToken,
     e2eeKeyRef,
+    handleSignal,
     me.sub,
     me.username,
     navigation,
@@ -389,6 +454,11 @@ export default function ChatPage() {
                 typingSentRef={typingSentRef}
                 typingTimeoutRef={typingTimeoutRef}
                 flatListRef={flatListRef}
+                setMessages={setMessages}
+                canSendImages={canSendImages}
+                expectedPeersCount={expectedPeersCount}
+                sendImage={sendImage}
+                incomingFileTransfers={incomingFileTransfers}
               />
             ) : null}
 
@@ -406,6 +476,23 @@ export default function ChatPage() {
                 rawRoomId={rawRoomId}
                 onlineUsersCount={onlineUsers.length}
                 styles={styles}
+                localCameraStream={localCameraStream}
+                localScreenStream={localScreenStream}
+                remotePeers={remotePeers}
+                micEnabled={micEnabled}
+                setMicEnabled={setMicEnabled}
+                cameraEnabled={cameraEnabled}
+                startCamera={startCamera}
+                stopCamera={stopCamera}
+                canSwitchCamera={canSwitchCamera}
+                switchCamera={switchCamera}
+                screenShareEnabled={screenShareEnabled}
+                startScreenShare={startScreenShare}
+                stopScreenShare={stopScreenShare}
+                speakerEnabled={speakerEnabled}
+                setSpeakerEnabled={setSpeakerEnabled}
+                expectedPeersCount={expectedPeersCount}
+                connectedPeersCount={connectedPeersCount}
               />
             ) : null}
           </View>
