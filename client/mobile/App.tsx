@@ -1,14 +1,3 @@
-import "react-native-get-random-values";
-
-import { install } from "react-native-quick-crypto";
-import { registerGlobals } from "react-native-webrtc";
-
-install();
-registerGlobals();
-
-import "fast-text-encoding";
-import "./src/utils/i18n";
-
 import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 import { NavigationContainer } from "@react-navigation/native";
