@@ -62,8 +62,8 @@ func TestHubRunValidationErrorsInRoom(t *testing.T) {
 		t.Fatalf("expected error")
 	}
 
-	// invalid webrtc answer payload
-	webrtcBad := Message{Type: MessageWebRTCAnswer, Room: "r", Data: json.RawMessage(`{"sdp":123,"to":"p"}`)}
+	// invalid webrtc answer payload (to is wrong type)
+	webrtcBad := Message{Type: MessageWebRTCAnswer, Room: "r", Data: json.RawMessage(`{"sdp":"desc","to":123}`)}
 	h.inbound <- &inboundMessage{client: c, msg: &webrtcBad}
 	if msg := readServerMsg(t, c); msg.Type != MessageError {
 		t.Fatalf("expected error")

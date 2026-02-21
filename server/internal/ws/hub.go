@@ -106,36 +106,15 @@ func (h *Hub) Run() { // nosonar
 					continue
 				}
 
-				to := ""
-
-				switch msg.Type {
-				case MessageWebRTCOffer:
-					var payload WebRTCOfferData
-					if err := json.Unmarshal(msg.Data, &payload); err != nil {
-						c.sendError("Invalid WebRTC offer payload")
-						continue
-					}
-
-					to = strings.TrimSpace(payload.To)
-
-				case MessageWebRTCAnswer:
-					var payload WebRTCAnswerData
-					if err := json.Unmarshal(msg.Data, &payload); err != nil {
-						c.sendError("Invalid WebRTC answer payload")
-						continue
-					}
-
-					to = strings.TrimSpace(payload.To)
-
-				case MessageWebRTCIceCandidate:
-					var payload WebRTCIceCandidateData
-					if err := json.Unmarshal(msg.Data, &payload); err != nil {
-						c.sendError("Invalid WebRTC ICE candidate payload")
-						continue
-					}
-
-					to = strings.TrimSpace(payload.To)
+				var payload struct {
+					To string `json:"to"`
 				}
+				if err := json.Unmarshal(msg.Data, &payload); err != nil {
+					c.sendError("Invalid WebRTC payload")
+					continue
+				}
+
+				to := strings.TrimSpace(payload.To)
 
 				if to == "" {
 					c.sendError("Missing WebRTC recipient")
@@ -234,11 +213,9 @@ func (h *Hub) clientBroadcastRoomUsersSnapshot(room string) {
 		return
 	}
 
-	clients := make([]*Client, 0, len(clientsMap))
 	users := make([]RoomUser, 0, len(clientsMap))
 
 	for c := range clientsMap {
-		clients = append(clients, c)
 		users = append(users, RoomUser{
 			UserID:   c.UserID,
 			Username: c.Username,
@@ -247,7 +224,7 @@ func (h *Hub) clientBroadcastRoomUsersSnapshot(room string) {
 
 	data, err := json.Marshal(RoomUsersData{Users: users})
 	if err != nil {
-		for _, c := range clients {
+		for c := range clientsMap {
 			c.safeSend(newErrorMessage("internal error"))
 		}
 
@@ -261,7 +238,7 @@ func (h *Hub) clientBroadcastRoomUsersSnapshot(room string) {
 		"system",
 	)
 
-	for _, c := range clients {
+	for c := range clientsMap {
 		c.safeSend(payload)
 	}
 }

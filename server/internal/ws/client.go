@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -40,6 +41,8 @@ const (
 	maxProtocolErrors  = 10
 	maxDroppedMessages = 5
 )
+
+var roomIDTooLongMessage = fmt.Sprintf("Room ID too long (maximum is %d characters)", maxRoomIDLength)
 
 func (c *Client) safeSend(msg []byte) bool {
 	select {
@@ -134,8 +137,8 @@ func (c *Client) readPump(manager *Manager) { // nosonar
 			continue
 		}
 
-		if len([]rune(msg.Room)) > maxRoomIDLength {
-			if !fail(fmt.Sprintf("Room ID too long (maximum is %d characters)", maxRoomIDLength)) {
+		if utf8.RuneCountInString(msg.Room) > maxRoomIDLength {
+			if !fail(roomIDTooLongMessage) {
 				break
 			}
 
