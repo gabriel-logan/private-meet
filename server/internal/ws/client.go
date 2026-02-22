@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -134,7 +135,7 @@ func (c *Client) readPump(manager *Manager) { // nosonar
 			continue
 		}
 
-		if len([]rune(msg.Room)) > maxRoomIDLength {
+		if utf8.RuneCountInString(msg.Room) > maxRoomIDLength {
 			if !fail(fmt.Sprintf("Room ID too long (maximum is %d characters)", maxRoomIDLength)) {
 				break
 			}
