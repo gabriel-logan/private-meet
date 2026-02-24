@@ -74,7 +74,7 @@ func ServeWS(manager *Manager) http.HandlerFunc {
 			UserID:          userID,
 			Username:        username,
 			droppedMessages: 0,
-			limiter:         rate.NewLimiter(10, 15),
+			limiter:         rate.NewLimiter(15, 20),
 		}
 
 		go client.writePump()
