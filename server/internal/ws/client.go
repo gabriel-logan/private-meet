@@ -61,7 +61,9 @@ func (c *Client) readPump(manager *Manager) { // nosonar
 			manager.DisconnectClient(c)
 		}
 
-		c.conn.Close()
+		if err := c.conn.Close(); err != nil {
+			log.Println("WARNING WebSocket close error:", err)
+		}
 	}()
 
 	c.conn.SetReadLimit(maxWSMessageBytes)
@@ -163,7 +165,9 @@ func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
-		c.conn.Close()
+		if err := c.conn.Close(); err != nil {
+			log.Println("WARNING WebSocket close error:", err)
+		}
 	}()
 
 	for {
@@ -177,7 +181,9 @@ func (c *Client) writePump() {
 			}
 
 			if !ok {
-				c.conn.WriteMessage(websocket.CloseMessage, nil)
+				if err = c.conn.WriteMessage(websocket.CloseMessage, nil); err != nil && !IsExpectedWSDisconnect(err) {
+					log.Println("WARNING WebSocket close message error:", err)
+				}
 
 				return
 			}

@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -18,16 +19,17 @@ func ServeSPA(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reqPath := filepath.Clean(r.URL.Path)
+	reqPath := path.Clean("/" + r.URL.Path)
+	relativePath := strings.TrimPrefix(reqPath, "/")
+	absPath := filepath.Join(distAbs, filepath.FromSlash(relativePath))
 
-	absPath := filepath.Join(distAbs, reqPath)
-
-	if !strings.HasPrefix(absPath, distAbs) {
+	rel, err := filepath.Rel(distAbs, absPath)
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
 		http.Error(w, "invalid path", http.StatusBadRequest)
 		return
 	}
 
-	if info, err := os.Stat(absPath); err == nil && !info.IsDir() {
+	if info, err := os.Stat(absPath); err == nil && !info.IsDir() { // #nosec G703 -- absPath constrained to distAbs via filepath.Rel validation
 		http.ServeFile(w, r, absPath)
 		return
 	}

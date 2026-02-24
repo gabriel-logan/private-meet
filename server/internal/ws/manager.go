@@ -27,7 +27,9 @@ func NewManager(shards int) *Manager {
 func (m *Manager) GetHubForRoom(room string) *Hub {
 	h := fnv.New32a()
 
-	h.Write([]byte(room))
+	if _, err := h.Write([]byte(room)); err != nil {
+		return m.hubs[0]
+	}
 
 	idx := int(h.Sum32()) % len(m.hubs)
 

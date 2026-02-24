@@ -16,7 +16,7 @@ import (
 const maxUsernameLength = 32
 
 type AuthResponse struct {
-	AccessToken string `json:"accessToken"`
+	AccessToken string `json:"accessToken"` // #nosec G117 -- response token field, not hardcoded secret
 	TokenType   string `json:"tokenType"`
 	UserID      string `json:"userId"`
 	Username    string `json:"username"`

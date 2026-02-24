@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gabriel-logan/private-meet/server/internal/config"
 	"github.com/gabriel-logan/private-meet/server/internal/httpapi"
@@ -23,8 +24,9 @@ func main() {
 	r := httpapi.NewRouter(manager)
 
 	server := &http.Server{
-		Addr:    ":" + env.ServerPort,
-		Handler: r,
+		Addr:              ":" + env.ServerPort,
+		Handler:           r,
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 
 	log.Println("Starting server on http://localhost:" + env.ServerPort)

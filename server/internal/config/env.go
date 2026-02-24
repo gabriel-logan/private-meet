@@ -20,7 +20,7 @@ type Env struct {
 	AppName           string
 	AllowedOrigins    []string
 	ServerPort        string
-	JwtSecret         string
+	JwtSecret         string // #nosec G117 -- runtime secret loaded from environment, not hardcoded
 	JwtExpiration     time.Duration
 	ContextTimeout    time.Duration
 }

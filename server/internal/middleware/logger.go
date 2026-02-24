@@ -4,6 +4,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -48,6 +49,13 @@ func clientIP(r *http.Request) string {
 	return host
 }
 
+func sanitizeLogField(value string) string {
+	replaced := strings.ReplaceAll(value, "\n", "")
+	replaced = strings.ReplaceAll(replaced, "\r", "")
+
+	return strconv.QuoteToASCII(replaced)
+}
+
 func Logger() Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -80,16 +88,20 @@ func Logger() Middleware {
 			}
 
 			duration := time.Since(start)
+			safeIP := sanitizeLogField(clientIP(r))
+			safeMethod := sanitizeLogField(r.Method)
+			safePath := sanitizeLogField(path)
+			safeUA := sanitizeLogField(ua)
 
-			log.Printf(
+			log.Printf( // #nosec G706 -- all user-controlled fields are sanitized via sanitizeLogField
 				"%s %s %s | %d | %dB | %s | %s",
-				clientIP(r),
-				r.Method,
-				path,
+				safeIP,
+				safeMethod,
+				safePath,
 				rw.status,
 				rw.bytes,
 				duration,
-				ua,
+				safeUA,
 			)
 		})
 	}
