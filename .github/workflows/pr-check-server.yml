@@ -41,7 +41,7 @@ jobs:
         run: go build ./...
 
       - name: Test
-        run: go test ./...
+        run: go test ./... $$(go list ./... | grep -v /cmd/)
 
       - name: Test Race
-        run: go test --race ./...
+        run: go test --race ./... $$(go list ./... | grep -v /cmd/)
