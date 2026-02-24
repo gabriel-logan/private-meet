@@ -53,7 +53,7 @@ jobs:
           fi
 
       - name: Test
-        run: go test $$(go list ./... | grep -v /cmd/)
+        run: go test $(go list ./... | grep -v /cmd/)
 
       - name: Test Race
-        run: go test --race $$(go list ./... | grep -v /cmd/)
+        run: go test --race $(go list ./... | grep -v /cmd/)
