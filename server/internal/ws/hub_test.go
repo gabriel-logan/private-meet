@@ -7,20 +7,6 @@ import (
 	"time"
 )
 
-func eventually(t *testing.T, timeout time.Duration, fn func() bool, msg string) {
-	t.Helper()
-
-	deadline := time.Now().Add(timeout)
-	for time.Now().Before(deadline) {
-		if fn() {
-			return
-		}
-		time.Sleep(5 * time.Millisecond)
-	}
-
-	t.Fatalf("timeout waiting: %s", msg)
-}
-
 func TestHubDoesNotExitOnNotInRoomErrors(t *testing.T) {
 	h := NewHub()
 	go h.Run()
