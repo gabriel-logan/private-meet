@@ -7,6 +7,7 @@ import (
 	"github.com/gabriel-logan/private-meet/server/internal/config"
 	"github.com/gabriel-logan/private-meet/server/internal/security"
 	"github.com/gorilla/websocket"
+	"golang.org/x/time/rate"
 )
 
 var upgrader = websocket.Upgrader{
@@ -67,11 +68,13 @@ func ServeWS(manager *Manager) http.HandlerFunc {
 		}
 
 		client := &Client{
-			hub:      nil,
-			conn:     conn,
-			send:     make(chan []byte, 8),
-			UserID:   userID,
-			Username: username,
+			hub:             nil,
+			conn:            conn,
+			send:            make(chan []byte, 8),
+			UserID:          userID,
+			Username:        username,
+			droppedMessages: 0,
+			limiter:         rate.NewLimiter(10, 15),
 		}
 
 		go client.writePump()

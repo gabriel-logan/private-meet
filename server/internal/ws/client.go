@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"golang.org/x/time/rate"
 )
 
 type Client struct {
@@ -21,6 +22,8 @@ type Client struct {
 	Username string
 
 	droppedMessages int32
+
+	limiter *rate.Limiter
 }
 
 func (c *Client) resetDroppedMessages() {
@@ -102,6 +105,19 @@ func (c *Client) readPump(manager *Manager) { // nosonar
 			}
 
 			break
+		}
+
+		if c.limiter != nil && !c.limiter.Allow() {
+			if c.incDroppedMessages() > maxDroppedMessages {
+				log.Printf("WARNING Client %s (%s) exceeded dropped message limit, disconnecting", c.Username, c.UserID)
+				break
+			}
+
+			if !fail("Rate limit exceeded") {
+				break
+			}
+
+			continue
 		}
 
 		if !msg.Type.IsValid() {
