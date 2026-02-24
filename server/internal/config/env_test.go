@@ -71,6 +71,8 @@ func TestHelperProcess(t *testing.T) {
 		_ = mustExistDuration(key)
 	case "GetEnv":
 		_ = GetEnv()
+	case "InitEnv":
+		_ = InitEnv()
 	default:
 		os.Exit(0)
 	}
@@ -403,5 +405,39 @@ func TestGetEnvUninitialized(t *testing.T) {
 	}
 	if !strings.Contains(out, "env not initialized") {
 		t.Fatalf("expected fatal message to mention uninitialized env; output=%q", out)
+	}
+}
+
+func TestInitEnvMissingDotEnv(t *testing.T) {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to getwd: %v", err)
+	}
+
+	dotEnvPath := filepath.Clean(filepath.Join(wd, "..", ".env"))
+	backupPath := dotEnvPath + ".bak-test"
+
+	hadDotEnv := false
+	if _, err := os.Stat(dotEnvPath); err == nil {
+		hadDotEnv = true
+		if err := os.Rename(dotEnvPath, backupPath); err != nil {
+			t.Fatalf("failed to backup .env: %v", err)
+		}
+	}
+
+	t.Cleanup(func() {
+		if hadDotEnv {
+			_ = os.Rename(backupPath, dotEnvPath)
+		}
+	})
+
+	out, runErr := runHelperProcess(t, map[string]string{
+		"HELPER_NAME": "InitEnv",
+	})
+	if runErr == nil {
+		t.Fatalf("expected InitEnv to fail without .env; output=%q", out)
+	}
+	if !strings.Contains(out, "Error loading .env file") {
+		t.Fatalf("expected missing .env message; output=%q", out)
 	}
 }

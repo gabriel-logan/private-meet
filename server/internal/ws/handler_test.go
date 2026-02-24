@@ -2,11 +2,15 @@ package ws
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/gabriel-logan/private-meet/server/internal/config"
+	"github.com/gabriel-logan/private-meet/server/internal/security"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func ensureInternalDotEnvFile(t *testing.T) {
@@ -72,5 +76,72 @@ func TestUpgraderCheckOriginProductionMatchesAllowed(t *testing.T) {
 	reqDenied.Header.Set("Origin", "https://evil.example")
 	if upgrader.CheckOrigin(reqDenied) {
 		t.Fatalf("expected mismatched origin to fail")
+	}
+}
+
+func TestUpgraderCheckOriginProductionWildcard(t *testing.T) {
+	initTestEnv(t, "production", "*")
+
+	req, _ := http.NewRequest(http.MethodGet, "http://example.test/ws", nil)
+	req.Header.Set("Origin", "https://any.example")
+
+	if !upgrader.CheckOrigin(req) {
+		t.Fatalf("expected wildcard origin to pass")
+	}
+}
+
+func signedCustomClaims(t *testing.T, claims *security.CustomClaims) string {
+	t.Helper()
+	env := config.GetEnv()
+	tok := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	s, err := tok.SignedString([]byte(env.JwtSecret))
+	if err != nil {
+		t.Fatalf("failed to sign token: %v", err)
+	}
+	return s
+}
+
+func TestServeWSWithoutSubjectFallsThroughToUpgradeError(t *testing.T) {
+	initTestEnv(t, "development", "http://example.test")
+
+	token := signedCustomClaims(t, &security.CustomClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    "PrivateMeet",
+			IssuedAt:  jwt.NewNumericDate(time.Now().Add(-1 * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
+		},
+		Username: "alice",
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "http://example.test/ws?token="+token, nil)
+	rec := httptest.NewRecorder()
+
+	ServeWS(NewManager(1)).ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", rec.Code)
+	}
+}
+
+func TestServeWSUnauthorizedWhenUsernameMissing(t *testing.T) {
+	initTestEnv(t, "development", "http://example.test")
+
+	token := signedCustomClaims(t, &security.CustomClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    "PrivateMeet",
+			Subject:   "u1",
+			IssuedAt:  jwt.NewNumericDate(time.Now().Add(-1 * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
+		},
+		Username: "",
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "http://example.test/ws?token="+token, nil)
+	rec := httptest.NewRecorder()
+
+	ServeWS(NewManager(1)).ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("expected 401, got %d", rec.Code)
 	}
 }

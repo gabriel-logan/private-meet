@@ -49,3 +49,33 @@ func TestChainOrder(t *testing.T) {
 		}
 	}
 }
+
+func TestApplyUsesChainOrder(t *testing.T) {
+	order := make([]string, 0)
+
+	m1 := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			order = append(order, "m1")
+			next.ServeHTTP(w, r)
+		})
+	}
+
+	final := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		order = append(order, "final")
+		w.WriteHeader(http.StatusOK)
+	})
+
+	h := Apply(final, m1)
+
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "http://example.test/", nil)
+
+	h.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+	if len(order) != 2 || order[0] != "m1" || order[1] != "final" {
+		t.Fatalf("unexpected order: %#v", order)
+	}
+}

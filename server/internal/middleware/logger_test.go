@@ -20,6 +20,26 @@ func TestClientIPPrefersXForwardedFor(t *testing.T) {
 	}
 }
 
+func TestClientIPFallsBackToRemoteHost(t *testing.T) {
+	req, _ := http.NewRequest(http.MethodGet, "http://example.test/", nil)
+	req.RemoteAddr = "198.51.100.20:8080"
+
+	got := clientIP(req)
+	if got != "198.51.100.20" {
+		t.Fatalf("expected remote host fallback, got %q", got)
+	}
+}
+
+func TestClientIPFallbackToRawRemoteAddr(t *testing.T) {
+	req, _ := http.NewRequest(http.MethodGet, "http://example.test/", nil)
+	req.RemoteAddr = "bad-remote-addr"
+
+	got := clientIP(req)
+	if got != "bad-remote-addr" {
+		t.Fatalf("expected raw remote addr fallback, got %q", got)
+	}
+}
+
 func TestLoggerSkipsWebSocketUpgrade(t *testing.T) {
 	var called bool
 	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

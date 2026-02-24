@@ -71,3 +71,31 @@ func TestNewRouterAddsCORSInDevelopment(t *testing.T) {
 		t.Fatalf("expected Access-Control-Allow-Origin header, got %q", got)
 	}
 }
+
+func TestNewRouterWithoutCORSInProduction(t *testing.T) {
+	ensureInternalDotEnvFile(t)
+
+	t.Setenv("GO_ENV", "production")
+	t.Setenv("HUB_SHARDS_QUANTITY", "1")
+	t.Setenv("USE_LOCAL_TLS", "false")
+	t.Setenv("APP_NAME", "PrivateMeet")
+	t.Setenv("ALLOWED_ORIGINS", "http://localhost")
+	t.Setenv("SERVER_PORT", "8080")
+	t.Setenv("JWT_SECRET", "testsecret")
+	t.Setenv("JWT_EXPIRATION", "1h")
+	t.Setenv("CONTEXT_TIMEOUT", "10s")
+
+	_ = config.InitEnv()
+
+	manager := ws.NewManager(1)
+	r := NewRouter(manager)
+
+	req := httptest.NewRequest(http.MethodOptions, "http://example.test/health", nil)
+	rec := httptest.NewRecorder()
+
+	r.ServeHTTP(rec, req)
+
+	if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "" {
+		t.Fatalf("expected no CORS header in production, got %q", got)
+	}
+}

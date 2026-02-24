@@ -2,7 +2,9 @@ package handlers_test
 
 import (
 	"context"
+	"crypto"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -13,7 +15,28 @@ import (
 
 	"github.com/gabriel-logan/private-meet/server/internal/config"
 	"github.com/gabriel-logan/private-meet/server/internal/httpapi/handlers"
+	"github.com/golang-jwt/jwt/v5"
 )
+
+type failingAuthWriter struct {
+	header http.Header
+	code   int
+}
+
+func (w *failingAuthWriter) Header() http.Header {
+	if w.header == nil {
+		w.header = make(http.Header)
+	}
+	return w.header
+}
+
+func (w *failingAuthWriter) WriteHeader(statusCode int) {
+	w.code = statusCode
+}
+
+func (w *failingAuthWriter) Write(_ []byte) (int, error) {
+	return 0, errors.New("encode failure")
+}
 
 func ensureInternalDotEnvFile(t *testing.T) {
 	t.Helper()
@@ -159,5 +182,37 @@ func TestSignInContextDone(t *testing.T) {
 
 	if rr.Code != http.StatusRequestTimeout {
 		t.Errorf("expected 408, got %d", rr.Code)
+	}
+}
+
+func TestSignInEncodeResponseError(t *testing.T) {
+	initTestEnv(t, "TestApp", "testsecret", 15*time.Minute)
+
+	req := httptest.NewRequest(http.MethodPost, "/sign-in", strings.NewReader(`{"username":"Alice"}`))
+	w := &failingAuthWriter{}
+
+	handlers.SignIn(w, req)
+
+	if w.code != http.StatusInternalServerError {
+		t.Fatalf("expected 500, got %d", w.code)
+	}
+}
+
+func TestSignInGenerateJWTFailure(t *testing.T) {
+	initTestEnv(t, "TestApp", "testsecret", 15*time.Minute)
+
+	originalHash := jwt.SigningMethodHS256.Hash
+	jwt.SigningMethodHS256.Hash = crypto.Hash(0)
+	t.Cleanup(func() {
+		jwt.SigningMethodHS256.Hash = originalHash
+	})
+
+	req := httptest.NewRequest(http.MethodPost, "/sign-in", strings.NewReader(`{"username":"Alice"}`))
+	rr := httptest.NewRecorder()
+
+	handlers.SignIn(rr, req)
+
+	if rr.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500 when jwt signing fails, got %d", rr.Code)
 	}
 }

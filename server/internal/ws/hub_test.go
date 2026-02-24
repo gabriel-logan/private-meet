@@ -144,3 +144,50 @@ func TestManagerDisconnectClientRemovesFromAllHubs(t *testing.T) {
 	probeNotInRoom(hubA, roomA)
 	probeNotInRoom(hubB, roomB)
 }
+
+func TestHubRunIgnoresNilEvents(t *testing.T) {
+	h := NewHub()
+	go h.Run()
+
+	h.disconnect <- nil
+	h.inbound <- nil
+	h.inbound <- &inboundMessage{}
+
+	time.Sleep(20 * time.Millisecond)
+}
+
+func TestHubHelperBranchesForMissingRooms(t *testing.T) {
+	h := NewHub()
+	c := &Client{send: make(chan []byte, 1), UserID: "u1", Username: "alice"}
+
+	h.clientLeaveRoom("missing", c)
+	h.clientBroadcastToRoom("missing", &Message{Type: MessageChatMessage, Room: "missing", Data: json.RawMessage(`{"message":"x"}`), From: "u1"})
+	h.clientBroadcastRoomUsersSnapshot("missing")
+
+	affected := h.clientLeaveAllRooms(c)
+	if len(affected) != 0 {
+		t.Fatalf("expected no affected rooms")
+	}
+}
+
+func TestHubDisconnectChannelFullKeepsRunning(t *testing.T) {
+	h := &Hub{
+		rooms:      make(map[string]map[*Client]bool),
+		disconnect: make(chan *Client, 1),
+		inbound:    make(chan *inboundMessage, 1),
+	}
+
+	victim := &Client{send: make(chan []byte), UserID: "u1", Username: "alice"}
+	h.clientJoinRoom("r1", victim)
+
+	h.disconnect <- &Client{UserID: "occupied"}
+
+	msg := &Message{Type: MessageChatMessage, Room: "r1", Data: json.RawMessage(`{"message":"hi"}`), From: "u1"}
+	for i := 0; i < maxDroppedMessages; i++ {
+		h.clientBroadcastToRoom("r1", msg)
+	}
+
+	if len(h.disconnect) != 1 {
+		t.Fatalf("expected disconnect channel to remain full")
+	}
+}

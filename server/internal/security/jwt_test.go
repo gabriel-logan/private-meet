@@ -1,6 +1,7 @@
 package security_test
 
 import (
+	"crypto"
 	"errors"
 	"os"
 	"path/filepath"
@@ -77,6 +78,17 @@ func TestCustomClaimsGetUsernameEmpty(t *testing.T) {
 	_, err := claims.GetUsername()
 	if !errors.Is(err, jwt.ErrTokenInvalidClaims) {
 		t.Fatalf("expected ErrTokenInvalidClaims, got %v", err)
+	}
+}
+
+func TestCustomClaimsGetUsernameSuccess(t *testing.T) {
+	claims := &security.CustomClaims{Username: "alice"}
+	username, err := claims.GetUsername()
+	if err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if username != "alice" {
+		t.Fatalf("expected alice, got %q", username)
 	}
 }
 
@@ -199,5 +211,58 @@ func TestValidateJWTWrongSigningMethod(t *testing.T) {
 	_, err := security.ValidateJWT(token)
 	if !errors.Is(err, jwt.ErrTokenSignatureInvalid) {
 		t.Fatalf("expected ErrTokenSignatureInvalid, got %v", err)
+	}
+}
+
+func TestValidateJWTMissingExpiresAt(t *testing.T) {
+	initTestEnv(t, "PrivateMeet", "testsecret", 1*time.Hour)
+
+	claims := &security.CustomClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt: jwt.NewNumericDate(time.Now().Add(-1 * time.Minute)),
+			Issuer:   "PrivateMeet",
+			Subject:  testUserID,
+		},
+		Username: testUsername,
+	}
+
+	token := signToken(t, jwt.SigningMethodHS256, "testsecret", claims)
+	_, err := security.ValidateJWT(token)
+	if !errors.Is(err, jwt.ErrTokenExpired) {
+		t.Fatalf("expected ErrTokenExpired, got %v", err)
+	}
+}
+
+func TestValidateJWTMissingIssuedAt(t *testing.T) {
+	initTestEnv(t, "PrivateMeet", "testsecret", 1*time.Hour)
+
+	claims := &security.CustomClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
+			Issuer:    "PrivateMeet",
+			Subject:   testUserID,
+		},
+		Username: testUsername,
+	}
+
+	token := signToken(t, jwt.SigningMethodHS256, "testsecret", claims)
+	_, err := security.ValidateJWT(token)
+	if !errors.Is(err, jwt.ErrTokenNotValidYet) {
+		t.Fatalf("expected ErrTokenNotValidYet, got %v", err)
+	}
+}
+
+func TestGenerateJWTSignError(t *testing.T) {
+	initTestEnv(t, "PrivateMeet", "testsecret", 1*time.Hour)
+
+	originalHash := jwt.SigningMethodHS256.Hash
+	jwt.SigningMethodHS256.Hash = crypto.Hash(0)
+	t.Cleanup(func() {
+		jwt.SigningMethodHS256.Hash = originalHash
+	})
+
+	_, err := security.GenerateJWT(testUserID, testUsername)
+	if err == nil {
+		t.Fatalf("expected signing error")
 	}
 }

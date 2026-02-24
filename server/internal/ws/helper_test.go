@@ -2,7 +2,12 @@ package ws
 
 import (
 	"encoding/json"
+	"errors"
+	"io"
+	"net"
 	"testing"
+
+	"github.com/gorilla/websocket"
 )
 
 func TestNewMessageValidJSONData(t *testing.T) {
@@ -305,5 +310,32 @@ func TestNewMessageNilData(t *testing.T) {
 
 	if string(msg.Data) != "null" {
 		t.Errorf("expected data to be 'null', got %s", msg.Data)
+	}
+}
+
+func TestIsExpectedWSDisconnectNil(t *testing.T) {
+	if IsExpectedWSDisconnect(nil) {
+		t.Fatalf("expected false for nil error")
+	}
+}
+
+func TestIsExpectedWSDisconnectKnownErrors(t *testing.T) {
+	if !IsExpectedWSDisconnect(io.EOF) {
+		t.Fatalf("expected true for io.EOF")
+	}
+	if !IsExpectedWSDisconnect(net.ErrClosed) {
+		t.Fatalf("expected true for net.ErrClosed")
+	}
+	if !IsExpectedWSDisconnect(websocket.ErrCloseSent) {
+		t.Fatalf("expected true for ErrCloseSent")
+	}
+	if !IsExpectedWSDisconnect(&websocket.CloseError{Code: websocket.CloseNormalClosure}) {
+		t.Fatalf("expected true for normal close")
+	}
+}
+
+func TestIsExpectedWSDisconnectUnexpectedError(t *testing.T) {
+	if IsExpectedWSDisconnect(errors.New("boom")) {
+		t.Fatalf("expected false for unexpected error")
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -22,6 +23,27 @@ func TestShouldSkipRateLimitAssets(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "http://example.test/assets/app.js", nil)
 	if !shouldSkipRateLimit(req) {
 		t.Fatalf("expected /assets to skip rate limit")
+	}
+}
+
+func TestShouldSkipRateLimitWSAndUpgrade(t *testing.T) {
+	reqWS, _ := http.NewRequest(http.MethodGet, "http://example.test/ws", nil)
+	if !shouldSkipRateLimit(reqWS) {
+		t.Fatalf("expected /ws to skip")
+	}
+
+	reqUpgrade := httptest.NewRequest(http.MethodGet, "http://example.test/x", nil)
+	reqUpgrade.Header.Set("Connection", "Upgrade")
+	reqUpgrade.Header.Set("Upgrade", "websocket")
+	if !shouldSkipRateLimit(reqUpgrade) {
+		t.Fatalf("expected websocket upgrade to skip")
+	}
+}
+
+func TestShouldSkipRateLimitRegularPath(t *testing.T) {
+	req, _ := http.NewRequest(http.MethodGet, "http://example.test/api", nil)
+	if shouldSkipRateLimit(req) {
+		t.Fatalf("expected regular path not to skip")
 	}
 }
 
@@ -54,6 +76,20 @@ func TestClientIPForRateLimitPrefersForwardedHeaders(t *testing.T) {
 	got = clientIPForRateLimit(req)
 	if got != "198.51.100.5" {
 		t.Fatalf("expected X-Real-IP, got %q", got)
+	}
+}
+
+func TestClientIPForRateLimitFallbacks(t *testing.T) {
+	reqHost, _ := http.NewRequest(http.MethodGet, "http://example.test/", nil)
+	reqHost.RemoteAddr = "203.0.113.40:1234"
+	if got := clientIPForRateLimit(reqHost); got != "203.0.113.40" {
+		t.Fatalf("expected host fallback, got %q", got)
+	}
+
+	reqRaw, _ := http.NewRequest(http.MethodGet, "http://example.test/", nil)
+	reqRaw.RemoteAddr = "bad-remote-addr"
+	if got := clientIPForRateLimit(reqRaw); got != "bad-remote-addr" {
+		t.Fatalf("expected raw remote addr fallback, got %q", got)
 	}
 }
 
@@ -93,6 +129,40 @@ func TestGetClientReusesStateAndUpdatesLastSeen(t *testing.T) {
 
 	if after <= before {
 		t.Fatalf("expected last seen to be updated")
+	}
+}
+
+func TestGetClientLoadOrStoreLoadedBranch(t *testing.T) {
+	resetRateLimitState(t)
+
+	ip := "203.0.113.99"
+	now := time.Now()
+
+	var wg sync.WaitGroup
+	start := make(chan struct{})
+	workers := 64
+	var calls int32
+
+	wg.Add(workers)
+	for i := 0; i < workers; i++ {
+		go func() {
+			defer wg.Done()
+			<-start
+			_ = getClient(ip, now)
+			atomic.AddInt32(&calls, 1)
+		}()
+	}
+
+	close(start)
+	wg.Wait()
+
+	if calls != int32(workers) {
+		t.Fatalf("expected %d calls, got %d", workers, calls)
+	}
+
+	v, ok := clients.Load(ip)
+	if !ok || v == nil {
+		t.Fatalf("expected client state to exist")
 	}
 }
 
@@ -309,6 +379,57 @@ func TestRateLimitUnknownMethodPassesThrough(t *testing.T) {
 		t.Fatalf("expected passthrough for unknown method")
 	}
 
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rr.Code)
+	}
+}
+
+func TestRateLimitSkipsWhenShouldSkipIsTrue(t *testing.T) {
+	resetRateLimitState(t)
+
+	nextCalled := false
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		nextCalled = true
+		w.WriteHeader(http.StatusOK)
+	})
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodOptions, "http://example.test/health", nil)
+
+	RateLimit()(next).ServeHTTP(rr, req)
+
+	if !nextCalled {
+		t.Fatalf("expected next handler when shouldSkipRateLimit is true")
+	}
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rr.Code)
+	}
+}
+
+func TestRateLimitAllowedPassesToNext(t *testing.T) {
+	resetRateLimitState(t)
+
+	restore := RateLimits
+	RateLimits = map[string]MethodLimit{
+		"GET": {Limiter: rate.NewLimiter(100, 100), BanTime: 1},
+	}
+	t.Cleanup(func() { RateLimits = restore })
+
+	nextCalled := false
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		nextCalled = true
+		w.WriteHeader(http.StatusOK)
+	})
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "http://example.test/api", nil)
+	req.RemoteAddr = "203.0.113.41:1234"
+
+	RateLimit()(next).ServeHTTP(rr, req)
+
+	if !nextCalled {
+		t.Fatalf("expected next handler to be called")
+	}
 	if rr.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", rr.Code)
 	}
