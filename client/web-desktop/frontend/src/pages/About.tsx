@@ -125,13 +125,13 @@ function DownloadAppsCard() {
                   </p>
                   <div className="mt-1 flex flex-wrap gap-2">
                     {Object.entries(versions).map(([version, url]) => (
-                      <a
+                      <Link
                         key={version}
-                        href={url}
+                        to={url}
                         className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/40 px-3 py-1 text-xs text-zinc-200 transition hover:bg-zinc-950"
                       >
                         {version}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -144,13 +144,13 @@ function DownloadAppsCard() {
                 </p>
                 <div className="mt-1 flex flex-wrap gap-2">
                   {Object.entries(versions).map(([version, url]) => (
-                    <a
+                    <Link
                       key={version}
-                      href={url}
+                      to={url}
                       className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/40 px-3 py-1 text-xs text-zinc-200 transition hover:bg-zinc-950"
                     >
                       {version}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -353,14 +353,14 @@ export default function AboutPage() {
                     { id: "deploy", label: t("About.OnThisPageLinks.Deploy") },
                     { id: "faq", label: t("About.OnThisPageLinks.Faq") },
                   ].map((x) => (
-                    <a
+                    <Link
                       key={x.id}
-                      href={`#${x.id}`}
+                      to={`#${x.id}`}
                       className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/40 px-3 py-1 text-xs text-zinc-200 transition hover:bg-zinc-950"
                     >
                       <span className="h-1.5 w-1.5 rounded-full bg-indigo-400/80" />
                       {x.label}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -887,23 +887,23 @@ export default function AboutPage() {
             </p>
 
             <div className="mt-3 flex flex-wrap gap-2">
-              <a
-                href="https://github.com/gabriel-logan/private-meet"
+              <Link
+                to="https://github.com/gabriel-logan/private-meet"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-xs text-zinc-100 transition hover:bg-zinc-950"
               >
                 <FiGithub /> {t("About.Footer.Repo")}
-              </a>
+              </Link>
 
-              <a
-                href="https://github.com/gabriel-logan/private-meet/blob/main/webRTC.md"
+              <Link
+                to="https://github.com/gabriel-logan/private-meet/blob/main/webRTC.md"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-xs text-zinc-100 transition hover:bg-zinc-950"
               >
                 <FiCode /> {t("About.Footer.WebRTCNotes")}
-              </a>
+              </Link>
             </div>
           </div>
 
