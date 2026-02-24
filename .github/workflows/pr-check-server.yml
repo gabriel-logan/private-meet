@@ -41,7 +41,7 @@ jobs:
         run: mkdir -p bin
 
       - name: Build
-        run: go build -o bin/server ./cmd/server
+        run: go build -o bin/server ./cmd/api/main.go
 
       - name: Check if the server binary was created
         run: |
