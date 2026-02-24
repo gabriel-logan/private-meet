@@ -4,6 +4,7 @@ import {
   FiClock,
   FiCode,
   FiCpu,
+  FiDownload,
   FiFile,
   FiGithub,
   FiGlobe,
@@ -21,6 +22,8 @@ import {
 } from "react-icons/fi";
 import { Link } from "react-router";
 import { motion } from "motion/react";
+
+import { isDesktop } from "../constants";
 
 type AboutCardItem = Readonly<{
   title: string;
@@ -81,6 +84,80 @@ function CardGrid<
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function DownloadAppsCard() {
+  const mobileAppsAvailable = {
+    android: {
+      "1.0.0 - Experimental":
+        "https://github.com/gabriel-logan/private-meet/raw/refs/heads/main/distribution/android/app-experimental.apk",
+    },
+  };
+
+  const desktopAppsAvailable = {
+    windows: {
+      "1.0.0":
+        "https://github.com/gabriel-logan/private-meet/raw/refs/heads/main/distribution/windows/1.0.0-Private-Meet-amd64-installer.exe",
+      "0.1.0":
+        "https://github.com/gabriel-logan/private-meet/raw/refs/heads/main/distribution/windows/0.1.0-Private-Meet-amd64-installer.exe",
+    },
+  };
+
+  return (
+    <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-900/70 p-5 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.5)]">
+      <div className="flex items-start gap-3">
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-zinc-800 bg-zinc-950 text-indigo-300">
+          <FiDownload />
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold text-zinc-100">Download Apps</h3>
+          <p className="mt-1 text-sm leading-relaxed text-zinc-400">
+            Get native apps for your devices and enjoy the best experience.
+          </p>
+          <div className="mt-3 space-y-2">
+            {Object.entries(desktopAppsAvailable).map(
+              ([platform, versions]) => (
+                <div key={platform}>
+                  <p className="text-xs font-medium text-zinc-500">
+                    {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                  </p>
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    {Object.entries(versions).map(([version, url]) => (
+                      <a
+                        key={version}
+                        href={url}
+                        className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/40 px-3 py-1 text-xs text-zinc-200 transition hover:bg-zinc-950"
+                      >
+                        {version}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ),
+            )}
+            {Object.entries(mobileAppsAvailable).map(([platform, versions]) => (
+              <div key={platform}>
+                <p className="text-xs font-medium text-zinc-500">
+                  {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                </p>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {Object.entries(versions).map(([version, url]) => (
+                    <a
+                      key={version}
+                      href={url}
+                      className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-950/40 px-3 py-1 text-xs text-zinc-200 transition hover:bg-zinc-950"
+                    >
+                      {version}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -249,6 +326,8 @@ export default function AboutPage() {
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-300 sm:text-base">
                 {t("About.HeroDescription")}
               </p>
+
+              {!isDesktop && <DownloadAppsCard />}
 
               <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950/30 p-4">
                 <p className="text-xs font-medium text-zinc-200">
