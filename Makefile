@@ -23,16 +23,16 @@ install:
 	cd client/web-desktop/frontend && pnpm install
 
 test:
-	cd server && go test ./...
+	cd server && go test $$(go list ./... | grep -v /cmd/)
 
 test_cov:
-	cd server && go test ./... -cover
+	cd server && go test $$(go list ./... | grep -v /cmd/) -cover
 
 test_cov_html:
 	cd server && go test ./... -coverprofile=coverage.out && go tool cover -html=coverage.out
 
 test_race:
-	cd server && go test --race ./...
+	cd server && go test --race $$(go list ./... | grep -v /cmd/)
 
 tidy:
 	cd server && go mod tidy
