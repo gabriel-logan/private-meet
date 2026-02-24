@@ -37,6 +37,27 @@ jobs:
       - name: Download dependencies
         run: go mod download
 
+      - name: Go Vet
+        run: go vet ./...
+
+      - name: Install Staticcheck
+        run: go install honnef.co/go/tools/cmd/staticcheck@2025.1.1
+
+      - name: Staticcheck
+        run: staticcheck ./...
+
+      - name: Install Gosec
+        run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+      - name: Gosec
+        run: gosec ./...
+
+      - name: Install Govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+
+      - name: Govulncheck
+        run: govulncheck ./...
+
       - name: Create bin directory if it doesn't exist
         run: mkdir -p bin
 
