@@ -37,13 +37,18 @@ jobs:
       - name: Download dependencies
         run: go mod download
 
-      - name: Build
-        run: go build ./...
+      - name: Create bin directory if it doesn't exist
+        run: mkdir -p bin
 
-      - name: Check if binary was built
+      - name: Build
+        run: go build -o bin/server ./cmd/server
+
+      - name: Check if the server binary was created
         run: |
-          if [ ! -f "server" ]; then
-            echo "Binary not found!"
+          if [ -f "bin/server" ]; then
+            echo "Server binary created successfully."
+          else
+            echo "Error: Server binary not found!"
             exit 1
           fi
 
