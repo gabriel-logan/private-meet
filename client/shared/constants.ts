@@ -1,5 +1,29 @@
 export const iceServers: RTCIceServer[] = [
+  // STUN servers
   { urls: "stun:stun.l.google.com:19302" },
   { urls: "stun:global.stun.twilio.com:3478" },
   { urls: "stun:stun.cloudflare.com:3478" },
+  { urls: "stun:stun.relay.metered.ca:80" },
+
+  // TURN servers (Metered)
+  {
+    urls: "turn:global.relay.metered.ca:80",
+    username: "a825f81251e9557ec367f987",
+    credential: "6d80v/4l1epqr3dJ",
+  },
+  {
+    urls: "turn:global.relay.metered.ca:80?transport=tcp",
+    username: "a825f81251e9557ec367f987",
+    credential: "6d80v/4l1epqr3dJ",
+  },
+  {
+    urls: "turn:global.relay.metered.ca:443",
+    username: "a825f81251e9557ec367f987",
+    credential: "6d80v/4l1epqr3dJ",
+  },
+  {
+    urls: "turns:global.relay.metered.ca:443?transport=tcp",
+    username: "a825f81251e9557ec367f987",
+    credential: "6d80v/4l1epqr3dJ",
+  },
 ];
