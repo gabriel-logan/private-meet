@@ -68,13 +68,12 @@ func ServeWS(manager *Manager) http.HandlerFunc {
 		}
 
 		client := &Client{
-			hub:             nil,
-			conn:            conn,
-			send:            make(chan []byte, 8),
-			UserID:          userID,
-			Username:        username,
-			droppedMessages: 0,
-			limiter:         rate.NewLimiter(15, 20),
+			hub:      nil,
+			conn:     conn,
+			send:     make(chan []byte, 40),
+			UserID:   userID,
+			Username: username,
+			limiter:  rate.NewLimiter(40, 60),
 		}
 
 		go client.writePump()
