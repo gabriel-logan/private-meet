@@ -1,4 +1,5 @@
 import { iceServers } from "../../../../shared/constants";
+import { debugHandle } from "../../../../shared/utils/general";
 
 const isTurnServerEnabled = import.meta.env.VITE_HAS_TURN_SERVER === "true";
 
@@ -50,6 +51,25 @@ export function createPeerConnection({
   pc.onicecandidate = (event: RTCPeerConnectionIceEvent) => {
     if (event.candidate) {
       onIceCandidateCB(event.candidate);
+    }
+  };
+
+  pc.onconnectionstatechange = async () => {
+    debugHandle("🔌 Connection State Changed:", pc.connectionState);
+
+    if (pc.connectionState === "connected") {
+      debugHandle("✅ Peer Connection established successfully!");
+
+      const stats = await pc.getStats();
+
+      stats.forEach((report) => {
+        if (report.type === "candidate-pair" && report.state === "succeeded") {
+          const local = stats.get(report.localCandidateId);
+
+          debugHandle("🚀 Candidate Type:", local?.candidateType);
+          debugHandle("🌍 URL used:", local?.url);
+        }
+      });
     }
   };
 
