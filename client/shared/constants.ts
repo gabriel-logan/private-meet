@@ -1,5 +1,6 @@
 export const iceServers: RTCIceServer[] = [
   // STUN servers
+  { urls: "stun:stun.l.google.com:19302" },
   { urls: "stun:stun.relay.metered.ca:80" },
 
   // TURN servers (Metered)
