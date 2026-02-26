@@ -65,8 +65,10 @@ export function createPeerConnection({
       stats.forEach((report) => {
         if (report.type === "candidate-pair" && report.state === "succeeded") {
           const local = stats.get(report.localCandidateId);
+          const remote = stats.get(report.remoteCandidateId);
 
-          debugHandle("🚀 Candidate Type:", local?.candidateType);
+          debugHandle("🚀 Local Candidate Type:", local?.candidateType);
+          debugHandle("🚀 Remote Candidate Type:", remote?.candidateType);
           debugHandle("🌍 URL used:", local?.url);
         }
       });
