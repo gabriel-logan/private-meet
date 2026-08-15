@@ -16,7 +16,7 @@ import (
 const maxUsernameLength = 32
 
 type AuthResponse struct {
-	AccessToken string `json:"accessToken"` // #nosec G117 -- response token field, not hardcoded secret
+	AccessToken string `json:"accessToken"` // #nosec G117 -- response token generated for the caller, not a hardcoded secret
 	TokenType   string `json:"tokenType"`
 	UserID      string `json:"userId"`
 	Username    string `json:"username"`
@@ -70,7 +70,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err = json.NewEncoder(w).Encode(response); err != nil {
+	if err = json.NewEncoder(w).Encode(response); err != nil { // #nosec G117 -- response token generated for the caller, not a hardcoded secret
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		return
 	}
