@@ -21,15 +21,17 @@ func ServeSPA(w http.ResponseWriter, r *http.Request) {
 
 	reqPath := path.Clean("/" + r.URL.Path)
 	relativePath := strings.TrimPrefix(reqPath, "/")
-	absPath := filepath.Join(distAbs, filepath.FromSlash(relativePath))
+	if relativePath == "" {
+		relativePath = "index.html"
+	}
 
-	rel, err := filepath.Rel(distAbs, absPath)
-	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+	absPath := filepath.Join(distAbs, filepath.FromSlash(relativePath))
+	if !strings.HasPrefix(absPath, distAbs+string(filepath.Separator)) {
 		http.Error(w, "invalid path", http.StatusBadRequest)
 		return
 	}
 
-	if info, err := os.Stat(absPath); err == nil && !info.IsDir() { // #nosec G703 -- absPath constrained to distAbs via filepath.Rel validation
+	if info, err := os.Stat(absPath); err == nil && !info.IsDir() { // #nosec G703 -- absPath validated to stay within distAbs
 		http.ServeFile(w, r, absPath)
 		return
 	}
