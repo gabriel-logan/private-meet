@@ -134,7 +134,10 @@ export default function useWebRTCMesh({
 
   const onImageReceivedRef =
     useRef<UseWebRTCMeshOptions["onImageReceived"]>(onImageReceived);
-  onImageReceivedRef.current = onImageReceived;
+
+  useEffect(() => {
+    onImageReceivedRef.current = onImageReceived;
+  }, [onImageReceived]);
 
   const incomingTransfersRef = useRef<
     Map<string, Map<string, IncomingImageTransfer>>
@@ -160,8 +163,8 @@ export default function useWebRTCMesh({
   const cameraDevicesRef = useRef<MediaDeviceInfo[]>([]);
   const cameraDeviceIdRef = useRef<string | null>(null);
 
-  const localCameraStreamRef = useRef<MediaStream>(new MediaStream());
-  const localScreenStreamRef = useRef<MediaStream>(new MediaStream());
+  const [localCameraStream] = useState<MediaStream>(() => new MediaStream());
+  const [localScreenStream] = useState<MediaStream>(() => new MediaStream());
   const ensureAudioTrackRef = useRef<() => Promise<MediaStreamTrack>>(
     async () => {
       throw new Error(t("Errors.AudioTrackNotReady"));
@@ -171,9 +174,6 @@ export default function useWebRTCMesh({
   const [remoteStreams, setRemoteStreams] = useState<
     Record<string, { camera: MediaStream; screen: MediaStream }>
   >({});
-
-  const localCameraStream = localCameraStreamRef.current;
-  const localScreenStream = localScreenStreamRef.current;
 
   const remotePeers: RemotePeerMedia[] = Object.entries(remoteStreams).flatMap(
     ([peerID, streams]) => [
@@ -231,16 +231,17 @@ export default function useWebRTCMesh({
 
     media.addEventListener("devicechange", onChange);
 
-    void refreshCameraDevices();
+    const initialRefresh = setTimeout(() => void refreshCameraDevices(), 0);
 
     return () => {
+      clearTimeout(initialRefresh);
       media.removeEventListener("devicechange", onChange);
     };
   }, [refreshCameraDevices]);
 
   const syncLocalPreviewStreams = useCallback(() => {
-    const cameraStream = localCameraStreamRef.current;
-    const screenStream = localScreenStreamRef.current;
+    const cameraStream = localCameraStream;
+    const screenStream = localScreenStream;
 
     const desiredCameraTracks = new Set<MediaStreamTrack>();
 
@@ -283,7 +284,7 @@ export default function useWebRTCMesh({
         screenStream.addTrack(t);
       }
     }
-  }, []);
+  }, [localCameraStream, localScreenStream]);
 
   const negotiate = useCallback(
     async (entry: PeerEntry) => {
@@ -743,9 +744,13 @@ export default function useWebRTCMesh({
       }
 
       try {
-        const t = localAudioTrackRef.current ?? (await ensureAudioTrack());
+        if (localAudioTrackRef.current) {
+          localAudioTrackRef.current.enabled = enabled;
+        } else {
+          const track = await ensureAudioTrack();
 
-        t.enabled = enabled;
+          track.enabled = enabled;
+        }
       } catch (error) {
         console.error("[useWebRTCMesh] Failed to toggle mic", error);
       }
