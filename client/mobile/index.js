@@ -1,9 +1,8 @@
-import { AppRegistry } from "react-native";
+import "react-native-get-random-values";
 
+import { AppRegistry } from "react-native";
 import { install } from "react-native-quick-crypto";
 import { registerGlobals } from "react-native-webrtc";
-
-import "react-native-get-random-values";
 
 install();
 
@@ -13,7 +12,6 @@ import "fast-text-encoding";
 import "./src/utils/i18n";
 
 import App from "./App";
-
 import { name as appName } from "./app.json";
 
 AppRegistry.registerComponent(appName, () => App);
